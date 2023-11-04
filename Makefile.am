@@ -14,4 +14,5 @@ EXTRA_DIST = \
 m4datadir = $(datadir)/aclocal
 m4data_DATA = libvideogfx.m4
 
-pkgcon
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libvideogfx.pc

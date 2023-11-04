@@ -1,0 +1,26 @@
+
+version 1.0.4
+
+version 1.0.3
+
+- redesigned audio output interface
+- greyscale to 24 bit raw conversion
+- occasional crash because of EINTR at V4L calls eliminated
+- various bugfixes:
+  - solved incompatibility with ncurses library
+    because of namespace clash
+  - several errors in image drawing functions
+- compiles cleanly with gcc 3.2
+
+version 1.0.2
+
+- audio-sink for linux OSS drivers
+- generic smart pointer templates
+- YUV4MPEG format loader/saver based on code from
+  MJPEG-tools by Matthew J. Marjanovic
+- corrected many small configuration problems
+- avoid bug that caused programs to crash immediately after start
+
+version 1.0.1
+
+- PNG loader / saver
