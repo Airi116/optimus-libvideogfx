@@ -31,4 +31,8 @@ int main(int argc,char** argv)
     }
   catch(const Excpt_Base& b)
     {
-      Mes
+      MessageDisplay::Show(b);
+    }
+
+  return 0;
+}
