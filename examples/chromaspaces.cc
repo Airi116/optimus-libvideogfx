@@ -53,4 +53,10 @@ int main(int argc,char** argv)
   ChangeColorspace(dispimg,img_yuv,Colorspace_RGB);
   win_yuv.SetPosition(310,10); win_yuv.Create(256,256,"yuv"); win_yuv.Display(dispimg);
 
-  ChangeColorspace(dispimg,img_hsv,Colorspa
+  ChangeColorspace(dispimg,img_hsv,Colorspace_RGB);
+  win_hsv.SetPosition(610,10); win_hsv.Create(256,256,"hsv"); win_hsv.Display(dispimg);
+
+  sleep(10);
+
+  return 0;
+}
