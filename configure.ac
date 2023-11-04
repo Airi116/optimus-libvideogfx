@@ -41,3 +41,395 @@ AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
 # For automake.
+VERSION=$LIBVIDEOGFX_VERSION
+PACKAGE=libvideogfx
+
+# Sets more variables than AC_CANONICAL_HOST
+AC_CANONICAL_SYSTEM
+
+dnl Initialize automake stuff
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
+
+AM_CONFIG_HEADER(config.h)
+
+dnl Initialize maintainer mode
+dnl AM_MAINTAINER_MODE
+
+# Build time sanity check...
+AM_SANITY_CHECK
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+AC_ISC_POSIX
+AM_PROG_CC_STDC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+dnl Initialize libtool
+AC_PROG_LIBTOOL
+#AC_DISABLE_STATIC
+
+AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging [default=no]],
+if eval "test x$enable_debug = xyes"; then
+  DEBUGFLAG="-g"
+fi)
+
+dnl Use -Wall if we have gcc.
+changequote(,)dnl
+if test "x$GCC" = "xyes"; then
+  case " $CFLAGS " in
+  *[\ \	]-Wall[\ \	]*) ;;
+  *) CFLAGS="$CFLAGS -Wall" ;;
+  esac
+fi
+changequote([,])dnl
+
+# Honor aclocal flags
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
+dnl Check CPU type
+AC_MSG_CHECKING([for X86 architecture])
+case ${target_cpu} in
+  x86_64 | i?86 )
+  	AC_MSG_RESULT([found])
+	AC_DEFINE(CPU_x86)
+	AM_CONDITIONAL(ENABLE_CPU_x86, true)
+	;;
+
+  *)    AC_MSG_RESULT(no)
+	AM_CONDITIONAL(ENABLE_CPU_x86, false)
+	;;
+esac
+
+
+dnl check for MMX (we currently have to switch MMX off for x86_64, because our
+dnl inline assembly code is not PIC).
+dnl see http://lists.apple.com/archives/xcode-users/2007/Apr/msg00284.html
+dnl and libvideogfx/graphics/color/internal_yuv2rgb_mmx.cc (UVoffset and other constants)
+case ${target_cpu} in
+  i?86 )
+	AM_CONDITIONAL(ENABLE_MMX, true)
+	;;
+
+  *)	AM_CONDITIONAL(ENABLE_MMX, false)
+	;;
+esac
+
+
+dnl Check for LINUX specific code
+LINUX_COMMENT="//"
+AC_MSG_CHECKING([for Linux])
+case ${target_os} in
+  *linux*) AC_MSG_RESULT([found, enabling Linux specific code])
+	   AC_DEFINE(LINUX)
+	   AM_CONDITIONAL(LINUX, true)
+           LINUX_COMMENT=""
+	   ;;
+  *)       AC_MSG_RESULT(no)
+	   AM_CONDITIONAL(LINUX, false)
+	   ;;
+esac
+AC_SUBST(LINUX_COMMENT)
+
+dnl Activate C++0x if compiler supports it
+
+# We need to test for at least gcc 4.5 here, because older versions don't
+# support C++0x
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [
+#if !defined(__GNUC__) || (__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 5)
+#error
+#endif])], have_gcc45=yes, have_gcc45=no)
+
+if test "$GCC" = "yes" ; then
+  if test x$have_gcc45 = xyes; then
+#    CFLAGS+=" -std=c++0x"
+    CXXFLAGS+=" -std=c++0x"
+  fi
+fi
+
+dnl Check for X11
+
+saved_cflags="$CFLAGS"
+saved_ldflags="$LDFLAGS"
+
+FEATURE_X11="no"
+FEATURE_XV="no"
+X11_COMMENT="//"
+
+AC_PATH_XTRA
+if test "x$no_x" = "xyes"; then 
+  AM_CONDITIONAL(HAVE_X11, false)
+else
+# Find the X11 include and library directories
+dnl  AC_PATH_X
+
+  if test "x$x_includes" = "x"; then
+    x_includes="/usr/include"
+  fi
+
+  CFLAGS="$CFLAGS $X_CFLAGS"
+  LDFLAGS="$LDFLAGS $X_LDFLAGS $X_LIBS"
+
+# Check for the X11 library
+  AC_CHECK_LIB(X11, XOpenDisplay, x_libs="-lX11 $X_EXTRA_LIBS", 
+    AC_MSG_ERROR([*** libX11 not found. Check 'config.log' for more details.]),
+    $X_EXTRA_LIBS)
+
+# Check for the Xext library (needed for XShm extention)
+  AC_CHECK_LIB(Xext, XShmAttach, 
+    x_libs="-lXext $x_libs", 
+    # On AIX, it is in XextSam instead, but we still need -lXext
+    AC_CHECK_LIB(XextSam, XShmAttach, 
+	x_libs="-lXextSam -lXext $x_libs", 
+	AC_MSG_ERROR([*** XShm extension not found. Check 'config.log' for more details.]),
+	$x_libs),
+    $x_libs)
+
+# Check for Xv library
+  AC_CHECK_LIB(Xv, XvShmCreateImage,
+	x_libs="$x_libs -lXv"
+	AC_DEFINE(HAVE_XV) FEATURE_XV="yes",,[-lX11 -lXext])
+
+  X_LIBS="$X_LIBS $x_libs"
+
+  dnl Why the fuck doesn't this get AC_SUBST() automatically???
+  AC_SUBST(X_LDFLAGS)
+
+  AC_DEFINE(HAVE_X11)
+  AM_CONDITIONAL(HAVE_X11, true)
+  FEATURE_X11="yes"
+  X11_COMMENT=""
+fi
+AC_SUBST(FEATURE_X11)
+AC_SUBST(FEATURE_XV)
+AC_SUBST(X11_COMMENT)
+
+
+AC_CHECK_HEADERS([X11/extensions/shmproto.h],[],[],[#include <X11/Xmd.h>])
+
+
+# Check for the JPEG library
+AC_CHECK_LIB(jpeg,
+             jpeg_start_decompress,
+             jpeg_available="true"
+               jpeg_libs="-ljpeg",
+             AC_MSG_RESULT([*** libjpeg not found. JPEG loader will be disabled.]))
+AC_SUBST(jpeg_libs)
+
+if test "x$jpeg_available" = "xtrue" ; then
+  AC_DEFINE(HAVE_LIBJPEG)
+  AM_CONDITIONAL(HAVE_LIBJPEG, true)
+  FEATURE_JPEG="yes"
+else
+  AM_CONDITIONAL(HAVE_LIBJPEG, false)
+  FEATURE_JPEG="no"
+fi
+AC_SUBST(FEATURE_JPEG)
+
+
+# Check for the PNG library
+AC_CHECK_LIB(png,
+             png_read_image,
+             png_available="true"
+             png_libs="-lpng",
+             AC_MSG_RESULT([*** libpng not found. PNG loader will be disabled.]),
+	     -lz -lm
+	     )
+AC_SUBST(png_libs)
+
+if test "x$png_available" = "xtrue" ; then
+  AC_DEFINE(HAVE_LIBPNG)
+  AM_CONDITIONAL(HAVE_LIBPNG, true)
+  FEATURE_PNG="yes"
+else
+  AM_CONDITIONAL(HAVE_LIBPNG, false)
+  FEATURE_PNG="no"
+fi
+AC_SUBST(FEATURE_PNG)
+  
+
+
+# Check for the FFMPEG library
+
+# TODO: see if this could help: http://www.letworyinteractive.com/blendercode/da/d44/ffmpeg__compat_8h_source.html
+
+AC_ARG_WITH([ffmpeg], [AS_HELP_STRING([--with-ffmpeg], [support for ffmpeg-based video reader])], [], [with_ffmpeg=check])
+
+AS_IF([test "x$with_ffmpeg" = xno],
+  [
+   have_ffmpeg=no
+   AM_CONDITIONAL(HAVE_FFMPEG, false)
+  ],
+  [
+   AC_CHECK_HEADERS([libavcodec/avcodec.h ffmpeg/avcodec.h])
+   AC_CHECK_HEADERS([libavformat/avformat.h ffmpeg/avformat.h])
+   AC_CHECK_HEADERS([libswscale/swscale.h ffmpeg/swscale.h])
+   AC_CHECK_HEADERS([libavutil/avutil.h ffmpeg/avutil.h])
+   AC_MSG_CHECKING(for required ffmpeg header files)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [
+   #if (!defined(HAVE_LIBAVCODEC_AVCODEC_H) && !defined(HAVE_FFMPEG_AVCODEC_H))
+   #error "avcodec.h" not found
+   #endif
+   #if (!defined(HAVE_LIBAVFORMAT_AVFORMAT_H) && !defined(HAVE_FFMPEG_AVFORMAT_H))
+   #error "avformat.h" not found
+   #endif
+   #if (!defined(HAVE_LIBSWSCALE_SWSCALE_H) && !defined(HAVE_FFMPEG_SWSCALE_H))
+   #error "swscale.h" not found
+   #endif
+   #if (!defined(HAVE_LIBAVUTIL_AVUTIL_H) && !defined(HAVE_FFMPEG_AVUTIL_H))
+   #error "avutil.h" not found
+   #endif
+   ])], [
+     AC_MSG_RESULT(yes)
+     have_ffmpeg=yes
+   ], [
+     AC_MSG_RESULT(no)
+     have_ffmpeg=no
+   ])
+
+   AC_CHECK_LIB(avutil,  av_malloc, [], [-lpthread -lm])
+
+   AC_MSG_CHECKING(for AVMEDIA_TYPE_VIDEO)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+#ifdef HAVE_FFMPEG_AVUTIL_H
+#include <ffmpeg/avutil.h>
+#else
+#include <libavutil/avutil.h>
+#endif
+   ], [
+   enum AVMediaType type = AVMEDIA_TYPE_VIDEO;
+   ])], [
+     AC_DEFINE(HAVE_AVMEDIA_TYPE_VIDEO, 1, [Define if AVMEDIA_TYPEVIDEO is used instead of CODEC_TYPE_VIDEO])
+     AC_MSG_RESULT(yes)
+   ], [
+     AC_MSG_RESULT(no)
+   ])
+
+   AC_CHECK_LIB(avcodec,  avcodec_decode_video,  [LIBS+=" -lavcodec" AC_DEFINE(HAVE_AVCODEC_DECODE_VIDEO, 1, [Define if the libavcodec supports avcodec_decode_video])], [], [-lavutil -lpthread -lm])
+   AC_CHECK_LIB(avcodec,  avcodec_decode_video2, [LIBS+=" -lavcodec" AC_DEFINE(HAVE_AVCODEC_DECODE_VIDEO2, 1, [Define if the libavcodec supports avcodec_decode_video2])], [], [-lavutil -lpthread -lm])
+   AC_CHECK_LIB(avformat, avio_open, [AC_DEFINE(HAVE_AVIO_OPEN, 1, [Define if the libavformat supports avio_open])], [], [-lavcodec -lavutil -lpthread -lm])
+   AC_CHECK_LIB(avformat, url_fopen, [AC_DEFINE(HAVE_URL_FOPEN, 1, [Define if the libavformat supports url_fopen])], [], [-lavcodec -lavutil -lpthread -lm])
+   AC_CHECK_LIB(avformat, avformat_alloc_context, [AC_DEFINE(HAVE_AVFORMAT_ALLOW_CONTEXT, 1, [Define if the libavformat supports avformat_alloc_context,])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+   AC_CHECK_LIB(avformat, av_alloc_format_context, [AC_DEFINE(HAVE_AV_ALLOC_FORMAT_CONTEXT, 1, [Define if the libavformat supports av_alloc_format_context,])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+   if test x$ac_cv_lib_avcodec_avcodec_decode_video = x; then
+     if test x$ac_cv_lib_avcodec_avcodec_decode_video2 = x; then
+       have_ffmpeg=no
+     fi
+   fi
+
+   AC_CHECK_LIB(avformat,  avformat_open_input, [LIBS+=" -lavformat" AC_DEFINE(HAVE_AVFORMAT_AVFORMAT_OPEN_INPUT, 1, [Define if the libavformat supports avformat_open_input])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+   AC_CHECK_LIB(avformat,  av_open_input_file,  [LIBS+=" -lavformat" AC_DEFINE(HAVE_AVFORMAT_AV_OPEN_INPUT_FILE,  1, [Define if the libavformat supports av_open_input_file])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+
+   AC_CHECK_LIB(avformat,  avformat_write_header, [AC_DEFINE(HAVE_AVFORMAT_AVFORMAT_WRITE_HEADER, 1, [Define if the libavformat supports avformat_write_header])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+   AC_CHECK_LIB(avformat,  av_write_header,       [AC_DEFINE(HAVE_AVFORMAT_AV_WRITE_HEADER,       1, [Define if the libavformat supports av_write_header])], [], [-lavcodec -lavutil -lpthread -lz -lm])
+
+   AC_CHECK_LIB(swscale,  sws_scale,         [], [have_ffmpeg=no], [-lavutil -lm])
+
+   AC_MSG_CHECKING(if ffmpeg supports ticks_per_frame)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+   #ifdef HAVE_FFMPEG_AVCODEC_H
+   #include <ffmpeg/avcodec.h>
+   #else
+   #include <libavcodec/avcodec.h>
+   #endif
+   ], [struct AVCodecContext ctx; ctx.ticks_per_frame = 0])], [
+     AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_AVCODEC_TICKS_PER_FRAME, 1, [Define if the libavcodec supports ticks_per_frame])
+   ], [
+     AC_MSG_RESULT(no)
+   ])
+
+   saved_cflags=$CFLAGS
+   saved_cxxflags=$CXXFLAGS
+   CFLAGS+=" -Werror" # "-fstrict-aliasing -Wstrict-aliasing=1 -Werror=strict-aliasing"
+   CXXFLAGS+=" -Werror" # "-fstrict-aliasing -Wstrict-aliasing=1 -Werror=strict-aliasing"
+
+   AC_MSG_CHECKING(type of ByteIOContext in AVFormatContext)
+   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+   #ifdef HAVE_FFMPEG_AVFORMAT_H
+   #include <ffmpeg/avformat.h>
+   #else
+   #include <libavformat/avformat.h>
+   #endif
+   ], [ByteIOContext* bctx;
+       AVFormatContext fctx;
+       bctx = fctx.pb;
+   ])], [
+     AC_MSG_RESULT(pointer)
+     AC_DEFINE(HAVE_AVFORMAT_CONTEXT_BYTEIOCONTEXT_POINTER, 1, [Defined if ByteIOContext is a pointer in AVFormatContext])
+   ], [
+     AC_MSG_RESULT(member variable or no ByteIOContext*)
+   ])
+
+   CFLAGS=$saved_cflags
+   CXXFLAGS=$saved_cxxflags
+
+
+
+   AS_IF([test x"$have_ffmpeg" = "xyes"],
+   	    [
+              AC_DEFINE(HAVE_FFMPEG,[1],[FFMPEG video library])
+	      AC_SUBST([FFMPEGFLAGS], ["-D__STDC_CONSTANT_MACROS"])
+              AM_CONDITIONAL(HAVE_FFMPEG, true)
+            ],
+            [
+	     # need double-quotes because of comma
+             AS_IF([test "x$with_ffmpeg" == xyes],
+                      AC_MSG_FAILURE([[--with-ffmpeg was given, but test for ffmpeg failed]]),
+                      AC_MSG_RESULT([*** ffmpeg libraries not found. FFMPEG loader will be disabled.]),
+                  )
+             AM_CONDITIONAL(HAVE_FFMPEG, false)
+	    ]
+        )
+         
+  ]
+)
+
+
+
+CFLAGS="$saved_cflags"
+LDFLAGS="$saved_ldflags $jpeg_libs $png_libs"
+
+dnl Replace `main' with a function in -lstdc:
+dnl AC_CHECK_LIB(stdc, main)
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(strings.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_C_BIGENDIAN
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+
+AC_SUBST(PACKAGE)
+
+AC_OUTPUT([
+libvideogfx-config
+Makefile
+examples/Makefile
+libvideogfx.spec
+libvideogfx/libvideogfx.hh
+libvideogfx/Makefile
+libvideogfx/arch/Makefile
+libvideogfx/containers/Makefile
+libvideogfx/graphics/Makefile
+libvideogfx/graphics/color/Makefile
+libvideogfx/graphics/datatypes/Makefile
+libvideogfx/graphics/draw/Makefile
+libvideogfx/graphics/fileio/Makefile
+libvideogfx/graphics/filters/Makefile
+libvideogfx/graphics/geometry/Makefile
+libvideogfx/graphics/visualize/Makefile
+libvideogfx/graphics/measure/Makefile
+libvideogfx/audio/Makefile
+libvideogfx/audio/fileio/Makefile
+libvideogfx/utility/Makefile
+libvideogfx/utility/bitstream/Makefile
+libvideogfx/x11/Makefile
+libvideogfx.pc
+], [chmod +x libvideogfx-config])
