@@ -54,4 +54,11 @@ int main(int argc,char** argv)
 
   for (int i=0;i<5;i++)
     {
-      win.Displ
+      win.Display(img[i]);
+      sleep(1);
+    }
+
+  sleep(10);
+
+  return 0;
+}
