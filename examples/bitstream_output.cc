@@ -28,4 +28,19 @@ int main()
   buf.WriteBitsMasked( 0,14);
   buf.WriteBitsMasked(~0,20);
 
-  buf.WriteBitsMasked
+  buf.WriteBitsMasked( 0,1);
+  buf.WriteBitsMasked(~0,7);
+  buf.WriteBitsMasked( 0,14);
+  buf.WriteBitsMasked(~0,20);
+
+  buf.WriteBitsMasked( 0,1);
+  buf.WriteBitsMasked(~0,7);
+  buf.WriteBitsMasked( 0,14);
+  buf.WriteBitsMasked(~0,20);
+
+  buf.Flush();
+
+  ShowBuffer(buf.AskBuffer(),buf.AskLengthInBytes());
+
+  return 0;
+}
