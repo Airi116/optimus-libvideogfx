@@ -23,4 +23,14 @@ int main(int argc,char** argv)
   win.Display(img);
 
   Image<Pixel> filtered;
-  filtered = i
+  filtered = img.Clone();
+
+  while (!reader.IsEOF())
+    {
+      reader.ReadImage(img);
+      Median(filtered.AskBitmapY(), img.AskBitmapY(), atoi(argv[2]));
+      win.Display(filtered);
+    }
+
+  return 0;
+}
