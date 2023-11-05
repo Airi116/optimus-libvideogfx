@@ -27,4 +27,5 @@ int main()
 	m.Ask(i,j) = i*6+j;
       }
 
-  S
+  Show(m);
+}
