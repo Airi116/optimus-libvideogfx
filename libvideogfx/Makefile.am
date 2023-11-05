@@ -20,4 +20,38 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = libvideogfx.la
 
 # libtool stuff: set version and export symbols for resolving
-libvideogfx_includedir = $(includedi
+libvideogfx_includedir = $(includedir)/libvideogfx
+libvideogfx_la_LDFLAGS = \
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)	\
+	-release $(LT_RELEASE)					\
+	-export-dynamic
+
+if HAVE_X11
+x11_sources=x11/libvideogfx-x11.la
+else
+x11_sources=
+endif
+
+
+#
+# setup sub-libraries variables
+#
+libvideogfx_la_LIBADD = \
+	arch/libvideogfx-arch.la		\
+	graphics/datatypes/libvideogfx-graphics-datatypes.la	\
+	graphics/fileio/libvideogfx-graphics-fileio.la		\
+	graphics/color/libvideogfx-graphics-color.la		\
+	graphics/draw/libvideogfx-graphics-draw.la		\
+	graphics/geometry/libvideogfx-graphics-geometry.la	\
+	graphics/measure/libvideogfx-graphics-measure.la	\
+	graphics/filters/libvideogfx-graphics-filters.la	\
+	graphics/visualize/libvideogfx-graphics-visualize.la	\
+	audio/fileio/libvideogfx-audio-fileio.la		\
+	utility/bitstream/libvideogfx-utility-bitstream.la	\
+	utility/libvideogfx-utility.la				\
+	$(x11_sources)
+
+
+#	graphics/fileio/avi/libvideogfx-graphics-fileio-avi.la	\
+#	graphics/lowlevel/libvideogfx-graphics-lowlevel.la	\
+#	postscript/libvid
