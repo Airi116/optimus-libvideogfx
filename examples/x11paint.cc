@@ -34,4 +34,16 @@ int main(int argc,char** argv)
           on=false;
         }
 
-    
+      if (win.CheckForMouseMove(x,y))
+        if (on)
+          {
+            DrawCircle(img,x,y,2, Color<Pixel>(0,0,255),true);
+            win.Display(img);
+          }
+
+      if (win.CheckForKeypress()=='q')
+        break;
+    }
+
+  return 0;
+}
