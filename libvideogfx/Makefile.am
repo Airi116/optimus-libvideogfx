@@ -54,4 +54,32 @@ libvideogfx_la_LIBADD = \
 
 #	graphics/fileio/avi/libvideogfx-graphics-fileio-avi.la	\
 #	graphics/lowlevel/libvideogfx-graphics-lowlevel.la	\
-#	postscript/libvid
+#	postscript/libvideogfx-postscript.la
+
+#
+# setup source file variables
+#
+# Header files for public installation (non-generated)
+libvideogfx_public_h_sources = \
+	types.hh	\
+	error.hh
+
+# Header files that don't get installed
+libvideogfx_private_h_sources = macros.hh
+
+include_HEADERS = libvideogfx.hh
+
+BUILT_SOURCES = libvideogfx.hh
+CLEANFILES = libvideogfx.hh
+
+# C sources to build the library from
+libvideogfx_c_sources = \
+	error.cc
+
+#
+# setup sources and their dependancies
+#
+libvideogfx_include_HEADERS = $(libvideogfx_public_h_sources)
+libvideogfx_la_SOURCES = $(libvideogfx_c_sources)
+EXTRA_HEADERS =
+EXTRA_DIST = $(libvideogfx_private_h_sources) libvideogfx.hh.in
