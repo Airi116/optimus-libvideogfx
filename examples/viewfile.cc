@@ -19,4 +19,22 @@ int main(int argc,char** argv)
   reader.ReadImage(img);
 
   win.Create(img.AskWidth(),img.AskHeight(),"test");
-  win.Display(img)
+  win.Display(img);
+
+  int idx=1;
+  while (!reader.IsEOF())
+    {
+      //sleep(1);
+      reader.SkipToImage(idx);
+      reader.ReadImage(img);
+      win.Display(img);
+
+      usleep(1000000/25);
+      cout << "idx:" << idx << endl;
+      idx++;
+    }
+
+  sleep(5);
+
+  return 0;
+}
