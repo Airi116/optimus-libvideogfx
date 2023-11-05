@@ -15,4 +15,9 @@ else
 mmx_header =
 endif
 
-libvideogfx_arch_include_HE
+libvideogfx_arch_include_HEADERS = \
+	cpu.hh	\
+	$(mmx_headers)
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)
