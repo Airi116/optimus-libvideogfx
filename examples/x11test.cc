@@ -33,4 +33,32 @@ int main(int argc,char** argv)
     for (int x=0;x<128;x++)
       {
 	yp[y*2][x*2]=yp[y*2][x*2+1]=yp[y*2+1][x*2]=yp[y*2+1][x*2+1]=128;
-	up[y][x] 
+	up[y][x] = x*2;
+	vp[y][x] = y*2;
+      }
+
+  WriteText_X11(img.AskBitmapY(),"Test",100,110,
+		(Pixel)255,(Pixel)0,"-adobe-helvetica-bold-r-*-*-20-*-*-*-*-*-*-*");
+
+  win.Create(256,256,"test");
+  win.Display(img);
+
+  for (;;)
+    {
+      int x,y;
+      if (win.CheckForMouseMove(x,y))
+	{
+	  cout << "mouse: " << x << ";" << y << endl;
+	}
+
+      char c;
+      if (c=win.CheckForKeypress())
+	{
+	  cout << "key: '" << c << "' " << endl;
+	}
+    }
+
+  sleep(10);
+
+  return 0;
+}
