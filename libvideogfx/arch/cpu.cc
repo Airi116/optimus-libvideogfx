@@ -96,4 +96,41 @@ namespace videogfx {
       if ((edx & (1<<15))) m_flags |= CPU_CAP_CMOV;
       if ((edx & (1<<23))) m_flags |= CPU_CAP_MMX;
       if ((edx & (1<<25))) m_flags |= CPU_CAP_SSE;
-      if ((edx 
+      if ((edx & (1<<26))) m_flags |= CPU_CAP_SSE2;
+      if ((ecx & (1<< 0))) m_flags |= CPU_CAP_SSE3;
+      if ((ecx & (1<< 9))) m_flags |= CPU_CAP_SSSE3;
+      if ((ecx & (1<<19))) m_flags |= CPU_CAP_SSE4_1;
+      if ((ecx & (1<<20))) m_flags |= CPU_CAP_SSE4_2;
+      if ((ecx & (1<<28))) m_flags |= CPU_CAP_AVX;
+
+
+      a = 0x80000001;
+
+#ifdef _MSC_VER
+      __cpuid((int *)regs, (int)a);
+
+#else
+      __asm__ volatile
+	("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+	 : "a" (a), "c" (0));
+      // ECX is set to zero for CPUID function 4
+#endif
+
+      ecx = regs[2];
+      edx = regs[3];
+
+      if ((edx & (1<<22))) m_flags |= CPU_CAP_MMXEXT;
+      if ((edx & (1<<30))) m_flags |= CPU_CAP_3DnowExt;
+      if ((edx & (1<<31))) m_flags |= CPU_CAP_3Dnow;
+      if ((ecx & (1<< 6))) m_flags |= CPU_CAP_SSE4a;
+    }
+
+    void GetCPUInfo(char* buf,int maxChars,bool long_descr=false)
+    {
+      assert(maxChars>=3);
+      strcpy(buf,"X86");
+      maxChars-=3;
+
+      if (long_descr)
+	{
+	  maxChar
