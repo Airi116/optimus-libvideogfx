@@ -152,4 +152,43 @@ namespace videogfx {
     bool HasSSSE3() const   { return !!(m_flags & CPU_CAP_SSSE3); }
     bool HasSSE4_1() const  { return !!(m_flags & CPU_CAP_SSE4_1); }
     bool HasSSE4_2() const  { return !!(m_flags & CPU_CAP_SSE4_2); }
-    bool HasAVX() const     { retu
+    bool HasAVX() const     { return !!(m_flags & CPU_CAP_AVX); }
+    bool HasSSE4a() const   { return !!(m_flags & CPU_CAP_SSE4a); }
+    bool Has3dNow() const   { return !!(m_flags & CPU_CAP_3Dnow); }
+    bool Has3dNowExt() const   { return !!(m_flags & CPU_CAP_3DnowExt); }
+    bool HasCMOV() const    { return !!(m_flags & CPU_CAP_CMOV); }
+
+  private:
+    uint32_t m_flags;
+  };
+#endif
+
+
+  // --------------------------------------------------------------------------
+
+  const char* CPU_Capabilities::wrong_cpu_err = "CPU capability of non-present CPU architecture requested";
+  CPU_Capabilities* CPU_Capabilities::d_cpu = NULL;
+
+
+  CPU_Capabilities* CPU_Capabilities::AskCapabilities()
+  {
+    if (!d_cpu)
+      {
+#if CPU_x86
+	if (!d_cpu) d_cpu = new CPU_X86;
+#endif
+	if (!d_cpu) d_cpu = new CPU_Generic;
+      }
+
+    assert(d_cpu);
+
+    return d_cpu;
+  }
+
+
+  void CPU_Capabilities::GetCPUInfo(char* buf,int maxChars,bool)
+  {
+    const char* unknown_arch = "unknown CPU";
+
+    assert((int)strlen(unknown_arch) < maxChars);
+    strcpy(buf,unkno
