@@ -191,4 +191,7 @@ namespace videogfx {
     const char* unknown_arch = "unknown CPU";
 
     assert((int)strlen(unknown_arch) < maxChars);
-    strcpy(buf,unkno
+    strcpy(buf,unknown_arch);
+  }
+
+}
