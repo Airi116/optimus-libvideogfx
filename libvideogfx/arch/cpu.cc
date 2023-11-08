@@ -133,4 +133,23 @@ namespace videogfx {
 
       if (long_descr)
 	{
-	  maxChar
+	  maxChars -= strlen(buf);
+	  if (HasMMX()) { assert(maxChars >= 4); strcat(buf," MMX"); }
+	  if (HasSSE()) { assert(maxChars >= 4); strcat(buf," SSE"); }
+	  if (HasSSE4_1()) { assert(maxChars >= 4); strcat(buf," SSE4.1"); }
+	  if (Has3dNow()) { assert(maxChars >= 7); strcat(buf," 3dNow!"); }
+	  if (HasCMOV()) { assert(maxChars >= 5); strcat(buf," CMOV"); }
+	}
+    }
+
+    CPU_Architecture AskArchitecture() const { return CPUArch_X86; }
+
+    bool HasMMX() const     { return !!(m_flags & CPU_CAP_MMX); }
+    bool HasMMXExt() const  { return !!(m_flags & CPU_CAP_MMXEXT); }
+    bool HasSSE() const     { return !!(m_flags & CPU_CAP_SSE); }
+    bool HasSSE2() const    { return !!(m_flags & CPU_CAP_SSE2); }
+    bool HasSSE3() const    { return !!(m_flags & CPU_CAP_SSE3); }
+    bool HasSSSE3() const   { return !!(m_flags & CPU_CAP_SSSE3); }
+    bool HasSSE4_1() const  { return !!(m_flags & CPU_CAP_SSE4_1); }
+    bool HasSSE4_2() const  { return !!(m_flags & CPU_CAP_SSE4_2); }
+    bool HasAVX() const     { retu
