@@ -79,4 +79,19 @@ namespace videogfx {
     virtual bool HasCMOV() const    { assert(0); return false; }
 
 
- 
+    // ARM architecture
+
+    virtual bool HasXScale()  const { assert(0); return false; }
+
+
+    // SPARC architecture
+
+    virtual bool HasVIS()  const { assert(0); return false; }
+
+  private:
+    static CPU_Capabilities* d_cpu;
+    static const char* wrong_cpu_err;
+  };
+}
+
+#endif
