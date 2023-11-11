@@ -58,4 +58,25 @@ namespace videogfx {
 
     virtual void GetCPUInfo(char* buf,int maxChars,bool long_description=false);
     virtual CPU_Architecture AskArchitecture() const { return CPUArch_Unknown; }
-    const char* GetArchitectureName() const
+    const char* GetArchitectureName() const { return ArchName(AskArchitecture()); }
+    static const char* ArchName(CPU_Architecture arch);
+
+
+    // x86 architecture
+
+    virtual bool HasMMX() const     { assert(0); return false; }
+    virtual bool HasMMXExt() const  { assert(0); return false; }
+    virtual bool HasSSE() const     { assert(0); return false; }
+    virtual bool HasSSE2() const    { assert(0); return false; }
+    virtual bool HasSSE3() const    { assert(0); return false; }
+    virtual bool HasSSSE3() const   { assert(0); return false; }
+    virtual bool HasSSE4_1() const  { assert(0); return false; }
+    virtual bool HasSSE4_2() const  { assert(0); return false; }
+    virtual bool HasAVX() const     { assert(0); return false; }
+    virtual bool HasSSE4a() const   { assert(0); return false; }
+    virtual bool Has3dNow() const   { assert(0); return false; }
+    virtual bool Has3dNowExt() const   { assert(0); return false; }
+    virtual bool HasCMOV() const    { assert(0); return false; }
+
+
+ 
