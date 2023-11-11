@@ -31,4 +31,46 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *******************************************************************
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_AUDIO_FILEIO_AUDIOSINK_HH
+#define LIBVIDEOGFX_AUDIO_FILEIO_AUDIOSINK_HH
+
+#include <libvideogfx/types.hh>
+#include <libvideogfx/audio/fileio/timedsink.hh>
+#include <iostream>
+
+
+namespace videogfx {
+
+  struct AudioParam
+  {
+    AudioParam() : n_channels(2), rate(44100), bits_per_sample(16) { }
+
+    int  n_channels;
+    int  rate;
+    int  bits_per_sample;
+  };
+
+
+  class AudioSink
+  {
+  public:
+    virtual ~AudioSink() { }
+
+    virtual void       SetParam(const AudioParam&) { }
+    virtual AudioParam AskParam() const { return AudioParam(); }
+
+    virtual void SendSamples(const int8*  samples,int len);
+    virtual void SendSamples(const int16* samples,int len);
+    virtual void SendSamples(const int32* samples,int len);
+    virtual int  AskBufferingDelay() const { return 0; } // buffering delay in msecs
+  };
+
+
+  class TimedAudioSink : public AudioSink,
+			 public TimedPresentationSink
+  {
+  public:
+    /* The this method the insert timestamps between audio samples.
+       The
