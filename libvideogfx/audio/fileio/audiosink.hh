@@ -73,4 +73,26 @@ namespace videogfx {
   {
   public:
     /* The this method the insert timestamps between audio samples.
-       The
+       The specified timestamp relates to the first sample of the
+       next SendSamples() call.
+    */
+
+    virtual void SendTimestamp(Timestamp) { }
+  };
+
+
+  class AudioSink_cout : public AudioSink
+  {
+  public:
+    void SendSamples(const int16* samples,int len)
+    {
+      for (int i=0;i<len;i++)
+	{
+	  std::cout.write((char*)&samples[i],2);
+	}
+    }
+  };
+
+}
+
+#endif
