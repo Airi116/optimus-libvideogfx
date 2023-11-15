@@ -26,4 +26,48 @@
 
 #include <libvideogfx/audio/fileio/audiosink.hh>
 #include <libvideogfx/audio/fileio/timedsink.hh>
-#include <libvideogfx/utility/bitstream/bytebuff
+#include <libvideogfx/utility/bitstream/bytebuffer.hh>
+#include <libvideogfx/containers/queue.hh>
+
+
+namespace videogfx {
+
+  class AudioSink_LinuxSndCard : public TimedAudioSink
+  {
+  public:
+    AudioSink_LinuxSndCard();
+    ~AudioSink_LinuxSndCard();
+
+    void       SetParam(const AudioParam& p);
+    AudioParam AskParam() const;
+
+    void SendTimestamp(Timestamp timestamp);
+    void SendSamples(const int16* samples,int len);
+
+
+    void  Reset();
+    bool  PresentationDataPending() const;
+    Timestamp NextDataPresentationTime() const;
+    Timestamp LastDataPresentationTime() const;
+    void  PresentData(Timestamp now);
+    bool  IsRealtimeSink() const { return true; }
+
+    bool  EnoughSpaceForMoreData() const;
+
+    Timestamp GetCurrentTime() const;   // the timerID is not specified
+
+  private:
+    void Initialize();
+
+    bool d_initialized;
+    int  d_fd;
+    int  d_blksize;
+
+    int  d_channels;
+    int  d_rate;
+    int  d_bits_per_sample;
+    int  d_sample_format;
+    int  d_bytes_per_sec;
+
+    ByteBuffer d_buffer; // more data to be played
+    int6
