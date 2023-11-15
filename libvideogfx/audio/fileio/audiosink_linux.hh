@@ -70,4 +70,17 @@ namespace videogfx {
     int  d_bytes_per_sec;
 
     ByteBuffer d_buffer; // more data to be played
-    int6
+    int64  d_total_bytes_sent_to_dma;
+
+    struct ptspos
+    {
+      Timestamp pts;
+      int64     bytenr;
+    };
+
+    Queue<ptspos> d_queue;
+  };
+
+}
+
+#endif
