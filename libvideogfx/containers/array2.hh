@@ -34,4 +34,45 @@
  ********************************************************************************/
 
 #ifndef LIBVIDEOGFX_CONTAINERS_ARRAY2_HH
-#define LIBVIDEOGFX
+#define LIBVIDEOGFX_CONTAINERS_ARRAY2_HH
+
+#include "libvideogfx/types.hh"
+#include <assert.h>
+#include <algorithm>
+
+namespace videogfx {
+
+  template <class T> class Array2
+  {
+  public:
+    Array2();
+    Array2(int width,int height,int xbase=0,int ybase=0);
+    ~Array2();
+
+    void Create(int width,int height,int xbase=0,int ybase=0);
+    void Resize(int newwidth,int newheight);
+
+    bool IsInitialized() const { return d_array != NULL; }
+
+    int AskWidth()  const { return d_width;  }
+    int AskHeight() const { return d_height; }
+    int AskXBase()  const { return d_xbase;  }
+    int AskYBase()  const { return d_ybase;  }
+
+    T& Ask(int y,int x)
+    {
+      x+= d_xbase;
+      y+= d_ybase;
+
+      assert(IsInitialized());
+      assert(x>=0); assert(x<d_width);
+      assert(y>=0); assert(y<d_height);
+      return d_array[y][x];
+    }
+
+    const T& Ask(int y,int x) const
+    {
+      x+= d_xbase;
+      y+= d_ybase;
+
+      assert(
