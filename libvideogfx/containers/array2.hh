@@ -75,4 +75,37 @@ namespace videogfx {
       x+= d_xbase;
       y+= d_ybase;
 
-      assert(
+      assert(IsInitialized());
+      assert(x>=0); assert(x<d_width);
+      assert(y>=0); assert(y<d_height);
+      return d_array[y][x];
+    }
+
+    T* operator[](int y)       { return &d_array[y+d_ybase][d_xbase]; }
+    const T* operator[](int y) const { return &d_array[y+d_ybase][d_xbase]; }
+
+    const Array2<T>& operator=(const Array2<T>& a)
+    {
+      int w = a.AskWidth();
+      int h = a.AskHeight();
+      int x0 = a.AskXBase();
+      int y0 = a.AskYBase();
+      Create(w,h, x0,y0);
+
+      for (int y=0;y<h;y++)
+	for (int x=0;x<w;x++)
+	  d_array[y][x] = a.d_array[y][x];
+
+      return *this;
+    }
+
+  private:
+    int   d_width,d_height;
+    int   d_xbase,d_ybase;
+    T**   d_array;
+  };
+
+#include "libvideogfx/containers/array2.icc"
+}
+
+#endif
