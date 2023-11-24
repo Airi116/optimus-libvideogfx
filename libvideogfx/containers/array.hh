@@ -26,4 +26,35 @@
     version 2.1 of the License, or (at your option) any later version.
 
     This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warra
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_CONTAINERS_ARRAY_HH
+#define LIBVIDEOGFX_CONTAINERS_ARRAY_HH
+
+#include "libvideogfx/types.hh"
+
+namespace videogfx {
+
+  template <class T> class Array
+  {
+  public:
+    Array();
+    Array(const Array<T>&);
+    Array(int size,int base=0);
+    ~Array();
+
+    void Create(int size,int base=0);
+    void CreateRange(int first,int last) { Create(last-first+1,first); }
+    void Release();
+
+    bool IsInitialized() const { return d_array != NULL; }
+
+    T* AskData()       { return &d_array[d_baseoffset]; }
+    const T* AskData() c
