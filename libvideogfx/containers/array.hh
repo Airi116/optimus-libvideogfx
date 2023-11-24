@@ -57,4 +57,24 @@ namespace videogfx {
     bool IsInitialized() const { return d_array != NULL; }
 
     T* AskData()       { return &d_array[d_baseoffset]; }
-    const T* AskData() c
+    const T* AskData() const { return &d_array[d_baseoffset]; }
+
+    T& operator[](int n)       { return d_array[d_baseoffset+n]; }
+    const T& operator[](int n) const { return d_array[d_baseoffset+n]; }
+
+    int AskBase() const { return -d_baseoffset;  }
+    int AskSize() const { return d_size; }
+    int AskStartIdx() const { return AskBase(); }
+    int AskEndIdx() const { return AskSize()+AskBase()-1; }
+
+    const Array& operator=(const Array<T>&);
+
+  private:
+    int   d_baseoffset,d_size;
+    T*    d_array;
+  };
+
+#include "libvideogfx/containers/array.icc"
+}
+
+#endif
