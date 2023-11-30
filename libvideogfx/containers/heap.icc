@@ -31,3 +31,51 @@ template <class T> Heap<T>::~Heap()
 {
   if (d_heap) delete[] d_heap;
 }
+
+template <class T> void Heap<T>::Insert(const T& e)
+{
+  // If heap is full, allocate a bigger one and copy the old one into it.
+
+  if (d_entries==d_size)
+    {
+      int newsize = std::max(std::max(d_size*2,d_size+10),INITIAL_HEAP_SIZE);
+      assert(newsize>d_size);
+
+      T* newheap = new T[newsize+1]; // Create array for new heap including an extra dummy element [0].
+      for (uint32 i=1;i<=d_entries;i++)
+	newheap[i] = d_heap[i];
+
+      if (d_heap) delete[] d_heap;
+      d_heap = newheap;
+      d_size = newsize;
+    }
+
+  d_entries++;
+  d_heap[d_entries] = e;
+
+  UpHeap(d_entries);
+}
+
+template <class T> void Heap<T>::UpHeap(int i)
+{
+  while (i>1 && d_heap[i] < d_heap[i/2])
+    {
+      std::swap(d_heap[i],d_heap[i/2]);
+      i /= 2;
+    }
+}
+
+template <class T> void Heap<T>::RemoveRoot()
+{
+  d_heap[1] = d_heap[d_entries];
+  d_entries--;
+  DownHeap(1);
+}
+
+template <class T> void Heap<T>::DownHeap(int i)
+{
+again1:
+
+  // element is at the bottom
+  if (i*2 > d_entries)
+    return;
