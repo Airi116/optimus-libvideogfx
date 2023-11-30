@@ -40,4 +40,43 @@
 
 #include "libvideogfx/types.hh"
 #include <assert.h>
-#in
+#include <algorithm>
+
+namespace videogfx {
+
+  template <class T> class Queue
+  {
+  public:
+    Queue();
+    ~Queue();
+
+    void Append(const T&);
+    void AppendAtHead(const T&);
+    T&   AskHead() const { assert(!IsEmpty()); assert(d_first<d_size); return d_queue[d_first]; }
+    T&   AskTail() const;
+    T&   AskFromHead(uint32 idx) const;  // 0 is first one, 1 is second one
+    T&   AskFromTail(uint32 idx) const;  // 0 is last one,  1 is last but one
+    void RemoveHead();
+    void RemoveFromHead(uint32 idx);
+    T    AskAndRemoveHead() { T& x=AskHead(); RemoveHead(); return x; }
+
+    void Clear() { d_entries=0; d_first=0; }
+
+    bool  IsEmpty() const { return d_entries==0; }
+    int32 AskSize() const { return d_entries;    }
+
+  private:
+    T*  d_queue;
+    int d_size;
+
+    int d_first;
+    int d_entries;
+
+    void Enlarge();
+  };
+
+#include "libvideogfx/containers/queue.icc"
+
+}
+
+#endif
