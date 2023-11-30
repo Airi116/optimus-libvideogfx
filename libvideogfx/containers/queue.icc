@@ -26,4 +26,51 @@ template <class T> Queue<T>::Queue()
 
 template <class T> Queue<T>::~Queue()
 {
-  if (d_qu
+  if (d_queue) delete[] d_queue;
+}
+
+template <class T> inline void Queue<T>::Append(const T& e)
+{
+  // If queue is full, allocate a bigger one and copy the old one into it.
+
+  if (d_entries==d_size)
+    {
+      Enlarge();
+    }
+
+  d_queue[ (d_first+d_entries)%d_size ] = e;
+  d_entries++;
+}
+
+template <class T> void inline Queue<T>::AppendAtHead(const T& e)
+{
+  // If queue is full, allocate a bigger one and copy the old one into it.
+
+  if (d_entries==d_size)
+    {
+      Enlarge();
+    }
+
+  d_first = (d_first-1+d_size)%d_size;
+  d_queue[d_first] = e;
+  d_entries++;
+}
+
+template <class T> void Queue<T>::Enlarge()
+{
+  int newsize = std::max(std::max(d_size*2,d_size+10),INITIAL_SIZE);
+  assert(newsize>d_size);
+
+  T* newqueue = new T[newsize];
+  for (int i=0;i<d_entries;i++)
+    newqueue[i] = d_queue[(i+d_first)%d_size];
+
+  if (d_queue) delete[] d_queue;
+  d_queue = newqueue;
+  d_size  = newsize;
+  d_first = 0;
+}
+
+template <class T> inline T& Queue<T>::AskTail() const
+{
+  a
