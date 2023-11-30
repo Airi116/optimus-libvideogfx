@@ -73,4 +73,38 @@ template <class T> void Queue<T>::Enlarge()
 
 template <class T> inline T& Queue<T>::AskTail() const
 {
-  a
+  assert(!IsEmpty());
+  return d_queue[(d_first+d_entries-1)%d_size];
+}
+
+template <class T> inline T& Queue<T>::AskFromHead(uint32 idx) const
+{
+  assert(!IsEmpty());
+  assert(idx<d_entries);
+  return d_queue[(d_first+idx)%d_size];
+}
+
+template <class T> inline T& Queue<T>::AskFromTail(uint32 idx) const
+{
+  assert(!IsEmpty());
+  assert(idx<d_entries);
+  return d_queue[(d_first+d_entries-1-idx)%d_size];
+}
+
+template <class T> inline void Queue<T>::RemoveHead()
+{
+  assert(!IsEmpty());
+  d_first++; d_first %= d_size;
+  d_entries--;
+}
+
+template <class T> inline void Queue<T>::RemoveFromHead(uint32 idx)
+{
+  assert(!IsEmpty());
+  assert(idx<d_entries);
+
+  for (uint32 i=0;i<d_entries-idx-1;i++)
+    d_queue[(d_first+idx+i)%d_size] = d_queue[(d_first+idx+i+1)%d_size];
+
+  d_entries--;
+}
