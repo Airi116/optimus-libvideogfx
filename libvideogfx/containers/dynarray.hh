@@ -183,4 +183,43 @@ namespace videogfx {
   }
 
 
-  template <class T> T DynArray<
+  template <class T> T DynArray<T>::ReturnAndRemoveEntry(int n)
+  {
+    assert(n>=0 && n<d_nentries);
+
+    T e = d_array[n];
+    RemoveEntry(n);
+
+    return e;
+  }
+
+  template <class T> void DynArray<T>::RemoveEntry(int n)
+  {
+    assert(n>=0 && n<d_nentries);
+
+    d_nentries--;
+    for (int i=n;i<d_nentries;i++)
+      d_array[i]=d_array[i+1];
+
+    if (d_empty_val_set)
+      d_array[d_nentries] = d_empty_value;
+  }
+
+  template <class T> const DynArray<T> DynArray<T>::operator=(const DynArray<T>& t)
+  {
+    if (&t==this)
+      return *this;
+
+    delete[] d_array;
+    d_array = new T[t.d_nentries];
+    d_size = t.d_nentries;
+    for (int i=0;i<t.d_nentries;i++)
+      d_array[i] = t.d_array[i];
+    d_nentries=t.d_nentries;
+
+    return *this;
+  }
+
+}
+
+#endif
