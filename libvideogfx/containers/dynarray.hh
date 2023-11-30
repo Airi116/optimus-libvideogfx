@@ -132,4 +132,55 @@ namespace videogfx {
       }
   }
 
-  tem
+  template <class T> void DynArray<T>::Append(const T& t)
+  {
+    EnlargeIfFull();
+
+    d_array[d_nentries] = t;
+    d_nentries++;
+  }
+
+  template <class T> void DynArray<T>::Insert(int pos,const T& t)
+  {
+    EnlargeIfFull();
+
+    for (int i=d_nentries;i>pos;i--)
+      d_array[i]=d_array[i-1];
+
+    d_array[pos] = t;
+    d_nentries++;
+  }
+
+  template <class T> void DynArray<T>::EnlargeIfFull()
+  {
+    if (d_nentries==d_size)
+      EnlargeToSize(d_nentries+1);
+  }
+
+
+  template <class T> void DynArray<T>::EnlargeToSize(int n)
+  {
+    if (n > d_size)
+      {
+	int newsize = (d_size > 10000 ? d_size+10000 : d_size*2);
+	if (n>newsize) newsize=n;
+
+	T* newlist = new T[newsize];
+	for (int i=0;i<d_size;i++)
+	  newlist[i] = d_array[i];
+
+	if (d_empty_val_set)
+	  {
+	    for (int i=d_size;i<newsize;i++)
+	      newlist[i] = d_empty_value;
+	  }
+
+	if (d_array) delete[] d_array;
+
+	d_array = newlist;
+	d_size = newsize;
+      }
+  }
+
+
+  template <class T> T DynArray<
