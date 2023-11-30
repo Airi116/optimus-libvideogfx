@@ -79,3 +79,31 @@ again1:
   // element is at the bottom
   if (i*2 > d_entries)
     return;
+
+  if (i*2==d_entries ||
+      d_heap[i*2] < d_heap[i*2+1])
+    {
+      if (d_heap[i*2] < d_heap[i])
+        {
+          std::swap(d_heap[i],d_heap[i*2]);
+          i=i*2;
+          goto again1;
+        }
+    }
+  else
+    {
+      if (d_heap[i*2+1] < d_heap[i])
+        {
+          std::swap(d_heap[i],d_heap[i*2+1]);
+          i=i*2+1;
+          goto again1;
+        }
+    }
+}
+
+
+template <class T> void Heap<T>::SortHeap()
+{
+  for (int i=d_entries;i>=1;i--)
+    DownHeap(i);
+}
