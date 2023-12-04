@@ -90,3 +90,79 @@ namespace videogfx {
   }
 
 
+
+  Excpt_Text::Excpt_Text(ErrorSeverity sev)
+    : Excpt_Base(sev)
+  {
+    d_text[0] = 0;
+  }
+
+
+  Excpt_Text::Excpt_Text(ErrorSeverity sev,const char* text)
+    : Excpt_Base(sev)
+  {
+    assert(strlen(text) <= c_MaxTextLen);
+    strcpy(d_text,text);
+  }
+
+
+  void Excpt_Text::SetText(const char* text)
+  {
+    assert(strlen(text) <= c_MaxTextLen);
+    strcpy(d_text,text);
+  }
+
+
+  void Excpt_Text::AppendText(const char* text)
+  {
+    assert(strlen(text)+strlen(d_text) <= c_MaxTextLen);
+    strcat(d_text,text);
+  }
+
+
+  int Excpt_Text::GetText(char* buf,int maxChars) const
+  {
+    if (strlen(d_text)==0)
+      {
+	const char* notext = "<unspecified error>";
+	assert(maxChars > strlen(notext));
+	strcpy(buf,notext);
+	return strlen(notext);
+      }
+
+    if (strlen(d_text)<maxChars)
+      strcpy(buf,d_text);
+    else
+      {
+	strncpy(buf,d_text,maxChars-5);
+	buf[maxChars-5]=0;
+	strcat(buf," ...");
+	return maxChars;
+      }
+
+    return strlen(buf);
+  }
+
+
+
+  Excpt_Assertion::Excpt_Assertion(const char* expr,const char* file, const char* function,int line)
+    : Excpt_Text(ErrSev_Assertion)
+  {
+    char buf[1000];   // TODO: replace me
+    sprintf(buf,
+	    "file '%s', '%s', line %d (%s).\n",
+	    file,function,line,expr);
+
+    SetText(buf);
+  }
+
+
+  Excpt_NotImplemented::Excpt_NotImplemented(const char* file, int line)
+    : Excpt_Text(ErrSev_Critical)
+  {
+    char buf[1000];
+    sprintf(buf,"NOT-IMPLEMENTED-YET point reached in file '%s', line %d.\n",file,line);
+    SetText(buf);
+  }
+
+}
