@@ -51,4 +51,28 @@
 
 namespace videogfx {
 
-  /* Severity 
+  /* Severity of a message or an exception. Not all severity levels are allowed
+     in exceptions. "ErrSev_Note" must not be used in exceptions as the normal
+     program flow should not be interrupted in this case.
+  */
+
+  enum ErrorSeverity {
+    ErrSev_Note,    // Things that are worth noting but that do not have any implications for execution.
+    ErrSev_Warning, // Explains why some things may not be as expected and warn about things that may go wrong.
+    ErrSev_Error,   // The usual stuff like "file not found".
+    ErrSev_Critical,// Several unexpected errors occurred so something is going seriously wrong.
+    ErrSev_Assertion,// This should never never never go wrong. Even if the input is completely damaged.
+  };
+
+
+
+  /* A MessageDisplay is the place where warnings and errors will be displayed on.
+   */
+
+  class MessageDisplay
+  {
+  public:
+    virtual ~MessageDisplay() { }
+
+    virtual void ShowMessage(ErrorSeverity,const char* text) = 0;
+    virtual void ShowMessage(const class Excpt_Base&) = 0;
