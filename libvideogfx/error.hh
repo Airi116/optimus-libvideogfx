@@ -76,3 +76,52 @@ namespace videogfx {
 
     virtual void ShowMessage(ErrorSeverity,const char* text) = 0;
     virtual void ShowMessage(const class Excpt_Base&) = 0;
+
+
+    // Message output on the standard display.
+
+    static void Show(ErrorSeverity,const char* text);
+    static void Show(const class Excpt_Base&);
+    static void SetStandardDisplay(MessageDisplay*);
+
+  private:
+    static MessageDisplay* std_msgdisplay;
+  };
+
+
+
+
+
+
+  class Excpt_Base
+  {
+  public:
+    Excpt_Base(ErrorSeverity);
+    virtual ~Excpt_Base() { }
+
+    virtual int GetText(char*,int maxChars) const = 0;
+
+    enum ErrorSeverity m_severity;
+  };
+
+
+  class Excpt_Text : public Excpt_Base
+  {
+  public:
+    Excpt_Text(ErrorSeverity sev);  // create with empty text
+    Excpt_Text(ErrorSeverity sev,const char* text);
+
+    void SetText(const char*);
+    void AppendText(const char*);
+    int GetText(char*,int maxChars) const;
+
+  private:
+    static const unsigned int c_MaxTextLen = 500;
+    char d_text[c_MaxTextLen+1];
+  };
+
+
+  class Excpt_Assertion : public Excpt_Text
+  {
+  public:
+    Excpt_Assertion(const char* expr,const char
