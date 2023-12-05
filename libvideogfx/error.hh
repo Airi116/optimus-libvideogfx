@@ -124,4 +124,35 @@ namespace videogfx {
   class Excpt_Assertion : public Excpt_Text
   {
   public:
-    Excpt_Assertion(const char* expr,const char
+    Excpt_Assertion(const char* expr,const char* file, const char* function,int line);
+  };
+
+  class Excpt_NotImplemented : public Excpt_Text
+  {
+  public:
+    Excpt_NotImplemented(const char* file, int line);
+  };
+
+}
+
+#define OLDASSERT 1
+
+#ifdef NDEBUG
+#  define Assert(expr)
+#  define AssertDescr(expr,descr)
+#else
+#  if defined(__ASSERT_FUNCTION) && defined(__STRING)
+#    ifdef  OLDASSERT
+#      include <stdio.h>
+#      define Assert(expr) assert(expr)
+#      define AssertDescr(expr,descr) do { if (!(expr)) { fprintf(stderr,"%s\n",descr); assert(expr); } } while(0)
+#    else
+#      define Assert(expr) \
+  (void)(expr ? 0 : (throw Excpt_Assertion(__STRING(expr),__FILE__,__ASSERT_FUNCTION,__LINE__),1) );
+#      define AssertDescr(expr,descr) \
+ (void)(expr ? 0 : (throw Excpt_Assertion(descr,__FILE__,__ASSERT_FUNCTION,__LINE__),1) );
+#    endif
+#  else
+#    define Assert(expr) \
+ (void)(expr ? 0 : (throw Excpt_Assertion("no string information",__FILE__, \
+                                          "no functi
