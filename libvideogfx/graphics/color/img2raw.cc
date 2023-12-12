@@ -148,3 +148,15 @@ namespace videogfx {
   found:
     //cout << "RGB transformation used: " << t->TransformationName() << endl;
   found2:
+    t->SetSpec(d_spec);
+
+    if (lastline==-1)
+      {
+	lastline=img.AskHeight()-1;
+      }
+    t->Transform(img,mem,firstline,lastline);
+
+    d_last_rgb_transform = t;
+  }
+
+}
