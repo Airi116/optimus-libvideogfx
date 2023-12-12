@@ -35,4 +35,31 @@
 #ifndef LIBVIDEOGFX_GRAPHICS_INTERNAL_GREY2RGB_SCALAR_HH
 #define LIBVIDEOGFX_GRAPHICS_INTERNAL_GREY2RGB_SCALAR_HH
 
-#include <li
+#include <libvideogfx/graphics/color/img2raw.hh>
+#include "libvideogfx/graphics/color/internal_img2raw.hh"
+
+namespace videogfx {
+
+  /* Convert greyscale to RGB components in 32bit entities in arbitrary order.
+   */
+  class i2r_grey_32bit : public Image2RawRGB_Transform
+  {
+  public:
+    virtual ~i2r_grey_32bit() { }
+    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
+
+    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "scalar grey to 32bit RGB"; }
+  };
+
+
+  class i2r_grey_24bit : public Image2RawRGB_Transform
+  {
+  public:
+    virtual ~i2r_grey_24bit() { }
+    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
+
+    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return 
