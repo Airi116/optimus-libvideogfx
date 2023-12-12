@@ -155,4 +155,13 @@ namespace videogfx {
 #  else
 #    define Assert(expr) \
  (void)(expr ? 0 : (throw Excpt_Assertion("no string information",__FILE__, \
-                                          "no functi
+                                          "no function information",__LINE__),1) );
+#    define AssertDescr(expr,descr) \
+ (void)(expr ? 0 : (throw Excpt_Assertion(descr,__FILE__,"no function information",__LINE__),1) );
+#  endif
+#endif
+
+#define NotImplemented throw Excpt_NotImplemented(__FILE__,__LINE__);
+
+
+#endif
