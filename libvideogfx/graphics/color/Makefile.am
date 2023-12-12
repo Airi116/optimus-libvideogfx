@@ -30,4 +30,9 @@ libvideogfx_graphics_color_la_SOURCES = \
 libvideogfx_graphics_color_includedir = \
 	$(includedir)/libvideogfx/graphics/color
 
-libvi
+libvideogfx_graphics_color_include_HEADERS = \
+	img2raw.hh	\
+	colorspace.hh
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)
