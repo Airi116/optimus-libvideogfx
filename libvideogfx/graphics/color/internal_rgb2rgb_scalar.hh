@@ -1,8 +1,11 @@
+
 /*********************************************************************
-  grey2rgb_scalar.hh
+  libvideogfx/graphics/color/internal_rgb2rgb_scalar.hh
 
   purpose:
-    Scalar routines to convert greyscale images to RGB raw.
+    Transform YUV data into 16bit true color RGB raw data.
+    Every bit organization in a 16bit field and endianess
+    translation is supported.
 
   notes:
 
@@ -12,7 +15,8 @@
    - Dirk Farin, dirk.farin@gmx.de
 
   modifications:
-   16/Jul/2000 - Dirk Farin - first implementation
+    08/Aug/1999 - Dirk Farin - code imported from DVDview and
+                               slightly modified
  ********************************************************************************
     LibVideoGfx - video processing library
     Copyright (C) 2002  Dirk Farin
@@ -32,66 +36,45 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ********************************************************************************/
 
-#ifndef LIBVIDEOGFX_GRAPHICS_INTERNAL_GREY2RGB_SCALAR_HH
-#define LIBVIDEOGFX_GRAPHICS_INTERNAL_GREY2RGB_SCALAR_HH
+#ifndef LIBVIDEOGFX_GRAPHICS_COLOR_INTERNAL_RGB2RGB_SCALAR_HH
+#define LIBVIDEOGFX_GRAPHICS_COLOR_INTERNAL_RGB2RGB_SCALAR_HH
 
 #include <libvideogfx/graphics/color/img2raw.hh>
 #include "libvideogfx/graphics/color/internal_img2raw.hh"
 
 namespace videogfx {
 
-  /* Convert greyscale to RGB components in 32bit entities in arbitrary order.
-   */
-  class i2r_grey_32bit : public Image2RawRGB_Transform
+  /* Place RGB components in 32bit entities in arbitrary order.
+     For the special cases that can be handled by the classes i2r_xrgb and i2r_xbgr you
+     should use them as they are a bit faster.
+  */
+  class i2r_32bit : public Image2RawRGB_Transform
   {
   public:
-    virtual ~i2r_grey_32bit() { }
+    virtual ~i2r_32bit() { }
     virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
 
     static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
     virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
 
-    virtual const char* TransformationName() { return "scalar grey to 32bit RGB"; }
+    virtual const char* TransformationName() { return "scalar 32bit RGB"; }
   };
 
 
-  class i2r_grey_24bit : public Image2RawRGB_Transform
+  /* Place RGB components in 16bit entities in arbitrary order.
+     For the special cases that can be handled by the classes i2r_xrgb and i2r_xbgr you
+     should use them as they are a bit faster.
+  */
+  class i2r_16bit : public Image2RawRGB_Transform
   {
   public:
-    virtual ~i2r_grey_24bit() { }
+    virtual ~i2r_16bit() { }
     virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
 
     static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
     virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
 
-    virtual const char* TransformationName() { return "scalar grey to 24bit RGB"; }
-  };
-
-
-  class i2r_grey_16bit : public Image2RawRGB_Transform
-  {
-  public:
-    virtual ~i2r_grey_16bit() { }
-    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
-
-    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
-    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
-
-    virtual const char* TransformationName() { return "scalar grey to 16bit RGB"; }
-  };
-
-
-
-  class i2r_grey_4bit : public Image2RawRGB_Transform
-  {
-  public:
-    virtual ~i2r_grey_4bit() { }
-    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
-
-    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
-    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
-
-    virtual const char* TransformationName() { return "scalar grey to 4bit gray-scale"; }
+    virtual const char* TransformationName() { return "scalar 16bit RGB"; }
   };
 
 }
