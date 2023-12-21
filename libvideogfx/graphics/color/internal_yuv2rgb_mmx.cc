@@ -85,4 +85,31 @@ namespace videogfx {
     constants[1] = 0x1010101010101010LL;     //   8  8x   16   // Y offs
     constants[2] = 0x0066006600660066LL;     //  16  4x  102 =  409/4         // Cb  ->R
     constants[3] = 0x0034001900340019LL;     //  24  2x (52 25) = 208/4 100/4 // CbCr->G
-    constants[
+    constants[4] = 0x0081008100810081LL;     //  32  4x  129 =  516/4         // Cb  ->B
+    constants[5] = 0x004A004A004A004ALL;     //  40  4x   74 =  298/4         // Y mul
+
+    //  6 tmp  0        //  48
+    //  7 tmp  8        //  56
+    //  8 tmp 16        //  64
+    //  9 tmp 24        //  72
+    // 10 tmp 32        //  80
+    // 11 tmp 40        //  88
+
+    static uint64 bitsconsts[9] =
+    {
+      0,
+      0xfefefefefefefefeLL,     // 1 bit-Mask
+      0xfcfcfcfcfcfcfcfcLL,     // 2 bit-Mask
+      0xf8f8f8f8f8f8f8f8LL,     // 3 bit-Mask
+      0xf0f0f0f0f0f0f0f0LL,     // 4 bit-Mask
+      0xe0e0e0e0e0e0e0e0LL,     // 5 bit-Mask
+      0xc0c0c0c0c0c0c0c0LL,     // 6 bit-Mask
+      0x8080808080808080LL,     // 7 bit-Mask
+      0
+    };
+
+    constants[12] = bitsconsts[d_spec.r_bits];   //  96
+    constants[13] = bitsconsts[d_spec.g_bits];   // 104
+    constants[14] = bitsconsts[d_spec.b_bits];   // 112
+    constants[15] = (8-d_spec.r_bits)+6;         // 120
+    constants[16] = (8-d_spec.g_bits)+6;         //
