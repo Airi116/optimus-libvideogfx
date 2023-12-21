@@ -112,4 +112,37 @@ namespace videogfx {
     constants[13] = bitsconsts[d_spec.g_bits];   // 104
     constants[14] = bitsconsts[d_spec.b_bits];   // 112
     constants[15] = (8-d_spec.r_bits)+6;         // 120
-    constants[16] = (8-d_spec.g_bits)+6;         //
+    constants[16] = (8-d_spec.g_bits)+6;         // 128
+    constants[17] = (8-d_spec.b_bits)+6;         // 136
+    constants[18] = d_spec.r_shift-8;            // 144
+    constants[19] = d_spec.g_shift;              // 152
+
+
+
+    // --------- TRANSFORM -----------
+
+    ImageParam param = img.AskParam();
+
+    assert(param.chroma==Chroma_420);
+
+    assert((firstline%2)==0);
+
+    const Pixel*const* pix_y  = img.AskFrameY();
+    const Pixel*const* pix_cb = img.AskFrameU();
+    const Pixel*const* pix_cr = img.AskFrameV();
+
+    int chr_w, chr_h;
+
+    param.AskChromaSizes(chr_w,chr_h);
+
+    const int w = param.width;
+
+    int yskip = 2*(pix_y [1]-pix_y [0]) - w;
+    int cskip =   (pix_cb[1]-pix_cb[0]) - w/2;
+    int mskip = 2*d_spec.bytes_per_line - 2*w;
+
+    const uint8*  yptr1 = (uint8*)pix_y[firstline];
+    const uint8*  yptr2 = (uint8*)pix_y[firstline+1];
+    const uint8*  cbptr = (uint8*)pix_cb[firstline/2];
+    const uint8*  crptr = (uint8*)pix_cr[firstline/2];
+    uint8* membuf_a = ((uint8*)(m
