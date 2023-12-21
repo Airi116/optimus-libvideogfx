@@ -57,3 +57,32 @@ namespace videogfx {
 
     int w = (param.width+7) & ~7;
     if (spec.bytes_per_line < 2*w) return false;
+
+    if (param.height & 1) return false;
+
+    return true;
+  }
+
+
+  void i2r_16bit_mmx::Transform(const Image<Pixel>& img,uint8* mem,int firstline,int lastline)
+  {
+    uint64 constants[20];
+
+    const uint32 rmask=d_spec.r_mask;
+    const uint32 gmask=d_spec.g_mask;
+    const uint32 bmask=d_spec.b_mask;
+
+    uint32 rshift,gshift,bshift;
+
+    rshift = d_spec.r_shift;  rshift -= 8-d_spec.r_bits;  rshift -= 8;  rshift = -rshift;
+    gshift = d_spec.g_shift;  gshift -= 8-d_spec.g_bits;  gshift -= 8;  gshift = -gshift;
+    bshift = d_spec.b_shift;  bshift -= 8-d_spec.b_bits;  bshift -= 8;  bshift = -bshift;
+
+
+    // ---------------------------------------
+
+    constants[0] = 0x0080008000800080LL;     //   0  4x  128   // UV offs
+    constants[1] = 0x1010101010101010LL;     //   8  8x   16   // Y offs
+    constants[2] = 0x0066006600660066LL;     //  16  4x  102 =  409/4         // Cb  ->R
+    constants[3] = 0x0034001900340019LL;     //  24  2x (52 25) = 208/4 100/4 // CbCr->G
+    constants[
