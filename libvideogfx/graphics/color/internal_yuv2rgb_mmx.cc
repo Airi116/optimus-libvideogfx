@@ -180,4 +180,17 @@ namespace videogfx {
 	       "movq        %%mm1,56(%3)\n\t" // G-Impact sichern
 	       " punpcklwd  %%mm1,%%mm1\n\t"  // beide low G-Impacts verdoppeln
 	       "movq        %%mm6,%%mm0\n\t"  // 4 low Y-Pixel nach mm0
-	       " punpckhwd  %%mm4,%%mm
+	       " punpckhwd  %%mm4,%%mm4\n\t"  // beide high G-Impacts verdoppeln
+	       "movq        %%mm7,%%mm3\n\t"  // 4 high Y-Pixel nach mm3
+	       " psubw      %%mm1,%%mm6\n\t"  // 4 low G in mm6 berechnen
+	       "psraw       128(%3),%%mm6\n\t"// G-Werte in mm6 in richtige Position bringen
+	       " psubw      %%mm4,%%mm7\n\t"  // 4 high G in mm7 berechnen
+	       "movq        %%mm5,%%mm2\n\t"  // 4 Cr-Werte nach mm2
+	       " punpcklwd  %%mm5,%%mm5\n\t"  // beide low Cr-Impacts verdoppeln
+	       "pmullw      32(%3),%%mm5\n\t" // 4 low B-Impacts berechnen
+	       " punpckhwd  %%mm2,%%mm2\n\t"  // beide high Cr-Impacts verdoppeln
+	       "psraw       128(%3),%%mm7\n\t"// G-Werte in mm7 in richtige Position bringen
+	       " pmullw     32(%3),%%mm2\n\t" // 4 high B-Impacts berechnen
+	       "packuswb    %%mm7,%%mm6\n\t"  // G-Werte in mm6 zusammenfassen
+	       "movq        %%mm5,64(%3)\n\t" // 4 low B-Impacts sichern
+	       " paddw      %%mm0,%%mm5\n\t"  // 4 low B in mm5 berech
