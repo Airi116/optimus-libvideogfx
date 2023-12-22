@@ -209,4 +209,22 @@ namespace videogfx {
 	       "paddusb    112(%3),%%mm5\n\t" // B saettigen (nach oben)
 	       "movq        %%mm2,72(%3)\n\t" // 4 low R-Impacts sichern
 	       "paddw       %%mm0,%%mm2\n\t"  // 4 low R berechnen
-	       "psraw      120(%3),%
+	       "psraw      120(%3),%%mm2\n\t" // 4 low R in richtige Position bringen
+	       " pxor       %%mm4,%%mm4\n\t"  // mm4=0
+	       "movq        %%mm7,80(%3)\n\t" // 4 high R-Impacts sichern
+	       " paddw      %%mm3,%%mm7\n\t"  // 4 high R berechnen
+	       "psraw      120(%3),%%mm7\n\t" // 4 high R in richtige Position bringen
+	       "psubusb    112(%3),%%mm5\n\t" // B saettigen (nach unten)
+	       " packuswb   %%mm7,%%mm2\n\t"  // R-Werte in mm2 zusammenfassen
+	       "paddusb    104(%3),%%mm6\n\t" // G saettigen
+	       "psubusb    104(%3),%%mm6\n\t"
+	       "paddusb     96(%3),%%mm2\n\t" // R saettigen
+	       "psubusb     96(%3),%%mm2\n\t"
+
+
+	       // Nun noch in richtiges Display-Format umwandeln.
+
+	       "psllq      144(%3),%%mm2\n\t" // R nach links schieben
+	       " movq      %%mm5,%%mm7\n\t"   // B nach mm7 kopieren
+	       "punpcklbw  %%mm2,%%mm5\n\t"   // 4 low R und B zusammenfassen (R-B)(R-B)(R-B)(R-B)
+	       " pxor      %%mm
