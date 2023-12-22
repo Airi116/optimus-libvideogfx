@@ -227,4 +227,27 @@ namespace videogfx {
 	       "psllq      144(%3),%%mm2\n\t" // R nach links schieben
 	       " movq      %%mm5,%%mm7\n\t"   // B nach mm7 kopieren
 	       "punpcklbw  %%mm2,%%mm5\n\t"   // 4 low R und B zusammenfassen (R-B)(R-B)(R-B)(R-B)
-	       " pxor      %%mm
+	       " pxor      %%mm0,%%mm0\n\t"   // mm0=0
+	       "punpckhbw  %%mm2,%%mm7\n\t"   // 4 high R und B zusammenfassen
+	       " movq      %%mm6,%%mm3\n\t"   // G nach mm3
+	       "punpcklbw  %%mm0,%%mm6\n\t"   // 4 low G nach mm6
+	       "psllw      152(%3),%%mm6\n\t" // 4 low G in Position bringen
+	       "punpckhbw  %%mm0,%%mm3\n\t"   // 4 high G nach mm3
+	       " por       %%mm6,%%mm5\n\t"   // 4 low RGB16 nach mm5
+	       "psllw      152(%3),%%mm3\n\t" // 4 high G in Position bringen
+	       "por        %%mm3,%%mm7\n\t"   // 4 high RGB16 nach mm7
+
+	       : : "r" (yptr1), "r" (cbptr), "r" (crptr) , "r" (&constants[0])
+	       );
+
+
+	    __asm__ __volatile__
+	      (
+	       "movq       %%mm5, (%1)\n\t"   // die ersten 4 RGB16 Pixel schreiben
+
+	       // zweite der beiden Zeilen bearbeiten
+
+	       "movq       (%0),%%mm1\n\t"    // 8 Y-Pixel nach mm1
+	       " pxor      %%mm2,%%mm2\n\t"   // mm2=0
+	       "psubusb    8(%3),%%mm1\n\t"   // Y-Offset subtrahieren
+	 
