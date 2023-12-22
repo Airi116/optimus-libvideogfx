@@ -193,4 +193,20 @@ namespace videogfx {
 	       " pmullw     32(%3),%%mm2\n\t" // 4 high B-Impacts berechnen
 	       "packuswb    %%mm7,%%mm6\n\t"  // G-Werte in mm6 zusammenfassen
 	       "movq        %%mm5,64(%3)\n\t" // 4 low B-Impacts sichern
-	       " paddw      %%mm0,%%mm5\n\t"  // 4 low B in mm5 berech
+	       " paddw      %%mm0,%%mm5\n\t"  // 4 low B in mm5 berechnen
+	       "movq        %%mm2,88(%3)\n\t" // 4 high B-Impacts sichern
+	       " paddw      %%mm3,%%mm2\n\t"  // 4 high B in mm2 berechnen
+	       "psraw       136(%3),%%mm5\n\t"// B-Werte in richtige Position bringen
+	       "psraw       136(%3),%%mm2\n\t"// B-Werte in richtige Position bringen
+	       "packuswb    %%mm2,%%mm5\n\t"  // B-Werte in mm5 zusammenfassen
+
+	       "movq        48(%3),%%mm2\n\t" // 4 Cr-Werte nach mm2
+	       "movq        %%mm2,%%mm7\n\t"  // 4 Cr-Werte nach mm7 kopieren
+	       " punpcklwd  %%mm2,%%mm2\n\t"  // 2 low Cr Werte verdoppeln
+	       "pmullw      16(%3),%%mm2\n\t" // 2 low R-Impacts berechnen
+	       " punpckhwd  %%mm7,%%mm7\n\t"  // 2 high Cr Werte verdoppeln
+	       "pmullw      16(%3),%%mm7\n\t" // 4 high R-Impacts berechnen
+	       "paddusb    112(%3),%%mm5\n\t" // B saettigen (nach oben)
+	       "movq        %%mm2,72(%3)\n\t" // 4 low R-Impacts sichern
+	       "paddw       %%mm0,%%mm2\n\t"  // 4 low R berechnen
+	       "psraw      120(%3),%
