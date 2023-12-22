@@ -165,4 +165,19 @@ namespace videogfx {
 	       "movq        %%mm1,%%mm5\n\t"  // ... und nach mm5
 	       " punpcklwd  %%mm2,%%mm1\n\t"  // in mm1 ist jetzt: LoCr1 LoCb1 LoCr2 LoCb2
 	       "pmaddwd     24(%3),%%mm1\n\t" // mm1 mit CbCr-MulAdd -> LoGimpact1 LoGimpact2
-	       " punpckhwd  %%mm2,%%mm3\n\
+	       " punpckhwd  %%mm2,%%mm3\n\t"  // in mm3 ist jetzt: HiCr1 HiCb1 HiCr2 HiCb2
+	       "pmaddwd     24(%3),%%mm3\n\t" // mm3 mit CbCr-MulAdd -> HiGimpact1 HiGimpact2
+	       "movq        %%mm2,48(%3)\n\t" // mm2 sichern (Cr)
+	       "movq        (%0),%%mm6\n\t"   // 8 Y-Pixel nach mm6
+	       "psubusb     8(%3),%%mm6\n\t"  // Y -= 16
+	       " packssdw   %%mm3,%%mm1\n\t"  // mm1 enthaelt nun 4x G-Impact
+	       "movq        %%mm6,%%mm7\n\t"  // Y-Pixel nach mm7 kopieren
+	       " punpcklbw  %%mm0,%%mm6\n\t"  // 4 low Y-Pixel nach mm6
+	       "pmullw      40(%3),%%mm6\n\t" // ... diese mit Ymul multiplizieren
+	       " punpckhbw  %%mm0,%%mm7\n\t"  // 4 high Y-Pixel nach mm7
+	       "pmullw      40(%3),%%mm7\n\t" // ... diese mit Ymul multiplizieren
+	       " movq       %%mm1,%%mm4\n\t"  // G-Impact nach mm4
+	       "movq        %%mm1,56(%3)\n\t" // G-Impact sichern
+	       " punpcklwd  %%mm1,%%mm1\n\t"  // beide low G-Impacts verdoppeln
+	       "movq        %%mm6,%%mm0\n\t"  // 4 low Y-Pixel nach mm0
+	       " punpckhwd  %%mm4,%%mm
