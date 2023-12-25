@@ -364,4 +364,34 @@ namespace videogfx {
 
   void i2r_32bit_BGR_mmx::Transform(const Image<Pixel>& img,uint8* mem,int firstline,int lastline)
   {
-    ImageParam param = img.A
+    ImageParam param = img.AskParam();
+
+    assert(param.chroma==Chroma_420);
+    assert((firstline%2) == 0);
+
+    const Pixel*const* pix_y  = img.AskFrameY();
+    const Pixel*const* pix_cb = img.AskFrameU();
+    const Pixel*const* pix_cr = img.AskFrameV();
+
+    const int w = param.width;
+
+    for (int y=firstline;y<=lastline;y+=2)
+      {
+	const uint8*  yptr1 = (uint8*)pix_y[y];
+	const uint8*  yptr2 = (uint8*)pix_y[y+1];
+	const uint8*  cbptr = (uint8*)pix_cb[y/2];
+	const uint8*  crptr = (uint8*)pix_cr[y/2];
+
+	uint8* membuf_a = ((uint8*)(mem))+d_spec.bytes_per_line*(y-firstline);
+	uint8* membuf_b = membuf_a+d_spec.bytes_per_line;
+
+	for (int x=0;x<w;x+=8)
+	  {
+	    __asm__ __volatile__
+	      (
+	       ".align 8 \n\t"
+	       "movd        (%1),%%mm1\n\t"   // 4 Cb-Werte nach mm1
+	       " pxor       %%mm0,%%mm0\n\t"  // mm0=0
+	       "movd        (%2),%%mm2\n\t"   // 4 Cr-Werte nach mm2
+	       " punpcklbw  %%mm0,%%mm1\n\t"  // Cb-Werte in mm1 auf 16bit Breite bringen
+	       "psubw       UVoffset
