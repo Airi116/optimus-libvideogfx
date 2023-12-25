@@ -336,4 +336,32 @@ namespace videogfx {
 
   bool i2r_32bit_BGR_mmx::s_CanConvert(const Image<Pixel>& img,const RawRGBImageSpec& spec)
   {
-    if (spec.dest_width 
+    if (spec.dest_width || spec.upscale_factor || spec.downscale_factor) return false;
+    if (spec.bits_per_pixel != 32) return false;
+    if (spec.r_bits != 8 || spec.g_bits != 8 || spec.b_bits != 8) return false;
+    if (!spec.little_endian) return false;
+    if (spec.r_shift!=16 || spec.g_shift!= 8 || spec.b_shift!= 0) return false;
+
+    ImageParam param = img.AskParam();
+
+    if (param.colorspace != Colorspace_YUV) return false;
+    if (param.chroma !=Chroma_420) return false;
+
+
+    int w = (param.width+7) & ~7;
+    if (w != param.width) return false; /* TODO: If input is not a multiple of 8, do not use MMX.
+					   We could be more efficient here. */
+
+    //cout << "w: " << param.width << " -> " << w << endl;
+    //cout << "bpl: " << spec.bytes_per_line << " (4w = " << 4*w << ")" << endl;
+
+    if (spec.bytes_per_line < 4*w) return false;
+
+    if (param.height & 1) return false;
+
+    return true;
+  }
+
+  void i2r_32bit_BGR_mmx::Transform(const Image<Pixel>& img,uint8* mem,int firstline,int lastline)
+  {
+    ImageParam param = img.A
