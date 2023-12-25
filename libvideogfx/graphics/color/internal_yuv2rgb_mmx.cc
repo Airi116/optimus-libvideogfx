@@ -296,4 +296,44 @@ namespace videogfx {
 	       "movq       %%mm1,%%mm3\n\t"   // G nach mm3
 	       " punpckhbw %%mm0,%%mm7\n\t"   // 4 high R und B zusammenfassen
 	       "punpcklbw  %%mm4,%%mm1\n\t"   // 4 low G nach mm1
-	       "punpckhbw  %%mm4,%%mm3
+	       "punpckhbw  %%mm4,%%mm3\n\t"   // 4 high G nach mm3
+	       "psllw      152(%3),%%mm1\n\t" // 4 low G in Position bringen
+	       " por       %%mm1,%%mm2\n\t"   // 4 low RGB16 nach mm2
+	       "psllw      152(%3),%%mm3\n\t" // 4 high G in Position bringen
+	       "por        %%mm3,%%mm7\n\t"   // 4 high RGB16 nach mm7
+
+	       "movq       %%mm2, (%2)\n\t"   // die ersten 4 RGB16 Pixel schreiben
+	       "movq       %%mm7,8(%2)\n\t"   // die zweiten 4 RGB16 Pixel schreiben
+
+	       : : "r" (yptr2), "r" (membuf_a), "r" (membuf_b) , "r" (&constants[0])
+	       );
+
+	    yptr1+=8;
+	    yptr2+=8;
+	    cbptr+=4;
+	    crptr+=4;
+	    membuf_a+=16;
+	    membuf_b+=16;
+	  }
+
+	yptr1 += yskip;
+	yptr2 += yskip;
+	cbptr += cskip;
+	crptr += cskip;
+	membuf_a += mskip;
+	membuf_b += mskip;
+      }
+
+    __asm__
+      (
+       "emms\n\t"
+       );
+  }
+
+
+  // ------------------------------
+
+
+  bool i2r_32bit_BGR_mmx::s_CanConvert(const Image<Pixel>& img,const RawRGBImageSpec& spec)
+  {
+    if (spec.dest_width 
