@@ -278,3 +278,22 @@ namespace videogfx {
 	       "psraw      128(%3),%%mm1\n\t" // 4 low G in richtige Position schieben
 	       " psubw     %%mm4,%%mm5\n\t"   // 4 high G in mm5 berechnen
 	       "psraw      128(%3),%%mm5\n\t" // 4 high G in richtige Position schieben
+	       "paddusb    112(%3),%%mm2\n\t" // B nach oben saettigen
+	       " packuswb  %%mm5,%%mm1\n\t"   // 8 G Werte in mm1 zusammenfassen
+	       "psubusb    112(%3),%%mm2\n\t" // B nach unten saettigen
+	       "paddusb     96(%3),%%mm0\n\t" // R nach oben saettigen
+	       "psubusb     96(%3),%%mm0\n\t" // R nach unten saettigen
+	       "paddusb    104(%3),%%mm1\n\t" // G nach oben saettigen
+	       "psubusb    104(%3),%%mm1\n\t" // G nach unten saettigen
+
+	       // Nun noch in richtiges Display-Format umwandeln.
+
+	       "psllq      144(%3),%%mm0\n\t" // R nach links schieben
+	       " movq      %%mm2,%%mm7\n\t"   // B nach mm7 kopieren
+
+	       "punpcklbw  %%mm0,%%mm2\n\t"   // 4 low R und B zusammenfassen (R-B)(R-B)(R-B)(R-B)
+	       " pxor      %%mm4,%%mm4\n\t"   // mm4=0
+	       "movq       %%mm1,%%mm3\n\t"   // G nach mm3
+	       " punpckhbw %%mm0,%%mm7\n\t"   // 4 high R und B zusammenfassen
+	       "punpcklbw  %%mm4,%%mm1\n\t"   // 4 low G nach mm1
+	       "punpckhbw  %%mm4,%%mm3
