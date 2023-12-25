@@ -264,3 +264,17 @@ namespace videogfx {
 	       " movq      %%mm1,%%mm2\n\t"   // 4 low Y nach mm2
 	       "psraw      120(%3),%%mm5\n\t" // 4 high R in richtige Position schieben
 	       "paddw      64(%3),%%mm2\n\t"  // 4 low B-Impacts addieren -> 4 low B in mm2
+	       " packuswb  %%mm5,%%mm0\n\t"   // 8 R Werte zusammenfassen nach mm0
+	       "psraw      136(%3),%%mm2\n\t" // 4 low B in Position schieben
+	       " movq      %%mm6,%%mm5\n\t"   // 4 high Y nach mm5
+	       "paddw      88(%3),%%mm6\n\t"  // 4 high B-Impacts addieren -> 4 high B in mm6
+	       "psraw      136(%3),%%mm6\n\t" // 4 high B in richtige Position schieben
+	       "movq       56(%3),%%mm3\n\t"  // 4 low G-Impacts nach mm3
+	       "packuswb   %%mm6,%%mm2\n\t"   // 8 B Werte zusammenfassen nach mm2
+	       " movq      %%mm3,%%mm4\n\t"   // 4 low G-Impacts nach mm4 kopieren
+	       "punpcklwd  %%mm3,%%mm3\n\t"   // low 2 G-Impacts verdoppeln
+	       "punpckhwd  %%mm4,%%mm4\n\t"   // high 2 G-Impacts verdoppeln
+	       " psubw     %%mm3,%%mm1\n\t"   // 4 low G in mm1 berechnen
+	       "psraw      128(%3),%%mm1\n\t" // 4 low G in richtige Position schieben
+	       " psubw     %%mm4,%%mm5\n\t"   // 4 high G in mm5 berechnen
+	       "psraw      128(%3),%%mm5\n\t" // 4 high G in richtige Position schieben
