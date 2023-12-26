@@ -454,4 +454,35 @@ namespace videogfx {
                "psraw      shift6bit,%%mm7\n\t" // 4 high R in richtige Position bringen
 	       " packuswb   %%mm7,%%mm2\n\t"  // R-Werte in mm2 zusammenfassen
 
-	       //"movq   
+	       //"movq        %%mm6,(%4)\n\t"
+
+
+	       // Nun noch in richtiges Display-Format umwandeln.
+
+	       : : "r" (yptr1), "r" (cbptr), "r" (crptr) 
+	       );
+
+
+	    __asm__ __volatile__
+	      (
+	       ".align 8 \n\t"
+	       "movq       %%mm2,%%mm7\n\t" // G
+	       "movq       %%mm5,%%mm4\n\t" // B
+	       "movq       %%mm6,%%mm3\n\t" // R
+
+	       "pxor       %%mm0,%%mm0\n\t"
+	       "punpcklbw  %%mm0,%%mm2\n\t"
+	       "punpcklbw  %%mm6,%%mm5\n\t"
+	       "movq       %%mm5,%%mm1\n\t"
+	       "punpcklwd  %%mm2,%%mm5\n\t"
+	       "movq       %%mm5,  (%1)\n\t" // die ersten  2 RGB32 Pixel schreiben
+	       "punpckhwd  %%mm2,%%mm1\n\t"
+	       "movq       %%mm1, 8(%1)\n\t" // die zweiten 2 RGB32 Pixel schreiben
+
+	       "pxor       %%mm0,%%mm0\n\t"
+	       "punpckhbw  %%mm0,%%mm7\n\t"
+	       "punpckhbw  %%mm3,%%mm4\n\t"
+	       "movq       %%mm4,%%mm2\n\t"
+	       "punpcklwd  %%mm7,%%mm4\n\t"
+	       "movq       %%mm4,16(%1)\n\t" // die dritten 2 RGB32 Pixel schreiben
+	       "punpckhwd  %%mm7,%%mm2
