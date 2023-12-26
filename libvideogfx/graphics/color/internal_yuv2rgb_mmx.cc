@@ -423,4 +423,18 @@ namespace videogfx {
 	       " psubw      %%mm1,%%mm6\n\t"  // 4 low G in mm6 berechnen
                "psraw       shift6bit,%%mm6\n\t"// G-Werte in mm6 in richtige Position bringen
 	       " psubw      %%mm4,%%mm7\n\t"  // 4 high G in mm7 berechnen
-	       "movq        %%mm5,%%mm2\n\t"  // 4 Cr-Wert
+	       "movq        %%mm5,%%mm2\n\t"  // 4 Cr-Werte nach mm2
+	       " punpcklwd  %%mm5,%%mm5\n\t"  // beide low Cr-Impacts verdoppeln
+	       "pmullw      Cb2Bfact,%%mm5\n\t" // 4 low B-Impacts berechnen
+	       " punpckhwd  %%mm2,%%mm2\n\t"  // beide high Cr-Impacts verdoppeln
+               "psraw       shift6bit,%%mm7\n\t"// G-Werte in mm7 in richtige Position bringen
+	       " pmullw     Cb2Bfact,%%mm2\n\t" // 4 high B-Impacts berechnen
+	       "packuswb    %%mm7,%%mm6\n\t"  // G-Werte in mm6 zusammenfassen
+
+	       "movq        %%mm5,tmp_bimpact\n\t" // 4 low B-Impacts sichern
+	       " paddw      %%mm0,%%mm5\n\t"  // 4 low B in mm5 berechnen
+	       "movq        %%mm2,tmp_bimpact2\n\t" // 4 high B-Impacts sichern
+	       " paddw      %%mm3,%%mm2\n\t"  // 4 high B in mm2 berechnen
+               "psraw       shift6bit,%%mm5\n\t"// B-Werte in richtige Position bringen
+               "psraw       shift6bit,%%mm2\n\t"// B-Werte in richtige Position bringen
+	       "packuswb    %%mm2,%%mm5\n\t"  // B-Werte in mm5 zusammenfass
