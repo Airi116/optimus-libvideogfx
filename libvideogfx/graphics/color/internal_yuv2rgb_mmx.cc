@@ -546,4 +546,34 @@ namespace videogfx {
 	       "movq       %%mm2,%%mm5\n\t"
 	       "punpcklwd  %%mm0,%%mm2\n\t"
 	       "movq       %%mm2,  (%2)\n\t" // die ersten  2 RGB32 Pixel schreiben
-	       "punpckhwd  %%mm0,%%
+	       "punpckhwd  %%mm0,%%mm5\n\t"
+	       "movq       %%mm5, 8(%2)\n\t" // die zweiten 2 RGB32 Pixel schreiben
+
+	       "pxor       %%mm6,%%mm6\n\t"
+	       "punpckhbw  %%mm6,%%mm7\n\t"
+	       "punpckhbw  %%mm3,%%mm4\n\t"
+	       "movq       %%mm4,%%mm0\n\t"
+	       "punpcklwd  %%mm7,%%mm4\n\t"
+	       "movq       %%mm4,16(%2)\n\t" // die dritten 2 RGB32 Pixel schreiben
+	       "punpckhwd  %%mm7,%%mm0\n\t"
+	       "movq       %%mm0,24(%2)\n\t" // die vierten 2 RGB32 Pixel schreiben
+
+	       : : "r" (yptr2), "r" (membuf_a), "r" (membuf_b) 
+	       );
+
+	    yptr1+=8;
+	    yptr2+=8;
+	    cbptr+=4;
+	    crptr+=4;
+	    membuf_a+=32;
+	    membuf_b+=32;
+	  }
+      }
+
+    __asm__
+      (
+       "emms\n\t"
+       );
+  }
+
+}
