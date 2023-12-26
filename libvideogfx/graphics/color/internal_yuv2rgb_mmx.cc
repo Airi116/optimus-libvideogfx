@@ -503,4 +503,17 @@ namespace videogfx {
 	       "paddw      tmp_rimpact,%%mm0\n\t"  // 4 low R-Impacts addieren -> 4 low R in mm0
 	       " movq      %%mm5,%%mm6\n\t"   // 4 high Y nach mm6
                "psraw      shift6bit,%%mm0\n\t" // 4 low R in richtige Position schieben
-	       "paddw      tmp_rimpact2,%%mm5\n\t"  // 4 high R-Impacts addie
+	       "paddw      tmp_rimpact2,%%mm5\n\t"  // 4 high R-Impacts addieren -> 4 high R in mm5
+	       " movq      %%mm1,%%mm2\n\t"   // 4 low Y nach mm2
+               "psraw      shift6bit,%%mm5\n\t" // 4 high R in richtige Position schieben
+	       "paddw      tmp_bimpact,%%mm2\n\t"  // 4 low B-Impacts addieren -> 4 low B in mm2
+	       " packuswb  %%mm5,%%mm0\n\t"   // 8 R Werte zusammenfassen nach mm0
+               "psraw      shift6bit,%%mm2\n\t" // 4 low B in Position schieben
+	       " movq      %%mm6,%%mm5\n\t"   // 4 high Y nach mm5
+	       "paddw      tmp_bimpact2,%%mm6\n\t"  // 4 high B-Impacts addieren -> 4 high B in mm6
+               "psraw      shift6bit,%%mm6\n\t" // 4 high B in richtige Position schieben
+	       "movq       tmp_gimpact,%%mm3\n\t"  // 4 low G-Impacts nach mm3
+	       "packuswb   %%mm6,%%mm2\n\t"   // 8 B Werte zusammenfassen nach mm2
+	       " movq      %%mm3,%%mm4\n\t"   // 4 low G-Impacts nach mm4 kopieren
+	       "punpcklwd  %%mm3,%%mm3\n\t"   // low 2 G-Impacts verdoppeln
+	       "punpckhwd  %%mm4,%%m
