@@ -437,4 +437,21 @@ namespace videogfx {
 	       " paddw      %%mm3,%%mm2\n\t"  // 4 high B in mm2 berechnen
                "psraw       shift6bit,%%mm5\n\t"// B-Werte in richtige Position bringen
                "psraw       shift6bit,%%mm2\n\t"// B-Werte in richtige Position bringen
-	       "packuswb    %%mm2,%%mm5\n\t"  // B-Werte in mm5 zusammenfass
+	       "packuswb    %%mm2,%%mm5\n\t"  // B-Werte in mm5 zusammenfassen
+
+	       "movq        tmp_cr,%%mm2\n\t" // 4 Cr-Werte nach mm2
+	       "movq        %%mm2,%%mm7\n\t"  // 4 Cr-Werte nach mm7 kopieren
+	       " punpcklwd  %%mm2,%%mm2\n\t"  // 2 low Cr Werte verdoppeln
+	       "pmullw      Cb2Rfact,%%mm2\n\t" // 2 low R-Impacts berechnen
+	       " punpckhwd  %%mm7,%%mm7\n\t"  // 2 high Cr Werte verdoppeln
+	       "pmullw      Cb2Rfact,%%mm7\n\t" // 4 high R-Impacts berechnen
+	       "movq        %%mm2,tmp_rimpact\n\t" // 4 low R-Impacts sichern
+	       "paddw       %%mm0,%%mm2\n\t"  // 4 low R berechnen
+               "psraw      shift6bit,%%mm2\n\t" // 4 low R in richtige Position bringen
+	       " pxor       %%mm4,%%mm4\n\t"  // mm4=0
+	       "movq        %%mm7,tmp_rimpact2\n\t" // 4 high R-Impacts sichern
+	       " paddw      %%mm3,%%mm7\n\t"  // 4 high R berechnen
+               "psraw      shift6bit,%%mm7\n\t" // 4 high R in richtige Position bringen
+	       " packuswb   %%mm7,%%mm2\n\t"  // R-Werte in mm2 zusammenfassen
+
+	       //"movq   
