@@ -516,4 +516,34 @@ namespace videogfx {
 	       "packuswb   %%mm6,%%mm2\n\t"   // 8 B Werte zusammenfassen nach mm2
 	       " movq      %%mm3,%%mm4\n\t"   // 4 low G-Impacts nach mm4 kopieren
 	       "punpcklwd  %%mm3,%%mm3\n\t"   // low 2 G-Impacts verdoppeln
-	       "punpckhwd  %%mm4,%%m
+	       "punpckhwd  %%mm4,%%mm4\n\t"   // high 2 G-Impacts verdoppeln
+	       " psubw     %%mm3,%%mm1\n\t"   // 4 low G in mm1 berechnen
+               "psraw      shift6bit,%%mm1\n\t" // 4 low G in richtige Position schieben
+	       " psubw     %%mm4,%%mm5\n\t"   // 4 high G in mm5 berechnen
+               "psraw      shift6bit,%%mm5\n\t" // 4 high G in richtige Position schieben
+	       " packuswb  %%mm5,%%mm1\n\t"   // 8 G Werte in mm1 zusammenfassen
+
+	       // Nun noch in richtiges Display-Format umwandeln.
+
+	       /*
+		 6->1
+		 2->0
+		 5->2
+		 3->3
+		 4->4
+		 7->7
+		 0->6
+		 1->5
+	       */
+
+	       "movq       %%mm0,%%mm7\n\t" // R
+	       "movq       %%mm2,%%mm4\n\t" // B
+	       "movq       %%mm1,%%mm3\n\t" // G
+
+	       "pxor       %%mm6,%%mm6\n\t"
+	       "punpcklbw  %%mm6,%%mm0\n\t"
+	       "punpcklbw  %%mm1,%%mm2\n\t"
+	       "movq       %%mm2,%%mm5\n\t"
+	       "punpcklwd  %%mm0,%%mm2\n\t"
+	       "movq       %%mm2,  (%2)\n\t" // die ersten  2 RGB32 Pixel schreiben
+	       "punpckhwd  %%mm0,%%
