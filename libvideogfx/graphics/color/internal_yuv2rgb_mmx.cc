@@ -485,4 +485,22 @@ namespace videogfx {
 	       "movq       %%mm4,%%mm2\n\t"
 	       "punpcklwd  %%mm7,%%mm4\n\t"
 	       "movq       %%mm4,16(%1)\n\t" // die dritten 2 RGB32 Pixel schreiben
-	       "punpckhwd  %%mm7,%%mm2
+	       "punpckhwd  %%mm7,%%mm2\n\t"
+	       "movq       %%mm2,24(%1)\n\t" // die vierten 2 RGB32 Pixel schreiben
+
+
+	       // zweite der beiden Zeilen bearbeiten
+
+	       "movq       (%0),%%mm1\n\t"    // 8 Y-Pixel nach mm1
+	       " pxor      %%mm2,%%mm2\n\t"   // mm2=0
+	       "psubusb    Yoffset,%%mm1\n\t"   // Y-Offset subtrahieren
+	       "movq       %%mm1,%%mm5\n\t"   // 8 Y nach mm5
+	       " punpcklbw %%mm2,%%mm1\n\t"   // 4 low Y nach mm1
+	       "pmullw     Yfact,%%mm1\n\t"  // 4 low Y mit Ymul multiplizieren
+	       " punpckhbw %%mm2,%%mm5\n\t"   // 4 high Y nach mm5
+	       "pmullw     Yfact,%%mm5\n\t"  // 4 high Y mit Ymul multiplizieren
+	       " movq      %%mm1,%%mm0\n\t"   // 4 low Y nach mm0
+	       "paddw      tmp_rimpact,%%mm0\n\t"  // 4 low R-Impacts addieren -> 4 low R in mm0
+	       " movq      %%mm5,%%mm6\n\t"   // 4 high Y nach mm6
+               "psraw      shift6bit,%%mm0\n\t" // 4 low R in richtige Position schieben
+	       "paddw      tmp_rimpact2,%%mm5\n\t"  // 4 high R-Impacts addie
