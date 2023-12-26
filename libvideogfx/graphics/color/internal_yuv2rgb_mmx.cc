@@ -394,4 +394,19 @@ namespace videogfx {
 	       " pxor       %%mm0,%%mm0\n\t"  // mm0=0
 	       "movd        (%2),%%mm2\n\t"   // 4 Cr-Werte nach mm2
 	       " punpcklbw  %%mm0,%%mm1\n\t"  // Cb-Werte in mm1 auf 16bit Breite bringen
-	       "psubw       UVoffset
+	       "psubw       UVoffset,%%mm1\n\t"   // Offset 128 von Cb-Werten abziehen
+	       " punpcklbw  %%mm0,%%mm2\n\t"  // Cr-Werte in mm2 auf 16bit Breite bringen
+	       "psubw       UVoffset,%%mm2\n\t"   // Offset 128 von Cr-Werten abziehen
+
+	       " movq       %%mm1,%%mm3\n\t"  // Kopie von Cb-Werten nach mm3
+	       "movq        %%mm1,%%mm5\n\t"  // ... und nach mm5
+	       " punpcklwd  %%mm2,%%mm1\n\t"  // in mm1 ist jetzt: LoCr1 LoCb1 LoCr2 LoCb2
+	       "pmaddwd     CbCr2Gfact,%%mm1\n\t" // mm1 mit CbCr-MulAdd -> LoGimpact1 LoGimpact2
+	       " punpckhwd  %%mm2,%%mm3\n\t"  // in mm3 ist jetzt: HiCr1 HiCb1 HiCr2 HiCb2
+	       "pmaddwd     CbCr2Gfact,%%mm3\n\t" // mm3 mit CbCr-MulAdd -> HiGimpact1 HiGimpact2
+
+	       "movq        %%mm2,tmp_cr\n\t" // mm2 sichern (Cr)
+	       "movq        (%0),%%mm6\n\t"   // 8 Y-Pixel nach mm6
+	       "psubusb     Yoffset,%%mm6\n\t"  // Y -= 16
+	       " packssdw   %%mm3,%%mm1\n\t"  // mm1 enthaelt nun 4x G-Impact
+	       "movq        %%mm6,%%mm7\n\t"  // Y-Pixel nach mm7 kopi
