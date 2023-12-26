@@ -409,4 +409,18 @@ namespace videogfx {
 	       "movq        (%0),%%mm6\n\t"   // 8 Y-Pixel nach mm6
 	       "psubusb     Yoffset,%%mm6\n\t"  // Y -= 16
 	       " packssdw   %%mm3,%%mm1\n\t"  // mm1 enthaelt nun 4x G-Impact
-	       "movq        %%mm6,%%mm7\n\t"  // Y-Pixel nach mm7 kopi
+	       "movq        %%mm6,%%mm7\n\t"  // Y-Pixel nach mm7 kopieren
+	       " punpcklbw  %%mm0,%%mm6\n\t"  // 4 low Y-Pixel nach mm6
+	       "pmullw      Yfact,%%mm6\n\t" // ... diese mit Ymul multiplizieren
+	       " punpckhbw  %%mm0,%%mm7\n\t"  // 4 high Y-Pixel nach mm7
+	       "pmullw      Yfact,%%mm7\n\t" // ... diese mit Ymul multiplizieren
+	       " movq       %%mm1,%%mm4\n\t"  // G-Impact nach mm4
+	       "movq        %%mm1,tmp_gimpact\n\t" // G-Impact sichern
+	       " punpcklwd  %%mm1,%%mm1\n\t"  // beide low G-Impacts verdoppeln
+	       "movq        %%mm6,%%mm0\n\t"  // 4 low Y-Pixel nach mm0
+	       " punpckhwd  %%mm4,%%mm4\n\t"  // beide high G-Impacts verdoppeln
+	       "movq        %%mm7,%%mm3\n\t"  // 4 high Y-Pixel nach mm3
+	       " psubw      %%mm1,%%mm6\n\t"  // 4 low G in mm6 berechnen
+               "psraw       shift6bit,%%mm6\n\t"// G-Werte in mm6 in richtige Position bringen
+	       " psubw      %%mm4,%%mm7\n\t"  // 4 high G in mm7 berechnen
+	       "movq        %%mm5,%%mm2\n\t"  // 4 Cr-Wert
