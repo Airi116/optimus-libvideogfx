@@ -62,4 +62,11 @@ namespace videogfx {
     virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
 
     static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
-    virtual bool CanConve
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "YUV to 32bit RGB, (BGR format), MMX accelerated"; }
+  };
+
+}
+
+#endif
