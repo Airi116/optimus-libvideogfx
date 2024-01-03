@@ -30,4 +30,33 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Lesser General Public License for more details.
 
-    You should have received a copy of
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_GRAPHICS_COLOR_INTERNAL_YUV2RGB_SCALAR_HH
+#define LIBVIDEOGFX_GRAPHICS_COLOR_INTERNAL_YUV2RGB_SCALAR_HH
+
+#include "libvideogfx/graphics/color/img2raw.hh"
+#include "libvideogfx/graphics/color/internal_img2raw.hh"
+
+namespace videogfx {
+
+  class i2r_yuv_16bit : public Image2RawRGB_Transform
+  {
+  public:
+    virtual ~i2r_yuv_16bit() { }
+
+    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
+
+    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "scalar YUV to 16bit RGB"; }
+
+  private:
+  };
+
+
+  /* Convert YUV 4:4:4 and place RGB componen
