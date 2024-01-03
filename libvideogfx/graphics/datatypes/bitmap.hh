@@ -27,4 +27,30 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- **************************
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_GRAPHICS_BASIC_BITMAP_HH
+#define LIBVIDEOGFX_GRAPHICS_BASIC_BITMAP_HH
+
+#include <libvideogfx/types.hh>
+#include <libvideogfx/utility/math.hh>
+#include <string.h>
+#include <algorithm>
+#include <assert.h>
+
+namespace videogfx {
+
+  template <class Pel> class BitmapProvider;
+
+  /** Bitmap data-type definition.
+      A Bitmap can be used for any two-dimensional image data using
+      arbitrary types for the pixels. In that sense, a Bitmap is nothing
+      but a two-dimensional array. What makes the Bitmap special is
+      <ul>
+      <li>automatic reference-counter based memory handling, making
+          copying efficient,
+      <li>transparent alignment of bitmap sizes to integer multiples
+          of some constants (e.g., 16 pixels to simplify MPEG coders),
+      <li>transparent border around the bitmap to allow algorithms,
+          that consider a context around a current pixel, to ignore
+        
