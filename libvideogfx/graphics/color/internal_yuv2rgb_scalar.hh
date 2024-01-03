@@ -86,4 +86,35 @@ namespace videogfx {
     virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
 
     static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
-    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s)
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "scalar YUV to 32bit RGB"; }
+  };
+
+
+
+  /* Convert YUV 4:2:2 and place RGB components in 32bit entities in arbitrary order.
+   */
+  class i2r_yuv422_32bit : public Image2RawRGB_Transform
+  {
+  public:
+    virtual ~i2r_yuv422_32bit() { }
+    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
+
+    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "scalar 4:2:2-YUV to 32bit RGB"; }
+  };
+
+
+
+  /* Convert YUV 4:4:4 and place RGB components in 32bit entities in arbitrary order.
+   */
+  class i2r_yuv444_32bit : public Image2RawRGB_Transform
+  {
+  public:
+    virtual ~i2r_yuv444_32bit() { }
+    virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
+
+    static bool s_CanConvert(const Ima
