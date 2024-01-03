@@ -117,4 +117,12 @@ namespace videogfx {
     virtual ~i2r_yuv444_32bit() { }
     virtual void Transform(const Image<Pixel>&,uint8* mem,int firstline,int lastline);
 
-    static bool s_CanConvert(const Ima
+    static bool s_CanConvert(const Image<Pixel>&,const RawRGBImageSpec&);
+    virtual bool CanConvert(const Image<Pixel>& i,const RawRGBImageSpec& s) { return s_CanConvert(i,s); }
+
+    virtual const char* TransformationName() { return "scalar 4:4:4-YUV to 32bit RGB"; }
+  };
+
+}
+
+#endif
