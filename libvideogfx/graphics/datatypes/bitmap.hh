@@ -98,4 +98,25 @@ namespace videogfx {
       The total image size that you may access is AskTotalWidth() times
       AskTotalHeight(). Do not modify the more even if AskStride() is larger.
 	
-      A Bitm
+      A Bitmap is not intended as standard image storage (even for
+      greyscale images). Instead, use the Image class, which adds more
+      information to the Bitmaps like the used colorspace.
+      
+      BTW., this class could not be named Pixmap since this collides with X11.
+  */
+  template <class Pel> class Bitmap
+  {
+  public:
+    Bitmap(); ///< Create an empty bitmap. No provider is attached.
+    Bitmap(const Bitmap&); /**< Copy-constructor. Note that image content is not
+			      copied. Both bitmaps will share the same memory. */
+    /// Create a new bitmap in main memory.
+    Bitmap(int w,int h,int border=0,int halign=1,int valign=1);
+    /// Initialize a new bitmap based on the full data of the specified provider.
+    Bitmap(BitmapProvider<Pel>*);
+    /** Destructor. If this was the last reference to the bitmap provider
+	it is destroyed. */
+    ~Bitmap();
+
+    /** Create a new bitmap. The old bitmap data is lost. If the new bitmap
+	fits into the old bitmap memory space and it is not 
