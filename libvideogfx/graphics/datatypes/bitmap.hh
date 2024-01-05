@@ -71,4 +71,18 @@ namespace videogfx {
 
       Usually, a Bitmap is created in main memory by specifying its size
       and optionally alignment and a surrounding border.
-      For sp
+      For special purpose applications, BitmapProviders can be defined which
+      wrap the Bitmap-API around existing memory blocks.
+
+      When creating bitmaps in main memory, optionally to the bitmap size, a
+      border and horizontal, vertical alignments can be specified. The border
+      is a safety memory around the actual bitmap data. I.e., you may access
+      bitmap content if indexes in the range \f$[-border; width+border[\f$.
+      An alignment rounds the bitmap up to a multiple of the alignment factor
+      (but not necessarily the next multiple). Be warned that you may get
+      differing values for border and alignment back from the bitmap class.
+      However, these will never be smaller than the values you specified.
+      Horizontal border sizes are added before doing the alignment. Hence,
+      the total width and stride (number of data elements, usually bytes,
+      between two lines) will be a multiple of the horizontal alignment.
+      \image latex 
