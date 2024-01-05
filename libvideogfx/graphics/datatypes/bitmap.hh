@@ -160,4 +160,24 @@ namespace videogfx {
     int AskAlignedWidth() const;   ///< Width of bitmap including alignments.
     int AskAlignedHeight() const;  ///< Height of bitmap including alignments.
     int AskTotalWidth() const;     ///< Width of bitmap including borders and alignments.
-    int AskTotalHeight() const;    ///< Height of bitmap including 
+    int AskTotalHeight() const;    ///< Height of bitmap including borders and alignments.
+    int AskBorder() const;         ///< Border width (as requested).
+    int AskAlignedBorder() const;  ///< Actual border width including alignments.
+    /** Bitmap stride (number of data elements to get from one line to the next).
+	Note that this is not necessarily equal to AskTotalWidth() since a SubView or
+	FieldView bitmap has additional data between its lines.
+    */
+    int AskStride() const { return AskFrame()[1]-AskFrame()[0]; }
+
+    int getWidth() const { return AskWidth(); }
+    int getHeight() const { return AskHeight(); }
+    int getStride() const { return AskStride(); }
+    Pel* getData() { return AskFrame()[0]; }
+    const Pel* getData() const { return AskFrame()[0]; }
+    typedef Pel PixelType;
+
+    /* NOTE: use of Ask*Offset() is deprecated. Use Ask[Min/Max][X/Y] instead. */
+    int AskXOffset() const { return d_xoffset; }
+    int AskYOffset() const { return d_yoffset; }
+
+    int AskMinX() const { return -d_xoffset; }
