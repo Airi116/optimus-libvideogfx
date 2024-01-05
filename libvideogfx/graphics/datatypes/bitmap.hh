@@ -181,3 +181,27 @@ namespace videogfx {
     int AskYOffset() const { return d_yoffset; }
 
     int AskMinX() const { return -d_xoffset; }
+    int AskMinY() const { return -d_yoffset; }
+    int AskMaxX() const { return -d_xoffset+d_width-1; }
+    int AskMaxY() const { return -d_yoffset+d_height-1; }
+
+    /// Check if bitmap has any data associated with it.
+    bool IsEmpty() const { return d_parent==NULL; }
+
+    /** Get a pointer-array to the actual bitmap data ([y][x]). Pixel [0][0] is
+	the top-left pixel _inside_ the image. I.e. if the bitmap has a border
+	around it, the border pixels can be access by negative positions or with
+	x,y coordinates above AskWidth()/AskHeight(). This method comes
+	additionally in a const flavour.
+    */
+    Pel*const* AskFrame();
+    /** Const flavour of the non-const AskFrame(). Returns same value, but
+	bitmap data may not be modified.
+     */
+    const Pel*const* AskFrame() const;
+
+    const Pel* operator[](int y) const { return AskFrame()[y]; }
+          Pel* operator[](int y)       { return AskFrame()[y]; }
+
+    /// Return true iff the bitmap data is also used by another Bitmap object.
+    bool IsS
