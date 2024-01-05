@@ -204,4 +204,35 @@ namespace videogfx {
           Pel* operator[](int y)       { return AskFrame()[y]; }
 
     /// Return true iff the bitmap data is also used by another Bitmap object.
-    bool IsS
+    bool IsShared() const
+    {
+      if (!d_parent) return false;
+      if (d_parent->RefCntr()>1) return true;
+      return false;
+    }
+
+
+    /** Set global defaults for bitmap alignment. Every new bitmap created by a
+	BitmapProvider that supports user-defined alignment will be aligned to
+	at least these defaults. I.e. if you globally specify a border of 4 and
+	an alignment of 3, and a bitmap should be created with a border of 2
+	and am alignment of 4, the bitmap will have a border of size 4 and an
+	alignment of size 12.
+    */
+    static void SetAlignmentDefaults(int border,int halign,int valign);
+    /// Ask global alignment settings.
+    static void AskAlignmentDefaults(int& border,int& halign,int& valign);
+
+  private:
+    BitmapProvider<Pel>* d_parent;
+
+    /* The following size values cannot be taken from d_parent, since a
+       Bitmap can also be a sub-view into a larger bitmap.
+    */
+
+    int d_width;
+    int d_height;
+    int d_border;
+    int d_aligned_border;
+    int d_aligned_width;
+    int d_a
