@@ -119,4 +119,28 @@ namespace videogfx {
     ~Bitmap();
 
     /** Create a new bitmap. The old bitmap data is lost. If the new bitmap
-	fits into the old bitmap memory space and it is not 
+	fits into the old bitmap memory space and it is not shared, the old
+	space is reused. This is much faster than recreating a new bitmap. */
+    void Create(int w,int h,int border=0,int halign=1,int valign=1);
+
+    /** Detach bitmap content from the object. If this was the
+	last handle to the bitmap data, the provider will be detroyed. */
+    void Release();
+
+    /** Attach the full data of a new provider. The provider may be NULL,
+	which will result in a empty bitmap. */
+    void AttachBitmapProvider(BitmapProvider<Pel>*);
+
+    /// Make a copy of the specified bitmap by sharing the data.
+    Bitmap<Pel> operator=(const Bitmap<Pel>&);
+
+    /** Create a bitmap that shares only part of the current bitmap.
+	The created bitmap will have no border and no alignment.
+	If the bitmap is empty, an empty bitmap will be returned.
+    */
+    Bitmap<Pel> CreateSubView  (int x0,int y0,int w,int h) const;
+
+    /** Create a bitmap that shares only a single field from the
+	current (frame based) bitmap. In the created bitmap, the
+	field lines are accessed using consecutive lines, instead of
+	offsets of t
