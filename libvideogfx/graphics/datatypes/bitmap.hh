@@ -85,4 +85,17 @@ namespace videogfx {
       Horizontal border sizes are added before doing the alignment. Hence,
       the total width and stride (number of data elements, usually bytes,
       between two lines) will be a multiple of the horizontal alignment.
-      \image latex 
+      \image latex bitmap.eps "bitmap border, alignments and corresponding sizes", width=8cm
+      \image html bitmap.png  "bitmap border, alignments and corresponding sizes"
+      The alignment layout and the involved widths (height are named similarly) are
+      depicted in the above figure. The border size is aligned to the horizontal
+      alignment factor only. Vertical border size is not increased.
+      Note that even though the border is here shown
+      as beginning behind the alignment at the right and bottom image border, the
+      usage convention is that the border area starts \em immediately beneath the
+      image area on all four sides. Also note that you can access all image data
+      in the border and the alignment area just like normal bitmap area.
+      The total image size that you may access is AskTotalWidth() times
+      AskTotalHeight(). Do not modify the more even if AskStride() is larger.
+	
+      A Bitm
