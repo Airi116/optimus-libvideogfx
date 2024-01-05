@@ -53,4 +53,22 @@ namespace videogfx {
           of some constants (e.g., 16 pixels to simplify MPEG coders),
       <li>transparent border around the bitmap to allow algorithms,
           that consider a context around a current pixel, to ignore
-        
+          boundary conditions,
+      <li>multiple views into a single bitmap, to use a small part
+          of a bitmap like a bitmap of its own, or to have acces to
+          interlaced fields just like full-resolution frames (which
+          for example simplifies MPEG field-MC),
+      <li>ability to wrap fixed memory ranges (like your gfx-card
+          memory) into a Bitmap (not written yet).
+      </ul>
+
+      Internally, Bitmap is only the \em envelope class to the \em letter
+      class BitmapProvider, which contains the actual data. When a bitmap
+      is copied, the data is not copied! Instead, copying will result in
+      a second Bitmap-envelope object using the same bitmap data. Changes
+      made to one bitmap will hence also influence the other. If you want
+      to make an independent copy of your bitmap, use Clone() instead.
+
+      Usually, a Bitmap is created in main memory by specifying its size
+      and optionally alignment and a surrounding border.
+      For sp
