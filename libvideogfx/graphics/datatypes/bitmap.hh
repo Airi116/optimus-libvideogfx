@@ -235,4 +235,31 @@ namespace videogfx {
     int d_border;
     int d_aligned_border;
     int d_aligned_width;
-    int d_a
+    int d_aligned_height;
+    int d_total_width;
+    int d_total_height;
+
+    int d_xoffset,d_yoffset;
+
+    /* d_data is the line-pointer array to the actual bitmap data. This pointer
+       can come in two variations. If the Bitmap is simply the whole bitmap data
+       (and no sub-view), d_data is set to the line-pointer array of the provider
+       object. Since this is the most common case, it is worth to provide a special
+       case for it.
+       If the Bitmap is a sub-view into the bitmap data, an array of its own is
+       allocated and filled with custom pointers. In this case, d_dataptr_reused is
+       set to false and d_data must be freed in the destructor. Note that a reuse
+       of sub-view pointer-arrays is not possible.
+    */
+    Pel** d_data;
+    bool  d_dataptr_reused;
+
+
+    static int default_align_border;
+    static int default_align_halign;
+    static int default_align_valign;
+  };
+
+
+  /** Bitmap data-provider abstract base-class.
+      Letter class of the envel
