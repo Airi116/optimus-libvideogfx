@@ -143,4 +143,21 @@ namespace videogfx {
     /** Create a bitmap that shares only a single field from the
 	current (frame based) bitmap. In the created bitmap, the
 	field lines are accessed using consecutive lines, instead of
-	offsets of t
+	offsets of two. The border sizes an alignment sizes are
+	adapted correspondingly.
+	If the bitmap is empty, an empty bitmap will be returned.
+    */
+    Bitmap<Pel> CreateFieldView(bool top) const;
+
+    void MoveZero(int x0,int y0);
+
+    /** Copy the bitmap into a new, independent memory area. Alignments can be changed
+	on the fly. If border<0, the old border size is used for the new bitmap. */
+    Bitmap<Pel> Clone(int border=-1,int halign=1,int valign=1) const;
+
+    int AskWidth()  const;         ///< Width of bitmap excluding border and alignments.
+    int AskHeight() const;         ///< Height of bitmap excluding border and alignments.
+    int AskAlignedWidth() const;   ///< Width of bitmap including alignments.
+    int AskAlignedHeight() const;  ///< Height of bitmap including alignments.
+    int AskTotalWidth() const;     ///< Width of bitmap including borders and alignments.
+    int AskTotalHeight() const;    ///< Height of bitmap including 
