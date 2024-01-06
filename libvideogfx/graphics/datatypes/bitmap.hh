@@ -262,4 +262,29 @@ namespace videogfx {
 
 
   /** Bitmap data-provider abstract base-class.
-      Letter class of the envel
+      Letter class of the envelope/letter design. See class Bitmap for
+      details. This class is not functionally as-is, you have to derive
+      it to make a specific implementation.
+      Each derived class is responsible for setting all the protected attributes
+      and has to call SetFramePtrs() afterwards.
+
+      The basic architecture is that the derived object provides a pointer to
+      the memory area and the memory layout. Based on this, this base-class
+      creates an array with pointers to the beginning of the individual lines.
+      Using this pointer-array, the bitmap data can be accessed like a normal
+      two-dimensional array.
+   */
+  template <class Pel> class BitmapProvider
+  {
+  public:
+    /// create bitmap-provider without any data
+    BitmapProvider();
+    /// checks that the provider is not used any more and destroys the line-pointer array
+    virtual ~BitmapProvider();
+
+    /// see Bitmap
+    int AskWidth()  const { return d_width; }
+    /// see Bitmap
+    int AskHeight() const { return d_height; }
+    /// see Bitmap
+    int AskAlignedWidth()  const { retu
