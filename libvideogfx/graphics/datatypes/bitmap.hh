@@ -287,4 +287,35 @@ namespace videogfx {
     /// see Bitmap
     int AskHeight() const { return d_height; }
     /// see Bitmap
-    int AskAlignedWidth()  const { retu
+    int AskAlignedWidth()  const { return d_aligned_width; }
+    /// see Bitmap
+    int AskAlignedHeight() const { return d_aligned_height; }
+    /// see Bitmap
+    int AskTotalWidth()  const { return d_total_width; }
+    /// see Bitmap
+    int AskTotalHeight() const { return d_total_height; }
+    /// see Bitmap
+    int AskBorder() const { return d_border; }
+    /// see Bitmap
+    int AskAlignedBorder() const { return d_aligned_border; }
+
+    /// see Bitmap
+    Pel** AskFrame()       { return d_frame_ptr; }
+    /// see Bitmap
+    const Pel** AskFrame() const { return d_frame_ptr; }
+
+    /// increase reference counter of this letter object
+    void IncrRef() { d_ref_cntr++; }
+    /// decrease reference counter of this letter object
+    void DecrRef() { d_ref_cntr--; assert(d_ref_cntr>=0); }
+    /// get current reference counter value
+    int  RefCntr() const { return d_ref_cntr; }
+
+  private:
+    int d_ref_cntr;
+
+    Pel** d_frame_ptr;
+
+  protected:
+    /* Each derived class has to set all these values and
+       call SetFram
