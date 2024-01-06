@@ -343,4 +343,37 @@ namespace videogfx {
 
   template <class Pel>
   inline void CalcAlignedSizes(int w,int h,                       // original bitmap size
-			       in
+			       int border,int halign,int valign,  // alignments
+			       int& intw,int& inth,int& intb)     // aligned sizes
+  {
+    assert(border>=0);
+    assert(halign>=1);
+    assert(valign>=1);
+
+    // integrate default alignments into alignment specification
+
+    int def_border,def_halign,def_valign;
+    Bitmap<Pel>::AskAlignmentDefaults(def_border, def_halign, def_valign);
+
+    border = std::max(border,def_border);
+    halign = LeastCommonMultiple(halign,def_halign);
+    valign = LeastCommonMultiple(valign,def_valign);
+
+
+    // increase size of internal bitmap area
+
+    intw = AlignUp(w,      halign);
+    inth = AlignUp(h,      valign);
+    intb = AlignUp(border, halign); // align border to halign to provide aligned memory access
+  }
+
+
+  /** A bitmap provider that allocates main memory to store the bitmap in.
+   */
+  template <class Pel> class BitmapProvider_Mem : public BitmapProvider<Pel>
+  {
+  public:
+    /// create provider without allocating memory
+    BitmapProvider_Mem() { }
+
+    /// create the provider and allocate bitmap memory accordings 
