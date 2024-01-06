@@ -318,4 +318,29 @@ namespace videogfx {
 
   protected:
     /* Each derived class has to set all these values and
-       call SetFram
+       call SetFramePtrs() afterwards. */
+
+    int  d_width;  ///< logical width of the bitmap (excluding borders and alignments)
+    int  d_height; ///< logical height of the bitmap (excluding borders and alignments)
+    int  d_border; ///< size of border around the actual image data
+
+    int  d_aligned_width;   ///< width of bitmap area inclusive alignments
+    int  d_aligned_height;  ///< height of bitmap area inclusive alignments
+    int  d_aligned_border;  ///< size of border inclusive alignments
+
+    int  d_total_width;  ///< total width of the bitmap data area
+    int  d_total_height; ///< total height of the bitmap data area
+
+    Pel* d_bitmap_ptr;  ///< pointer to the very beginning of the bitmap data
+
+    /** After setting all of the protected data members, the derived
+	class has to call this method. The method will then create the
+	array with pointers to the beginning of each line.
+    */
+    void SetFramePtrs();
+  };
+
+
+  template <class Pel>
+  inline void CalcAlignedSizes(int w,int h,                       // original bitmap size
+			       in
