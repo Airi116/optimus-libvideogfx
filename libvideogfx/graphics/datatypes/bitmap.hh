@@ -639,4 +639,50 @@ namespace videogfx {
 	d_height = p->AskHeight();
       	d_border = p->AskBorder();
 	d_aligned_width  = p->AskAlignedWidth();
-	d_aligned_he
+	d_aligned_height = p->AskAlignedHeight();
+	d_aligned_border = p->AskAlignedBorder();
+	d_total_width  = p->AskTotalWidth();
+	d_total_height = p->AskTotalHeight();
+	d_xoffset = 0;
+	d_yoffset = 0;
+      }
+  }
+
+  template <class Pel> Bitmap<Pel> Bitmap<Pel>::operator=(const Bitmap<Pel>& pm)
+  {
+    if (this == &pm)
+      return *this;
+
+
+    // Lock new bitmap-provider
+
+    if (pm.d_parent)
+      pm.d_parent->IncrRef();
+
+
+    Release();
+
+
+    // Set new bitmap-provider.
+
+    d_parent = pm.d_parent;
+
+
+    // Copy bitmap-access data.
+
+    if (d_parent)
+      {
+	d_width  = pm.AskWidth();
+	d_height = pm.AskHeight();
+	d_border = pm.AskBorder();
+	d_aligned_width  = pm.d_aligned_width;
+	d_aligned_height = pm.d_aligned_height;
+	d_aligned_border = pm.AskAlignedBorder();
+	d_total_width  = pm.d_total_width;
+	d_total_height = pm.d_total_height;
+	d_xoffset = pm.d_xoffset;
+	d_yoffset = pm.d_yoffset;
+
+	if (pm.d_dataptr_reused)
+	  {
+	  
