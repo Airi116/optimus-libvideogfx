@@ -470,3 +470,48 @@ namespace videogfx {
   {
     AttachBitmapProvider(p);
   }
+
+  template <class Pel> Bitmap<Pel>::Bitmap(const Bitmap& pm)
+  {
+    d_parent = pm.d_parent;  // use same provider
+
+    if (d_parent)
+      {
+	d_parent->IncrRef();  // we are now also using the provider
+
+
+	// make copy of all size parameters
+
+	d_width = pm.d_width;
+	d_height = pm.d_height;
+	d_border = pm.d_border;
+	d_aligned_width  = pm.d_aligned_width;
+	d_aligned_height = pm.d_aligned_height;
+	d_aligned_border = pm.d_aligned_border;
+	d_total_width  = pm.d_total_width;
+	d_total_height = pm.d_total_height;
+	d_xoffset= pm.d_xoffset;
+	d_yoffset= pm.d_yoffset;
+
+
+	if (pm.d_dataptr_reused)
+	  {
+	    // if line-pointer array was used from the provider, we can also do so
+
+	    d_data = pm.d_data;
+	    d_dataptr_reused = true;
+	  }
+	else
+	  {
+	    // else, we have to copy to line-pointer array
+
+	    d_data = new Pel* [d_total_height];
+	    for (int y=0;y<d_total_height;y++)
+	      d_data[y] = pm.d_data[y];
+
+	    d_dataptr_reused = false;
+	  }
+      }
+    else
+      {
+	// in case "pm" is an empty bitma
