@@ -434,4 +434,39 @@ namespace videogfx {
     if (d_frame_ptr)
       delete[] d_frame_ptr;
 
-    d_frame_ptr = new Pe
+    d_frame_ptr = new Pel* [d_total_height];
+
+    for (int i=0;i<d_total_height;i++)
+      {
+	d_frame_ptr[i] = d_bitmap_ptr + i*d_total_width + d_aligned_border;
+      }
+  }
+
+
+  // ---------------------- Bitmap implementation --------------------
+
+  template <class Pel> Bitmap<Pel>::Bitmap()
+    : d_parent(NULL),
+      d_xoffset(0), d_yoffset(0),
+      d_data(NULL),
+      d_dataptr_reused(true)  // could be any of both
+  {
+  }
+
+  template <class Pel> Bitmap<Pel>::Bitmap(int w,int h,int border,int halign,int valign)
+    : d_parent(NULL),
+      d_xoffset(0), d_yoffset(0),
+      d_data(NULL),
+      d_dataptr_reused(true)  // could be any of both
+  {
+    AttachBitmapProvider(new BitmapProvider_Mem<Pel>(w,h,border,halign,valign));
+  }
+
+  template <class Pel> Bitmap<Pel>::Bitmap(BitmapProvider<Pel>* p)
+    : d_parent(NULL),
+      d_xoffset(0), d_yoffset(0),
+      d_data(NULL),
+      d_dataptr_reused(true)  // could be any of both
+  {
+    AttachBitmapProvider(p);
+  }
