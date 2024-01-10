@@ -685,4 +685,44 @@ namespace videogfx {
 
 	if (pm.d_dataptr_reused)
 	  {
-	  
+	    d_data = pm.d_data;
+	    d_dataptr_reused=true;
+	  }
+	else
+	  {
+	    d_data = new Pel*[d_total_height];
+	    for (int y=0;y<d_total_height;y++)
+	      d_data[y] = pm.d_data[y];
+
+	    d_dataptr_reused = false;
+	  }
+      }
+
+    return *this;
+  }
+
+  template <class Pel> Bitmap<Pel> Bitmap<Pel>::CreateSubView(int x0,int y0,int w,int h) const
+  {
+    if (d_parent==NULL)
+      return Bitmap<Pel>();
+
+    assert(!(x0+d_xoffset<0 ||
+		  y0+d_yoffset<0 ||
+		  x0+d_xoffset+w > d_aligned_width ||
+		  y0+d_yoffset+h > d_aligned_height)); // "sub-view range not within bitmap");
+
+    Bitmap<Pel> pm;
+
+    // sub-view size is exactly the requested area, without any borders or alignments
+
+    pm.d_parent = d_parent;
+    pm.d_width = w;
+    pm.d_height = h;
+    pm.d_border = 0;
+    pm.d_aligned_width  = w;
+    pm.d_aligned_height = h;
+    pm.d_aligned_border = 0;
+    pm.d_total_width  = w;
+    pm.d_total_height = h;
+
+    // c
