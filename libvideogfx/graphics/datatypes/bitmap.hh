@@ -588,4 +588,55 @@ namespace videogfx {
       }
   }
 
-  template <class Pel> void Bitm
+  template <class Pel> void Bitmap<Pel>::Release()
+  {
+    // Release bitmap-provider and destroy it if this was the last reference.
+
+    if (d_parent)
+      {
+	d_parent->DecrRef();
+	if (d_parent->RefCntr()==0) { delete d_parent; }
+
+	d_parent=NULL;
+      }
+
+    // Release row-ptr array if the bitmap-provider array was not reused.
+
+    if (d_data && !d_dataptr_reused)
+      delete[] d_data;
+
+    d_data=NULL;
+    d_dataptr_reused=true;
+  }
+
+  template <class Pel>  void Bitmap<Pel>::AttachBitmapProvider(BitmapProvider<Pel>* p)
+  {
+    // Already using this provider.
+    if (p==d_parent)
+      return;
+
+
+    // Lock new bitmap-provider
+
+    if (p)
+      p->IncrRef();
+
+
+    Release();
+    assert(d_parent==NULL);
+
+
+    // Set new bitmap-provider.
+
+    d_parent = p;
+
+    if (p)
+      {
+	d_data=p->AskFrame();
+	d_dataptr_reused = true;
+
+	d_width  = p->AskWidth();
+	d_height = p->AskHeight();
+      	d_border = p->AskBorder();
+	d_aligned_width  = p->AskAlignedWidth();
+	d_aligned_he
