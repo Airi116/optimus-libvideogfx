@@ -514,4 +514,40 @@ namespace videogfx {
       }
     else
       {
-	// in case "pm" is an empty bitma
+	// in case "pm" is an empty bitmap
+
+	d_data=NULL;
+	d_dataptr_reused=true;
+	d_xoffset=d_yoffset=0;
+      }
+  }
+
+  template <class Pel> Bitmap<Pel>::~Bitmap()
+  {
+    Release();
+  }
+
+  template <class Pel> void Bitmap<Pel>::Create(int w,int h,
+						int border,int halign,int valign)
+  {
+    bool compatible=false;  // can use old memory bitmap without reallocation
+    int intw,inth,intb;     // aligned sizes
+
+    if (d_parent)
+      {
+	compatible=true;
+
+	// let's see what our requirements are
+	CalcAlignedSizes<Pel>(w,h,border,halign,valign,
+			 intw,inth,intb);
+
+	// new bitmap memory has to fit into old bitmap
+	if (d_total_width  < intw+2*intb)   compatible=false;
+	if (d_total_height < inth+2*border) compatible=false;
+
+	// old bitmap must be suitably aligned
+	if ((d_total_width  - (intw+2*intb  )) % halign) compatible=false;
+	if ((d_total_height - (inth+2*border)) % valign) compatible=false;
+
+	/* If new border is larger, there is not enough space to the left/top.
+	   Well, we could move all line pointers forward, but this infrequen
