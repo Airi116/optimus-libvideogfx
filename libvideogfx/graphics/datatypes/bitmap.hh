@@ -376,4 +376,62 @@ namespace videogfx {
     /// create provider without allocating memory
     BitmapProvider_Mem() { }
 
-    /// create the provider and allocate bitmap memory accordings 
+    /// create the provider and allocate bitmap memory accordings to specified parameters
+    BitmapProvider_Mem(int w,int h,int border=0,int halign=1,int valign=1)
+    {
+      Create(w,h,border,halign,valign);
+    }
+
+    /// the destructor frees the bitmap-data memory (if previously allocated)
+    ~BitmapProvider_Mem() { 
+		if (BitmapProvider_Mem<Pel>::d_bitmap_ptr) 
+			delete[] BitmapProvider_Mem<Pel>::d_bitmap_ptr; 
+		}
+
+    /// Create a new bitmap-data in memory, old data is never reused.
+    void Create(int w,int h,int border=0,int halign=1,int valign=1)
+    {
+      BitmapProvider_Mem<Pel>::d_width  = w;
+      BitmapProvider_Mem<Pel>::d_height = h;
+      BitmapProvider_Mem<Pel>::d_border = border;
+
+      CalcAlignedSizes<Pel>(w,h,border,halign,valign,
+		       BitmapProvider_Mem<Pel>::d_aligned_width,BitmapProvider_Mem<Pel>::d_aligned_height,BitmapProvider_Mem<Pel>::d_aligned_border);
+
+      // total size including border
+
+      BitmapProvider_Mem<Pel>::d_total_width  = BitmapProvider_Mem<Pel>::d_aligned_width +2*BitmapProvider_Mem<Pel>::d_aligned_border;
+      BitmapProvider_Mem<Pel>::d_total_height = BitmapProvider_Mem<Pel>::d_aligned_height+2*BitmapProvider_Mem<Pel>::d_border;
+
+      if (BitmapProvider_Mem<Pel>::d_bitmap_ptr)
+	delete[] BitmapProvider_Mem<Pel>::d_bitmap_ptr;
+
+      BitmapProvider_Mem<Pel>::d_bitmap_ptr = new Pel[BitmapProvider_Mem<Pel>::d_total_width * BitmapProvider_Mem<Pel>::d_total_height];
+      BitmapProvider_Mem<Pel>::SetFramePtrs();
+    }
+  };
+
+
+  // ---------------------- BitmapProvider implementation --------------------
+
+  template <class Pel> inline BitmapProvider<Pel>::BitmapProvider()
+    : d_ref_cntr(0),
+      d_frame_ptr(NULL),
+      d_bitmap_ptr(NULL)
+  {
+  }
+
+  template <class Pel> inline BitmapProvider<Pel>::~BitmapProvider()
+  {
+    assert(d_ref_cntr==0);
+
+    if (d_frame_ptr)
+      delete[] d_frame_ptr;
+  }
+
+  template <class Pel> void BitmapProvider<Pel>::SetFramePtrs()
+  {
+    if (d_frame_ptr)
+      delete[] d_frame_ptr;
+
+    d_frame_ptr = new Pe
