@@ -768,3 +768,53 @@ namespace videogfx {
     pm.d_width = d_width;
     pm.d_height = newheight;
     pm.d_border = newborder;
+    pm.d_aligned_border = d_aligned_border;
+    pm.d_aligned_width  = d_aligned_width;
+    pm.d_aligned_height = newintheight;
+    pm.d_total_width  = d_total_width;
+    pm.d_total_height = newintheight+ 2*newborder;
+
+
+    // create new line-pointer array
+
+    pm.d_dataptr_reused = false;
+    pm.d_data = new Pel* [pm.d_total_height];
+
+    for (int y=0;y<pm.d_total_height;y++)
+      {
+	pm.d_data[y] = d_data[2*y+firstline];
+      }
+
+    d_parent->IncrRef();
+
+    return pm;
+  }
+
+  template <class Pel> void Bitmap<Pel>::MoveZero(int x0,int y0)
+  {
+    if (d_parent==NULL)
+      return;
+
+    int dx = x0-d_xoffset;
+    //int dy = y0-d_yoffset;  // not used...
+
+    if (dx != 0)
+      {
+	// if line-ptr array is reused, we have to make a local copy
+
+	if (d_dataptr_reused)
+	  {
+	    d_dataptr_reused = false;
+	    Pel** newdata = new Pel* [d_total_height];
+
+	    for (int y=0;y<d_total_height;y++)
+	      newdata[y] = d_data[y];
+
+	    d_data=newdata;
+	  }
+
+	// shift pointers horizontally
+
+	for (int y=0;y<d_total_height;y++)
+	  {
+	    d_data[y] += 
