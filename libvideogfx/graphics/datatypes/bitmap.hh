@@ -725,4 +725,46 @@ namespace videogfx {
     pm.d_total_width  = w;
     pm.d_total_height = h;
 
-    // c
+    // create a line-pointer array for the sub-view
+
+    pm.d_dataptr_reused = false;
+    pm.d_data = new Pel* [h];
+
+    for (int y=0;y<h;y++)
+      pm.d_data[y] = &d_data[y+y0+d_border+d_yoffset][x0];
+
+    d_parent->IncrRef();
+
+    return pm;
+  }
+
+
+  template <class Pel> Bitmap<Pel> Bitmap<Pel>::CreateFieldView(bool top) const
+  {
+    if (d_parent==NULL)
+      return Bitmap<Pel>();
+
+    Bitmap<Pel> pm;
+
+    int newborder = d_border/2; // left/right border are the same, but at top/bottom they are half size
+    if (d_aligned_height%2 && d_border%2 && !top) newborder++;
+
+    int newheight,newintheight;
+    int firstline;
+    if (top)
+      {
+	newheight    = (d_height+1)/2;
+	newintheight = (d_aligned_height+1)/2;
+	firstline = d_border-2*newborder;
+      }
+    else
+      {
+	newheight    = d_height/2;
+	newintheight = d_aligned_height/2;
+	firstline = d_border+1 -2*newborder;
+      }
+
+    pm.d_parent = d_parent;
+    pm.d_width = d_width;
+    pm.d_height = newheight;
+    pm.d_border = newborder;
