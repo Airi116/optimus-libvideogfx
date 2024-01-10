@@ -550,4 +550,42 @@ namespace videogfx {
 	if ((d_total_height - (inth+2*border)) % valign) compatible=false;
 
 	/* If new border is larger, there is not enough space to the left/top.
-	   Well, we could move all line pointers forward, but this infrequen
+	   Well, we could move all line pointers forward, but this infrequent
+	   case is not worth the additional code.
+	*/
+	if (intb   > d_aligned_border) compatible=false;  // horizontal
+	if (border > d_border)         compatible=false;  // vertical
+
+	// cannot reuse if bitmap is still shared
+	if (d_parent->RefCntr()>1)
+	  compatible = false;
+
+	// can only reuse if bitmap was stored in main memory
+	if (dynamic_cast<BitmapProvider_Mem<Pel>*>(d_parent)==0)
+	  compatible=false;
+
+	// We don't reuse if this is a sub-view. Too much memory could be wasted.
+	if (!d_dataptr_reused)
+	  compatible = false;
+      }
+
+    if (compatible)
+      {
+	d_width  = w;
+	d_height = h;
+	d_border = border;
+	d_aligned_width  = intw;
+	d_aligned_height = inth;
+	d_aligned_border = intb;
+	d_total_width  = d_aligned_width  + 2*d_aligned_border;
+	d_total_height = d_aligned_height + 2*d_border;
+	d_xoffset = 0;
+	d_yoffset = 0;
+      }
+    else
+      {
+	AttachBitmapProvider(new BitmapProvider_Mem<Pel>(w,h,border,halign,valign));
+      }
+  }
+
+  template <class Pel> void Bitm
