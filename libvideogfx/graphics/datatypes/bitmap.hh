@@ -817,4 +817,42 @@ namespace videogfx {
 
 	for (int y=0;y<d_total_height;y++)
 	  {
-	    d_data[y] += 
+	    d_data[y] += dx;
+	  }
+      }
+
+    d_xoffset = x0;
+    d_yoffset = y0;
+  }
+
+  template <class Pel> Bitmap<Pel> Bitmap<Pel>::Clone(int border,int halign,int valign) const
+  {
+    assert(halign>=1);
+    assert(valign>=1);
+
+    Bitmap<Pel> pm;
+
+    // cloning an empty bitmap creates an empty bitmap
+    if (!d_parent)
+      return pm;
+
+
+    // use old border if none has been specified
+    if (border<0) border = d_border;
+
+    // create new bitmap in a new memory area
+    pm.AttachBitmapProvider(new BitmapProvider_Mem<Pel>(d_width,d_height,border, halign,valign));
+
+
+    // copy old bitmap content into new bitmap
+    int minwidth  = std::min(d_width , pm.AskWidth() );
+    int minheight = std::min(d_height, pm.AskHeight());
+    int minhborder = std::min(d_aligned_border, pm.AskAlignedBorder());
+    int minvborder = std::min(d_border, pm.AskBorder());
+
+    const Pel*const* src = AskFrame();
+    Pel*const* dst = pm.AskFrame();
+
+    for (int y=0;y<minheight +2*minvborder;y++)
+      {
+	memcpy(&dst[y-minvborder          ][-minhborde
