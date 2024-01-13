@@ -892,4 +892,38 @@ namespace videogfx {
   template <class Pel> inline int Bitmap<Pel>::AskTotalWidth() const
   {
     assert(d_parent); //"no bitmap-provider attached to bitmap");
-    return d_
+    return d_total_width;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskTotalHeight() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_total_height;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskBorder() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_border;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskAlignedBorder() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_aligned_border;
+  }
+
+  template <class Pel> inline Pel*const* Bitmap<Pel>::AskFrame()
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return &d_data[d_border+d_yoffset];
+  }
+
+  template <class Pel> inline const Pel*const* Bitmap<Pel>::AskFrame() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return &d_data[d_border+d_yoffset];
+  }
+
+  template <class Pel> int Bitmap<Pel>::default_align_border=0;
+  template <class Pel> int Bitma
