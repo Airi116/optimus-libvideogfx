@@ -855,4 +855,41 @@ namespace videogfx {
 
     for (int y=0;y<minheight +2*minvborder;y++)
       {
-	memcpy(&dst[y-minvborder          ][-minhborde
+	memcpy(&dst[y-minvborder          ][-minhborder          ],
+	       &src[y-minvborder-d_yoffset][-minhborder-d_xoffset],
+	       (minwidth+2*minhborder)*sizeof(Pel));
+      }
+
+    pm.MoveZero( AskXOffset(), AskYOffset() );
+
+    return pm;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskWidth()  const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_width;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskHeight() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_height;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskAlignedWidth() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_aligned_width;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskAlignedHeight() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_aligned_height;
+  }
+
+  template <class Pel> inline int Bitmap<Pel>::AskTotalWidth() const
+  {
+    assert(d_parent); //"no bitmap-provider attached to bitmap");
+    return d_
