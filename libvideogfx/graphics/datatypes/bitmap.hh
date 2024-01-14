@@ -926,4 +926,27 @@ namespace videogfx {
   }
 
   template <class Pel> int Bitmap<Pel>::default_align_border=0;
-  template <class Pel> int Bitma
+  template <class Pel> int Bitmap<Pel>::default_align_halign=1;
+  template <class Pel> int Bitmap<Pel>::default_align_valign=1;
+
+  template <class Pel> void Bitmap<Pel>::SetAlignmentDefaults(int border,int halign,int valign)
+  {
+    assert(border>=0);
+    assert(halign>=1);
+    assert(valign>=1);
+
+    default_align_border=border;
+    default_align_halign=halign;
+    default_align_valign=valign;
+  }
+
+  template <class Pel> void Bitmap<Pel>::AskAlignmentDefaults(int& border,int& halign,int& valign)
+  {
+    border = default_align_border;
+    halign = default_align_halign;
+    valign = default_align_valign;
+  }
+
+}
+
+#endif
