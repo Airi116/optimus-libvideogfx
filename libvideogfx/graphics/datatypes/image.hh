@@ -89,4 +89,31 @@ namespace videogfx {
 	alignments and borders are off, no alpha and chroma is set to 4:4:4.
     */
     ImageParam() : width(0), height(0), halign(1), valign(1),
-		  
+		   xoffset(0), yoffset(0),
+		   colorspace(Colorspace_Invalid), has_alpha(false),
+		   chroma(Chroma_444), reduced_chroma_resolution(true),
+		   chroma_border(-1), chroma_halign(-1), chroma_valign(-1)
+    {
+      border=0;
+    }
+
+    ImageParam(int p_width,int p_height, Colorspace p_colorspace=Colorspace_YUV)
+      : width(p_width), height(p_height), halign(1), valign(1),
+	xoffset(0), yoffset(0),
+	colorspace(p_colorspace), has_alpha(false),
+	chroma(Chroma_420), reduced_chroma_resolution(true),
+	chroma_border(-1), chroma_halign(-1), chroma_valign(-1)
+    {
+      border=0;
+    }
+
+    int width,height;  ///< image size (non-subsampled)
+    int halign,valign; ///< alignments (non-subsampled)
+    int border;        ///< border size (non-subsampled)
+    int xoffset, yoffset;
+
+    Colorspace colorspace; ///< colorspace used for image
+    bool has_alpha;        ///< does the image have an alpha plane?
+
+    ChromaFormat chroma;            ///< chroma subsampling used
+    bool reduced_chroma_resolution; ///< use reduce
