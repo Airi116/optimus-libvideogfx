@@ -71,4 +71,22 @@ namespace videogfx {
   };
 
 
-  /** Chec
+  /** Check if chroma is horizontally subsampled. Usage of the more general #ChromaSubH()# is recommended. */
+  inline bool IsSubH(ChromaFormat cf) { return cf != Chroma_444; }
+  /** Check if chroma is vertically subsampled. Usage of the more general #ChromaSubV()# is recommended. */
+  inline bool IsSubV(ChromaFormat cf) { return cf == Chroma_420; }
+  /** Get horizontal subsampling factor. */
+  inline int  ChromaSubH(ChromaFormat cf) { return (cf != Chroma_444) ? 2 : 1; }
+  /** Get vertical subsampling factor. */
+  inline int  ChromaSubV(ChromaFormat cf) { return (cf == Chroma_420) ? 2 : 1; }
+
+  /** Image parameters. This structure contains all the information about image
+      size, the colorspace, chroma subsampling, and alignments.
+   */
+  struct ImageParam
+  {
+    /** Create default parameters for an image. Size and colorspace is undefined,
+	alignments and borders are off, no alpha and chroma is set to 4:4:4.
+    */
+    ImageParam() : width(0), height(0), halign(1), valign(1),
+		  
