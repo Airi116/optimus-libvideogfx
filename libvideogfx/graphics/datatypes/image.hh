@@ -37,4 +37,38 @@
 
 #include <assert.h>
 
-#include <libvide
+#include <libvideogfx/types.hh>
+#include <libvideogfx/graphics/datatypes/bitmap.hh>
+#include <algorithm>
+
+namespace videogfx {
+
+  /** Image colorspace. */
+  enum Colorspace
+  {
+    Colorspace_RGB,       ///< Red, green, blue.
+    Colorspace_YUV,       ///< YUV; note that chroma planes may be subsampled to a lower resolution.
+    Colorspace_Greyscale, ///< Luminance only.
+    Colorspace_HSV,       ///< Hue, saturation, value.
+    Colorspace_Invalid    ///< Undefined colorspace.
+  };
+
+  enum ChromaFormat
+  {
+    /** subsampling h:2 v:2 */ Chroma_420,
+    /** subsampling h:2 v:1 */ Chroma_422,
+    /** No subsampling      */ Chroma_444,
+    Chroma_Invalid
+  };
+
+  enum BitmapChannel
+  {
+    Bitmap_Red = 0, Bitmap_Green = 1, Bitmap_Blue = 2,
+    Bitmap_Y   = 0, Bitmap_Cb    = 1, Bitmap_Cr   = 2,
+                    Bitmap_U     = 1, Bitmap_V    = 2,
+    Bitmap_Hue = 0, Bitmap_Saturation = 1, Bitmap_Value = 2,
+    Bitmap_Alpha=3
+  };
+
+
+  /** Chec
