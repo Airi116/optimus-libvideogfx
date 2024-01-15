@@ -154,4 +154,24 @@ namespace videogfx {
     { if ((b==1||b==2) && colorspace==Colorspace_YUV) return x/ChromaSubH(chroma); else return x; }
     /// Scale the given vertical coordinate by the sub-sampling factor of the specified bitmap channel.
     int  ChromaScaleV(BitmapChannel b,int y) const
-    { if ((b==1||b==2) && colorspace==C
+    { if ((b==1||b==2) && colorspace==Colorspace_YUV) return y/ChromaSubV(chroma); else return y; }
+
+    /// Scale the given horizontal coordinate by the sub-sampling factor of the specified bitmap channel.
+    double  ChromaScaleH(BitmapChannel b,double x) const
+    { if ((b==1||b==2) && colorspace==Colorspace_YUV) return x/ChromaSubH(chroma); else return x; }
+    /// Scale the given vertical coordinate by the sub-sampling factor of the specified bitmap channel.
+    double  ChromaScaleV(BitmapChannel b,double y) const
+    { if ((b==1||b==2) && colorspace==Colorspace_YUV) return y/ChromaSubV(chroma); else return y; }
+
+    int nColorChannels() const
+    {
+      if (colorspace==Colorspace_Greyscale) return 1;
+      else                                  return 3;
+    }
+  };
+
+
+
+  /** The Image class combines up to four bitmaps to a colored image with optional alpha plane.
+      The data is organized in independent color channels. The number of channels depends on the
+      colorspace used. Greyscale images only use a single color channel, while a
