@@ -195,4 +195,23 @@ namespace videogfx {
     void Release();
 
     /** Ask image parameters. You can use these parameters to make an
-	exact clon
+	exact clone of the image, or ask for more specific information
+	like the alignments of chroma channels. */
+    ImageParam AskParam() const { return d_param; }
+    /// Query image width (full resolution).
+    int  AskWidth()  const { return d_param.width; }
+    int  getWidth()  const { return d_param.width; }
+    /// Query image height (full resolution).
+    int  AskHeight() const { return d_param.height; }
+    int  getHeight() const { return d_param.height; }
+    /// Query image border (full resolution).
+    int  AskBorder() const { return d_param.border; }
+    /// Get both, width and height, of the image.
+    void GetSize(int& w,int& h) const { w=d_param.width; h=d_param.height; }
+
+    int  AskXOffset() const { return d_param.xoffset; }
+    int  AskYOffset() const { return d_param.yoffset; }
+    void MoveZero(int x0,int y0);
+
+    /// Get read/write access to a bitmap channel. If the channel is not present, the bitmap will be empty.
+    Bitmap<Pel>&       AskBitmap(BitmapChannel pm_id)       { return
