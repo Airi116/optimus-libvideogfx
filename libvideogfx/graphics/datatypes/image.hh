@@ -290,4 +290,19 @@ namespace videogfx {
     const Pel*const* AskFrameA()  const { return d_pm[Bitmap_Alpha].AskFrame(); }
 
     Bitmap<Pel>& AskBitmapR()        { return d_pm[Bitmap_Red]; }
-    const Bitmap<Pel>& AskBitmapR()  const { return d_pm[Bitma
+    const Bitmap<Pel>& AskBitmapR()  const { return d_pm[Bitmap_Red]; }
+    Bitmap<Pel>& AskBitmapG()        { return d_pm[Bitmap_Green]; }
+    const Bitmap<Pel>& AskBitmapG()  const { return d_pm[Bitmap_Green]; }
+    Bitmap<Pel>& AskBitmapB()        { return d_pm[Bitmap_Blue]; }
+    const Bitmap<Pel>& AskBitmapB()  const { return d_pm[Bitmap_Blue]; }
+    Bitmap<Pel>& AskBitmapY()        { return d_pm[Bitmap_Y]; }
+    const Bitmap<Pel>& AskBitmapY()  const { return d_pm[Bitmap_Y]; }
+    Bitmap<Pel>& AskBitmapU()        { return d_pm[Bitmap_U]; }
+    const Bitmap<Pel>& AskBitmapU()  const { return d_pm[Bitmap_U]; }
+    Bitmap<Pel>& AskBitmapV()        { return d_pm[Bitmap_V]; }
+    const Bitmap<Pel>& AskBitmapV()  const { return d_pm[Bitmap_V]; }
+    Bitmap<Pel>& AskBitmapCb()       { return d_pm[Bitmap_Cb]; }
+    const Bitmap<Pel>& AskBitmapCb() const { return d_pm[Bitmap_Cb]; }
+    Bitmap<Pel>& AskBitmapCr()       { return d_pm[Bitmap_Cr]; }
+    const Bitmap<Pel>& AskBitmapCr() const { return d_pm[Bitmap_Cr]; }
+    Bitmap<Pel>&
