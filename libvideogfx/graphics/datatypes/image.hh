@@ -214,4 +214,21 @@ namespace videogfx {
     void MoveZero(int x0,int y0);
 
     /// Get read/write access to a bitmap channel. If the channel is not present, the bitmap will be empty.
-    Bitmap<Pel>&       AskBitmap(BitmapChannel pm_id)       { return
+    Bitmap<Pel>&       AskBitmap(BitmapChannel pm_id)       { return d_pm[pm_id]; }
+    /// Get read-only access to a bitmap channel. If the channel is not present, the bitmap will be empty.
+    const Bitmap<Pel>& AskBitmap(BitmapChannel pm_id) const { return d_pm[pm_id]; }
+
+    /** Get read/write access to a bitmap data. The data can be accessed like a two-dimensional array
+	with the vertical coordinate coming first. This method will fail if the requested bitmap-channel
+	is not present in the image. */
+    Pel*const*       AskFrame(BitmapChannel pm_id)       { return d_pm[pm_id].AskFrame(); }
+    /** Same as other AskFrame() method, but read access is allowed with this one only. */
+    const Pel*const* AskFrame(BitmapChannel pm_id) const { return d_pm[pm_id].AskFrame(); }
+
+
+    /** Replace a complete bitmap. Note that the new bitmap either has to be empty or has to
+	be exactly the same size as the old one.
+	Furthermore you are responsible that all alignments and the border size is sufficient
+	for your application. This is not checked!
+      
+	If you insert or remov
