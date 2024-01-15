@@ -174,4 +174,25 @@ namespace videogfx {
 
   /** The Image class combines up to four bitmaps to a colored image with optional alpha plane.
       The data is organized in independent color channels. The number of channels depends on the
-      colorspace used. Greyscale images only use a single color channel, while a
+      colorspace used. Greyscale images only use a single color channel, while all other colorspaces
+      use three channels. An additional alpha channel can be attached, so that a maximum of four
+      channels can be present in the image.
+
+      If the colorspace is set to YUV, not all channels need to have the same resolution. While the
+      luminance (Y) channel always has full resolution, the resolution of the two chrominance channels
+      may be reduced according to the chroma format specified. The alpha channel always has full resolution.
+  */
+  template <class Pel> class Image
+  {
+  public:
+    virtual ~Image() { }
+
+    /** Create a new image according to the parameters specified. */
+    void Create(const ImageParam&);
+    /** Create a new image according to the parameters specified. */
+    void Create(int w,int h,Colorspace cs,ChromaFormat cr=Chroma_420);
+    /** Explicitly release the memory occupied for the image data. */
+    void Release();
+
+    /** Ask image parameters. You can use these parameters to make an
+	exact clon
