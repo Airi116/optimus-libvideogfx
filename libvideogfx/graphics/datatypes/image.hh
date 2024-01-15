@@ -116,4 +116,28 @@ namespace videogfx {
     bool has_alpha;        ///< does the image have an alpha plane?
 
     ChromaFormat chroma;            ///< chroma subsampling used
-    bool reduced_chroma_resolution; ///< use reduce
+    bool reduced_chroma_resolution; ///< use reduced memory for the chroma planes according to chroma format?
+    int  chroma_border;       ///< border size for chroma (if sub-sampled)
+    int  chroma_halign;       ///< horizontal alignment for chroma (if sub-sampled)
+    int  chroma_valign;       ///< vertical alignment for chroma (if sub-sampled)
+
+    /** Returns the width of chroma-planes (YUV only). For other colorspaces, the normal size is returned. */
+    int  AskChromaWidth()  const
+    {
+      if (colorspace==Colorspace_YUV)
+	return (width +ChromaSubH(chroma)-1)/ChromaSubH(chroma);
+      else
+	return width;
+    }
+
+    /** Returns the height of chroma-planes (YUV only). For other colorspaces, the normal size is returned. */
+    int  AskChromaHeight() const
+    {
+      if (colorspace==Colorspace_YUV)
+	return (height+ChromaSubV(chroma)-1)/ChromaSubV(chroma);
+      else
+	return height;
+    }
+
+    void AskChromaSizes(int& w,int &h) const;  ///< returns size of chroma planes
+    int  AskChromaBorder() const; ///< returns
