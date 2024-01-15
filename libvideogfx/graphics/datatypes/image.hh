@@ -231,4 +231,32 @@ namespace videogfx {
 	Furthermore you are responsible that all alignments and the border size is sufficient
 	for your application. This is not checked!
       
-	If you insert or remov
+	If you insert or remove (by replacing a bitmap by an empty one) an alpha bitmap,
+	the alphamask-flag in ImageParam will be set accordingly.
+    */
+    void ReplaceBitmap(BitmapChannel id,const Bitmap<Pel>& bm)
+    {
+      d_pm[id] = bm;
+
+      if (id==Bitmap_Alpha)
+	{
+	  d_param.has_alpha = !bm.IsEmpty();
+	}
+    }
+
+    /// Set new image parameters.
+    void SetParam(const ImageParam& param) { d_param=param; }
+
+    /** Make an exact copy of the image to a new, independent memory area. */
+    Image<Pel> Clone(int border=-1) const;
+
+    /// Create a sub-view image to a small region of the current image. The image data is shared.
+    Image<Pel> CreateSubView  (int x0,int y0,int w,int h) const;
+    /// Create a field-view image to a single field of the current image. The image data is shared.
+    Image<Pel> CreateFieldView(bool top) const;
+
+    /// Checks if the image has been created already.
+    bool IsEmpty() const { return d_pm[0].IsEmpty(); }
+
+    Pel& R(int x,int y) { return AskFrameR()[y][x]; }
+    Pel& G(int x,int y) { re
