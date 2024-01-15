@@ -140,4 +140,18 @@ namespace videogfx {
     }
 
     void AskChromaSizes(int& w,int &h) const;  ///< returns size of chroma planes
-    int  AskChromaBorder() const; ///< returns
+    int  AskChromaBorder() const; ///< returns size of chroma border
+    int  AskChromaHAlign() const; ///< returns size of chroma horizontal alignment
+    int  AskChromaVAlign() const; ///< returns size of chroma vertical alignment
+
+    /// Width of the specified bitmap channel.
+    int  BitmapWidth (BitmapChannel b) const { if (b==1||b==2) return AskChromaWidth();  else return width; }
+    /// Height of the specified bitmap channel.
+    int  BitmapHeight(BitmapChannel b) const { if (b==1||b==2) return AskChromaHeight(); else return height; }
+
+    /// Scale the given horizontal coordinate by the sub-sampling factor of the specified bitmap channel.
+    int  ChromaScaleH(BitmapChannel b,int x) const
+    { if ((b==1||b==2) && colorspace==Colorspace_YUV) return x/ChromaSubH(chroma); else return x; }
+    /// Scale the given vertical coordinate by the sub-sampling factor of the specified bitmap channel.
+    int  ChromaScaleV(BitmapChannel b,int y) const
+    { if ((b==1||b==2) && colorspace==C
