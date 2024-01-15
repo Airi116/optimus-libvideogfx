@@ -259,4 +259,21 @@ namespace videogfx {
     bool IsEmpty() const { return d_pm[0].IsEmpty(); }
 
     Pel& R(int x,int y) { return AskFrameR()[y][x]; }
-    Pel& G(int x,int y) { re
+    Pel& G(int x,int y) { return AskFrameG()[y][x]; }
+    Pel& B(int x,int y) { return AskFrameB()[y][x]; }
+    Pel& A(int x,int y) { return AskFrameA()[y][x]; }
+    Pel& Y(int x,int y) { return AskFrameY()[y][x]; }
+
+    const Pel& R(int x,int y) const { return AskFrameR()[y][x]; }
+    const Pel& G(int x,int y) const { return AskFrameG()[y][x]; }
+    const Pel& B(int x,int y) const { return AskFrameB()[y][x]; }
+    const Pel& A(int x,int y) const { return AskFrameA()[y][x]; }
+    const Pel& Y(int x,int y) const { return AskFrameY()[y][x]; }
+
+    Pel*const* AskFrameR()        { return d_pm[Bitmap_Red].AskFrame(); }
+    const Pel*const* AskFrameR()  const { return d_pm[Bitmap_Red].AskFrame(); }
+    Pel*const* AskFrameG()        { return d_pm[Bitmap_Green].AskFrame(); }
+    const Pel*const* AskFrameG()  const { return d_pm[Bitmap_Green].AskFrame(); }
+    Pel*const* AskFrameB()        { return d_pm[Bitmap_Blue].AskFrame(); }
+    const Pel*const* AskFrameB()  const { return d_pm[Bitmap_Blue].AskFrame(); }
+    Pel*const* AskFrameY()        { re
