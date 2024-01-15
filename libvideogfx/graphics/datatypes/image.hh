@@ -276,4 +276,18 @@ namespace videogfx {
     const Pel*const* AskFrameG()  const { return d_pm[Bitmap_Green].AskFrame(); }
     Pel*const* AskFrameB()        { return d_pm[Bitmap_Blue].AskFrame(); }
     const Pel*const* AskFrameB()  const { return d_pm[Bitmap_Blue].AskFrame(); }
-    Pel*const* AskFrameY()        { re
+    Pel*const* AskFrameY()        { return d_pm[Bitmap_Y].AskFrame(); }
+    const Pel*const* AskFrameY()  const { return d_pm[Bitmap_Y].AskFrame(); }
+    Pel*const* AskFrameU()        { return d_pm[Bitmap_U].AskFrame(); }
+    const Pel*const* AskFrameU()  const { return d_pm[Bitmap_U].AskFrame(); }
+    Pel*const* AskFrameV()        { return d_pm[Bitmap_V].AskFrame(); }
+    const Pel*const* AskFrameV()  const { return d_pm[Bitmap_V].AskFrame(); }
+    Pel*const* AskFrameCb()       { return d_pm[Bitmap_Cb].AskFrame(); }
+    const Pel*const* AskFrameCb() const { return d_pm[Bitmap_Cb].AskFrame(); }
+    Pel*const* AskFrameCr()       { return d_pm[Bitmap_Cr].AskFrame(); }
+    const Pel*const* AskFrameCr() const { return d_pm[Bitmap_Cr].AskFrame(); }
+    Pel*const* AskFrameA()        { return d_pm[Bitmap_Alpha].AskFrame(); }
+    const Pel*const* AskFrameA()  const { return d_pm[Bitmap_Alpha].AskFrame(); }
+
+    Bitmap<Pel>& AskBitmapR()        { return d_pm[Bitmap_Red]; }
+    const Bitmap<Pel>& AskBitmapR()  const { return d_pm[Bitma
