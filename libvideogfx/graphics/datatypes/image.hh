@@ -305,4 +305,40 @@ namespace videogfx {
     const Bitmap<Pel>& AskBitmapCb() const { return d_pm[Bitmap_Cb]; }
     Bitmap<Pel>& AskBitmapCr()       { return d_pm[Bitmap_Cr]; }
     const Bitmap<Pel>& AskBitmapCr() const { return d_pm[Bitmap_Cr]; }
-    Bitmap<Pel>&
+    Bitmap<Pel>& AskBitmapA()        { return d_pm[Bitmap_Alpha]; }
+    const Bitmap<Pel>& AskBitmapA()  const { return d_pm[Bitmap_Alpha]; }
+
+    bool IsShared() const
+    {
+      for (int i=0;i<4;i++)
+	if (d_pm[i].IsShared())
+	  return true;
+
+      return false;
+    }
+
+  private:
+    Bitmap<Pel> d_pm[4];
+    ImageParam  d_param;
+  };
+
+
+
+  template <class Pel> void Image<Pel>::Create(int w,int h,Colorspace cs,ChromaFormat cr)
+  {
+    ImageParam spec(w,h,cs);
+    spec.chroma = cr;
+    Create(spec);
+  }
+
+  template <class Pel> void Image<Pel>::Create(const ImageParam& param)
+  {
+    // Create first channel, which is always present (luminance or one of the three channels)
+    d_pm[0].Create(param.width, param.height, param.border,param.halign,param.valign);
+
+    switch (param.colorspace)
+      {
+      case Colorspace_RGB:
+      case Colorspace_HSV:
+	// Create remaining three channels with the same parameters.
+	d_pm[1].Create(param.width, param.he
