@@ -341,4 +341,31 @@ namespace videogfx {
       case Colorspace_RGB:
       case Colorspace_HSV:
 	// Create remaining three channels with the same parameters.
-	d_pm[1].Create(param.width, param.he
+	d_pm[1].Create(param.width, param.height, param.border,param.halign,param.valign);
+	d_pm[2].Create(param.width, param.height, param.border,param.halign,param.valign);
+	break;
+
+      case Colorspace_YUV:
+	if (param.reduced_chroma_resolution)
+	  {
+	    // Create chroma planes with reduced memory size.
+	    d_pm[1].Create(param.AskChromaWidth(), param.AskChromaHeight(), param.AskChromaBorder(),
+			   param.AskChromaHAlign(),param.AskChromaVAlign());
+	    d_pm[2].Create(param.AskChromaWidth(), param.AskChromaHeight(), param.AskChromaBorder(),
+			   param.AskChromaHAlign(),param.AskChromaVAlign());
+	  }
+	else
+	  {
+	    // Create chroma planes without reduced memory size.
+	    d_pm[1].Create(param.width, param.height, param.border,param.halign,param.valign);
+	    d_pm[2].Create(param.width, param.height, param.border,param.halign,param.valign);
+	  }
+	break;
+
+      case Colorspace_Greyscale:
+	// greyscale only has a luminance channel, so remove chrominance if it is still there.
+	d_pm[1].Release();
+	d_pm[2].Release();
+	break;
+
+      case C
