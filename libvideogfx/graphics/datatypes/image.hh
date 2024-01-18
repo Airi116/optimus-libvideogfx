@@ -473,4 +473,20 @@ namespace videogfx {
     newimg.d_param = d_param;
 
     for (int i=0;i<4;i++)
-      newimg.d_pm[i] = d_pm[i].CreateField
+      newimg.d_pm[i] = d_pm[i].CreateFieldView(top);
+
+    newimg.d_param.width  = newimg.d_pm[0].AskWidth();
+    newimg.d_param.height = newimg.d_pm[0].AskHeight();
+    newimg.d_param.halign = 1;
+    newimg.d_param.valign = 1;
+    newimg.d_param.border = 0;
+    newimg.d_param.chroma_border = -1;
+    newimg.d_param.chroma_halign = -1;
+    newimg.d_param.chroma_valign = -1;
+
+    return newimg;
+  }
+
+}
+
+#endif
