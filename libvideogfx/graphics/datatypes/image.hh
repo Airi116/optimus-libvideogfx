@@ -441,4 +441,36 @@ namespace videogfx {
     newimg.d_param.chroma_halign = -1;
     newimg.d_param.chroma_valign = -1;
 
-    if (d_param.colorspace 
+    if (d_param.colorspace == Colorspace_YUV)
+      {
+	newimg.d_pm[0] = d_pm[0].CreateSubView(x0,y0,w,h);
+	newimg.d_pm[3] = d_pm[3].CreateSubView(x0,y0,w,h);
+
+	int subh = ChromaSubH(d_param.chroma);
+	int subv = ChromaSubV(d_param.chroma);
+
+	newimg.d_pm[1] = d_pm[1].CreateSubView(x0/subh,y0/subv,(w+subh-1)/subh,(h+subv-1)/subv);
+	newimg.d_pm[2] = d_pm[2].CreateSubView(x0/subh,y0/subv,(w+subh-1)/subh,(h+subv-1)/subv);
+      }
+    else
+      {
+	for (int i=0;i<4;i++)
+	  newimg.d_pm[i] = d_pm[i].CreateSubView(x0,y0,w,h);
+      }
+
+    return newimg;
+  }
+
+  template <class Pel> Image<Pel> Image<Pel>::CreateFieldView(bool top) const
+  {
+    if (!top && d_param.colorspace==Colorspace_YUV && d_param.chroma==Chroma_420 &&
+	(d_pm[0].AskHeight()%2)==0 && (d_pm[1].AskHeight()%2)==1)
+      {
+	// AssertDescr(false,"not enough chroma information for bottom field");
+      }
+
+    Image<Pel> newimg;
+    newimg.d_param = d_param;
+
+    for (int i=0;i<4;i++)
+      newimg.d_pm[i] = d_pm[i].CreateField
