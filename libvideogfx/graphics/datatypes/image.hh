@@ -403,4 +403,42 @@ namespace videogfx {
 
     d_pm[0].MoveZero(x0,y0);
     d_pm[3].MoveZero(x0,y0);
-    d_pm[1].MoveZero(x0 / ChromaSubH(AskParam().chr
+    d_pm[1].MoveZero(x0 / ChromaSubH(AskParam().chroma), y0 / ChromaSubV(AskParam().chroma));
+    d_pm[2].MoveZero(x0 / ChromaSubH(AskParam().chroma), y0 / ChromaSubV(AskParam().chroma));
+
+    d_param.xoffset = x0;
+    d_param.yoffset = y0;
+  }
+
+  template <class Pel> Image<Pel> Image<Pel>::Clone(int border) const
+  {
+    Image<Pel> img;
+    for (int i=0;i<4;i++)
+      img.d_pm[i] = d_pm[i].Clone(border);
+
+    img.d_param = d_param;
+
+    if (border>=0)
+      {
+	img.d_param.border        = border;
+	img.d_param.chroma_border = border;
+      }
+
+    return img;
+  }
+
+  template <class Pel> Image<Pel> Image<Pel>::CreateSubView(int x0,int y0,int w,int h) const
+  {
+    Image<Pel> newimg;
+    newimg.d_param = d_param;
+
+    newimg.d_param.width  = w;
+    newimg.d_param.height = h;
+    newimg.d_param.halign = 1;
+    newimg.d_param.valign = 1;
+    newimg.d_param.border = 0;
+    newimg.d_param.chroma_border = -1;
+    newimg.d_param.chroma_halign = -1;
+    newimg.d_param.chroma_valign = -1;
+
+    if (d_param.colorspace 
