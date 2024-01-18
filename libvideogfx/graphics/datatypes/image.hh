@@ -368,4 +368,39 @@ namespace videogfx {
 	d_pm[2].Release();
 	break;
 
-      case C
+      case Colorspace_Invalid:
+	assert(0);
+	break;
+      }
+
+    // If an alpha-channel is requested, create one with full resolution. Otherwise remove the bitmap data.
+    if (param.has_alpha)
+      d_pm[Bitmap_Alpha].Create(param.width, param.height, param.border,param.halign,param.valign);
+    else
+      d_pm[Bitmap_Alpha].Release();
+
+    // Set new image parameters.
+    d_param = param;
+
+    MoveZero(param.xoffset, param.yoffset);
+  }
+
+
+  template <class Pel> void Image<Pel>::Release()
+  {
+    for (int i=0;i<4;i++)
+      d_pm[i].Release();
+
+    // Set parameters to invalid defaults.
+    d_param = ImageParam();
+  }
+
+
+  template <class Pel> void Image<Pel>::MoveZero(int x0,int y0)
+  {
+    assert((x0 % ChromaSubH(AskParam().chroma)==0) &&
+		(y0 % ChromaSubV(AskParam().chroma)==0)); // "can only move zero position in multiples of chroma-subsampling positions");
+
+    d_pm[0].MoveZero(x0,y0);
+    d_pm[3].MoveZero(x0,y0);
+    d_pm[1].MoveZero(x0 / ChromaSubH(AskParam().chr
