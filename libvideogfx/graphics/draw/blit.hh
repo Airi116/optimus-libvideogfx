@@ -46,4 +46,23 @@ namespace videogfx {
      bitmap content is released.
      If the destination is shared, a new bitmap will be created.
   */
-  template <class Pel> void CopyToNew(Bitmap<Pel>& dst,const B
+  template <class Pel> void CopyToNew(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+
+  /* Logically the same as Image.Clone(). However, when the destination image is
+     already of the right size and not shared, only the image content is copied
+     without allocating new memory. */
+  template <class Pel> void CopyToNew(Image<Pel>& dst,const Image<Pel>& src);
+
+  /* Copy bitmap to destination. Destination bitmap must exist and will not
+     be decoupled if it is shared. */
+  template <class Pel> void Copy(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+  template <class Pel> void Copy(Image<Pel>& dst,const Image<Pel>& src);
+
+  /* Copy a region of one bitmap into another bitmap.
+   */
+  template <class Pel> void Copy(Bitmap<Pel>& dst,       int dstx0,int dsty0,
+				 const Bitmap<Pel>& src, int srcx0,int srcy0, int w,int h);
+  template <class Pel> void Copy(Image<Pel>& dst,       int dstx0,int dsty0,
+				 const Image<Pel>& src, int srcx0,int srcy0, int w,int h);
+
+  /* Copy the outer 'border' rows and columns of the src into the destination i
