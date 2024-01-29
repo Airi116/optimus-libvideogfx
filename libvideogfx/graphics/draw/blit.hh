@@ -65,4 +65,36 @@ namespace videogfx {
   template <class Pel> void Copy(Image<Pel>& dst,       int dstx0,int dsty0,
 				 const Image<Pel>& src, int srcx0,int srcy0, int w,int h);
 
-  /* Copy the outer 'border' rows and columns of the src into the destination i
+  /* Copy the outer 'border' rows and columns of the src into the destination image.
+     Useful for transfering the border when filters are not applied at the border area.
+  */
+  template <class Pel> void CopyBorder(Bitmap<Pel>& dst,const Bitmap<Pel>& src,int border);
+
+
+  /* Copy the image content at the border lines into the border area.
+   */
+  template <class Pel> void ExtrudeIntoBorder(Bitmap<Pel>&);
+  template <class Pel> void ExtrudeIntoBorder(Image<Pel>&);
+
+  /* Fill the image border with constant value.
+   */
+  template <class Pel> void FillBorder(Bitmap<Pel>&, Pel value);
+  template <class Pel> void FillBorder(Image<Pel>&, Color<Pel> value);
+
+
+  // ------------------------------- implementation -----------------------------------
+
+  template <class Pel> void CopyToNew(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    if (src.IsEmpty())
+      { dst.Release(); return; }
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    dst.Create(w,h);
+
+    assert(w == dst.AskWidth());
+    assert(h == dst.AskHeight());
+
+    const Pel*const* 
