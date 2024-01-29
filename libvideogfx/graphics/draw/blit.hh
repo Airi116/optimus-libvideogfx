@@ -97,4 +97,44 @@ namespace videogfx {
     assert(w == dst.AskWidth());
     assert(h == dst.AskHeight());
 
-    const Pel*const* 
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      memcpy(dp[y],sp[y],w*sizeof(Pel));
+  }
+
+  template <class Pel> void CopyToNew(Image<Pel>& dst,const Image<Pel>& src)
+  {
+    for (int i=0;i<4;i++)
+      CopyToNew(dst.AskBitmap((BitmapChannel)i), src.AskBitmap((BitmapChannel)i));
+
+    dst.SetParam(src.AskParam());
+  }
+
+
+  template <class Pel> void Copy(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    if (src.IsEmpty())
+      {
+	dst.Release();
+	return;
+      }
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    assert(w == dst.AskWidth());
+    assert(h == dst.AskHeight());
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      memcpy(dp[y],sp[y],w*sizeof(Pel));
+  }
+
+  template <class Pel> void Copy(Image<Pel>& dst,const Image<Pel>& src)
+  {
+    for (int i=0;i<4;i++)
+      Copy(dst.AskBitmap((BitmapChannel)i), src.AskBitmap((BitmapChannel)
