@@ -217,4 +217,40 @@ namespace videogfx {
 
   template <class Pel> void ExtrudeIntoBorder(Image<Pel>& img)
   {
-    for (int i=0;i<4;i+
+    for (int i=0;i<4;i++)
+      if (!img.AskBitmap(BitmapChannel(i)).IsEmpty())
+	ExtrudeIntoBorder(img.AskBitmap(BitmapChannel(i)));
+  }
+
+  template <class Pel> void FillBorder(Bitmap<Pel>& bm, Pel value)
+  {
+    Pel*const* p = bm.AskFrame();
+    int w = bm.AskWidth();
+    int h = bm.AskHeight();
+    int border = bm.AskBorder();
+    int xo = bm.AskXOffset();
+    int yo = bm.AskYOffset();
+
+    for (int b=1;b<=border;b++)
+      for (int x=-xo;x<w-xo;x++)
+	{
+	  p[-b-yo][x] = p[h+b-1-yo][x] = value;
+	}
+
+    for (int y=-border-yo;y<h+border-yo;y++)
+      for (int b=1;b<=border;b++)
+	{
+	  p[y][-b-xo] = p[y][w+b-1-xo] = value;
+	}
+  }
+
+  template <class Pel> void FillBorder(Image<Pel>& img, Color<Pel> value)
+  {
+    for (int i=0;i<4;i++)
+      if (!img.AskBitmap(i).IsEmpty())
+	FillBorder(img.AskBitmap(i), value.c[i]);
+  }
+
+}
+
+#endif
