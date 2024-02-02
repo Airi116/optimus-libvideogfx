@@ -171,4 +171,50 @@ namespace videogfx {
 
   template <class Pel> void CopyBorder(Bitmap<Pel>& dst,const Bitmap<Pel>& src,int border)
   {
-    int w
+    int w=src.AskWidth(), h=src.AskHeight();
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<border;y++)
+      for (int x=0;x<w;x++)
+	{
+	  dp[y][x] = sp[y][x];
+	  dp[h-1-y][x] = sp[h-1-y][x];
+	}
+
+    for (int y=border;y<h-border;y++)
+      for (int x=0;x<border;x++)
+	{
+	  dp[y][x] = sp[y][x];
+	  dp[y][w-1-x] = sp[y][w-1-x];
+	}
+  }
+
+
+  template <class Pel> void ExtrudeIntoBorder(Bitmap<Pel>& bm)
+  {
+    Pel*const* p = bm.AskFrame();
+    int w = bm.AskWidth();
+    int h = bm.AskHeight();
+    int border = bm.AskBorder();
+    int xo = bm.AskXOffset();
+    int yo = bm.AskYOffset();
+
+    for (int b=1;b<=border;b++)
+      for (int x=-xo;x<w-xo;x++)
+	{
+	  p[-b-yo][x] = p[-yo][x];
+	  p[h+b-1-yo][x] = p[h-1-yo][x];
+	}
+
+    for (int y=-border-yo;y<h+border-yo;y++)
+      for (int b=1;b<=border;b++)
+	{
+	  p[y][-b-xo] = p[y][-xo];
+	  p[y][w+b-1-xo] = p[y][w-1-xo];
+	}
+  }
+
+  template <class Pel> void ExtrudeIntoBorder(Image<Pel>& img)
+  {
+    for (int i=0;i<4;i+
