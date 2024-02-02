@@ -137,4 +137,38 @@ namespace videogfx {
   template <class Pel> void Copy(Image<Pel>& dst,const Image<Pel>& src)
   {
     for (int i=0;i<4;i++)
-      Copy(dst.AskBitmap((BitmapChannel)i), src.AskBitmap((BitmapChannel)
+      Copy(dst.AskBitmap((BitmapChannel)i), src.AskBitmap((BitmapChannel)i));
+
+    dst.SetParam(src.AskParam());
+  }
+
+  template <class Pel> void Copy(Bitmap<Pel>& dst,       int dstx0,int dsty0,
+				 const Bitmap<Pel>& src, int srcx0,int srcy0, int w,int h)
+  {
+    if (src.IsEmpty()) return;
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      memcpy(&dp[y+dsty0][dstx0],&sp[srcy0+y][srcx0],w*sizeof(Pel));
+  }
+
+  template <class Pel> void Copy(Image<Pel>& dst,       int dstx0,int dsty0,
+				 const Image<Pel>& src, int srcx0,int srcy0, int w,int h)
+  {
+    ImageParam param = src.AskParam();
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	Copy(dst.AskBitmap(b),  param.ChromaScaleH(b,dstx0),param.ChromaScaleV(b,dsty0),
+	     src.AskBitmap(b),  param.ChromaScaleH(b,srcx0),param.ChromaScaleV(b,srcy0),
+	     param.ChromaScaleH(b,w), param.ChromaScaleV(b,h));
+      }
+  }
+
+
+  template <class Pel> void CopyBorder(Bitmap<Pel>& dst,const Bitmap<Pel>& src,int border)
+  {
+    int w
