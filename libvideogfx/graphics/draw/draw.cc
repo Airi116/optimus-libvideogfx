@@ -70,4 +70,52 @@ namespace videogfx {
 	  }
 	else if (clipcode & CLIP_BOTTOM)
 	  {
-	    x = x0 + (x1-x0)*(r_y1-y0)/(y1-y
+	    x = x0 + (x1-x0)*(r_y1-y0)/(y1-y0);
+	    y = r_y1;
+	  }
+	else if (clipcode & CLIP_LEFT)
+	  {
+	    y = y0 + (y1-y0)*(r_x0-x0)/(x1-x0);
+	    x = r_x0;
+	  }
+	else if (clipcode & CLIP_RIGHT)
+	  {
+	    y = y0 + (y1-y0)*(r_x1-x0)/(x1-x0);
+	    x = r_x1;
+	  }
+
+	if (clipcode == outcode0)
+	  { x0 = x; y0 = y; outcode0=OutCode(x0,y0, r_x0,r_y0,r_x1,r_y1); }
+	else
+	  { x1 = x; y1 = y; outcode1=OutCode(x1,y1, r_x0,r_y0,r_x1,r_y1); }
+      }
+  }
+
+
+  void DrawTriangle(Image<Pixel>& img, const Point2D<double>* in_p, const Color<Pixel>* col)
+  {
+    ImageParam param = img.AskParam();
+    Pixel c[3];
+    Point2D<double> p[3];
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	if (!img.AskBitmap(b).IsEmpty())
+	  {
+	    for (int n=0;n<3;n++)
+	      {
+		c[n] = col[n].c[i];
+		p[n].x = param.ChromaScaleH(b,in_p[n].x);
+		p[n].y = param.ChromaScaleV(b,in_p[n].y);
+	      }
+
+	    DrawTriangle(img.AskBitmap(b), p, c);
+	  }
+      }
+  }
+
+
+  void ClearToBlack(Image<Pixel>& img)
+  {
+    Colorspace cs = img.AskParam().color
