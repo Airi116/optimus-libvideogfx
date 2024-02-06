@@ -300,3 +300,569 @@ namespace videogfx {
       }
     else
       {
+	if (x1<x0) {  std::swap(x0,x1); std::swap(y0,y1); }
+
+	int yinc;
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+
+	if (dy < 0)
+	  {
+	    yinc = -1;
+	    dy = -dy;
+	  }
+	else
+	  yinc = 1;
+
+	int d = 2* dy - dx;
+	int incrE = 2 * dy;  // Increment used for move to E
+	int incrNE = 2 * (dy - dx);   // increment used for move to NE
+	int x = x0;
+	int y = y0;
+
+	while (x <= x1)
+	  {
+	    p[y][x] = color;
+     
+	    if (d <= 0)   // Choose E
+	      {
+		d = d + incrE;
+		x++;
+	      }
+	    else         // Choose NE
+	      {
+		d = d + incrNE;
+		x++;
+		y = y + yinc;
+	      }
+	  }
+      }
+  }
+
+  template <class T> void DrawLine(Image<T>&  bm,int x0,int y0,int x1, int y1,Color<T> color)
+  {
+    ImageParam param = bm.AskParam();
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	if (!bm.AskBitmap(b).IsEmpty())
+	  DrawLine(bm.AskBitmap(b),
+		   param.ChromaScaleH(b,x0), param.ChromaScaleV(b,y0),
+		   param.ChromaScaleH(b,x1), param.ChromaScaleV(b,y1),
+		   color.c[i]);
+      }
+  }
+
+  template <class T> void DrawLine(Bitmap<T>& bm,const Point2D<int>& p1,const Point2D<int>& p2,T color)
+  { DrawLine(bm,p1.x,p1.y,p2.x,p2.y,color); }
+
+  template <class T> void DrawLine(Image<T>&  bm,const Point2D<int>& p1,const Point2D<int>& p2,Color<T> color)
+  { DrawLine(bm,p1.x,p1.y,p2.x,p2.y,color); }
+
+  template <class T> void DrawLine(Bitmap<T>& bm,const Point2D<double>& p1,const Point2D<double>& p2,T color)
+  { DrawLine(bm,(int)(p1.x+0.5),(int)(p1.y+0.5),(int)(p2.x+0.5),(int)(p2.y+0.5),color); }
+
+  template <class T> void DrawLine(Image<T>&  bm,const Point2D<double>& p1,const Point2D<double>& p2,Color<T> color)
+  { DrawLine(bm,(int)(p1.x+0.5),(int)(p1.y+0.5),(int)(p2.x+0.5),(int)(p2.y+0.5),color); }
+
+  template <class T> void DrawDottedLine(Bitmap<T>& bm,int x1,int y1,int x2,int y2,T color,int nth)
+  {
+    int vx = x2-x1;
+    int vy = y2-y1;
+    DrawPoint(bm,x1,y1,color);
+
+    if (abs(vx)>abs(vy))
+      {
+	for (int x=0;x<abs(vx);x+=nth)
+	  {
+	    int xx=x*sign(vx);
+	    DrawPoint(bm , x1+xx , vy*xx/vx+y1 , color);
+	  }
+      }
+    else
+      {
+	for (int y=0;y<abs(vy);y+=nth)
+	  {
+	    int yy=y*sign(vy);
+	    DrawPoint(bm , x1+vx*yy/vy , y1+yy , color);
+	  }
+      }
+  }
+
+
+  //Pointer is set to this function if the circle is full visible 
+  template <class T> void CirclePoints_Direct(Bitmap<T>& bm,int x0,int y0,int dx,int dy, T color)
+  {
+    T*const* p = bm.AskFrame();
+
+    p[y0-dy][x0-dx]=color;
+    p[y0-dy][x0+dx]=color;
+    p[y0+dy][x0-dx]=color;
+    p[y0+dy][x0+dx]=color;
+
+    p[y0-dx][x0-dy]=color;
+    p[y0-dx][x0+dy]=color;
+    p[y0+dx][x0-dy]=color;
+    p[y0+dx][x0+dy]=color;
+  }
+
+  //Pointer is set to this function if the circle is not fully visible 
+  template <class T> static void CirclePoints_Save(Bitmap<T>& bm,int x0,int y0,int dx,int dy,T color)
+  {
+    T*const* p = bm.AskFrame();
+
+    const int xMax= bm.AskWidth() -bm.AskXOffset();
+    const int yMax= bm.AskHeight()-bm.AskYOffset();
+    const int xMin= -bm.AskXOffset();
+    const int yMin= -bm.AskYOffset();
+
+    int y0dy1=y0-dy;
+    int y0dy2=y0+dy;
+    int x0dx1=x0-dx;
+    int x0dx2=x0+dx;
+
+    int y0dx1=y0-dx;
+    int y0dx2=y0+dx;
+    int x0dy1=x0-dy;
+    int x0dy2=x0+dy;
+
+  
+    if ((y0dy1)>=yMin && (x0dx1)>=xMin && (y0dy1)<yMax && (x0dx1)<xMax)
+      p[y0dy1][x0dx1]=color;
+    if ((y0dy1)>=yMin && (x0dx2)>=xMin && (y0dy1)<yMax && (x0dx2)<xMax)
+      p[y0dy1][x0dx2]=color;
+    if ((y0dy2)>=yMin && (x0dx1)>=xMin && (y0dy2)<yMax && (x0dx1)<xMax)
+      p[y0+dy][x0-dx]=color;
+    if ((y0dy2)>=yMin && (x0dx2)>=xMin && (y0dy2)<yMax && (x0dx2)<xMax)
+      p[y0+dy][x0+dx]=color;
+
+
+    if ((y0dx1)>=yMin && (x0dy1)>=xMin && (y0dx1)<yMax && (x0dy1)<xMax)
+      p[y0-dx][x0-dy]=color;
+    if ((y0dx1)>=yMin && (x0dy2)>=xMin && (y0dx1)<yMax && (x0dy2)<xMax)
+      p[y0-dx][x0+dy]=color;
+    if ((y0dx2)>=yMin && (x0dy1)>=xMin && (y0dx2)<yMax && (x0dy1)<xMax)
+      p[y0+dx][x0-dy]=color;
+    if ((y0dx2)>=yMin && (x0dy2)>=xMin && (y0dx2)<yMax && (x0dy2)<xMax)
+      p[y0+dx][x0+dy]=color;
+  }
+
+  template <class T> static void CirclePoints_Fill(Bitmap<T>& bm,int x0,int y0,int dx,int dy, T color)
+  {
+    int y0dy1=y0-dy;
+    int y0dy2=y0+dy;
+    int x0dx1=x0-dx;
+    int x0dx2=x0+dx;
+
+    int y0dx1=y0-dx;
+    int y0dx2=y0+dx;
+    int x0dy1=x0-dy;
+    int x0dy2=x0+dy;
+
+    DrawLine(bm,x0dx1,y0dy1,x0dx2,y0dy1,color);
+    DrawLine(bm,x0dy1,y0dx1,x0dy2,y0dx1,color);
+    DrawLine(bm,x0dy2,y0dx2,x0dy1,y0dx2,color);
+    DrawLine(bm,x0dx2,y0dy2,x0dx1,y0dy2,color);      
+  }
+
+  // main function to draw a circle
+  template <class T> void DrawCircle(Bitmap<T>& bm,int x0,int y0, int radius,T color,bool fill)
+  {
+    int x,y,d;
+
+    void (*drawpoints)(Bitmap<T>& bm,int x0,int y0,int dx,int dy,T color);
+
+    x=0;
+    y=radius;
+    d=1-radius;
+
+    if (fill)
+      { drawpoints = CirclePoints_Fill; }
+    else if (x0-radius>=-bm.AskXOffset() && x0+radius<bm.AskWidth() -bm.AskXOffset() &&
+	     y0-radius>=-bm.AskYOffset() && y0+radius<bm.AskHeight()-bm.AskYOffset())
+      { drawpoints = CirclePoints_Direct; }
+    else
+      { drawpoints = CirclePoints_Save; }
+
+    drawpoints(bm,x0,y0,x,y,color);
+
+    while (y>x)
+      {
+	if (d<0)
+	  {
+	    d=d+2*x+3;
+	    x++;
+	  }
+	else
+	  {
+	    d=d+2*(x-y)+5;
+	    x++;
+	    y--;
+	  }
+	drawpoints(bm,x0,y0,x,y,color);
+      }
+  }
+
+  template <class T> void DrawCircle(Image<T>&  bm,int x0,int y0, int radius,Color<T> color,bool fill)
+  {
+    ImageParam param = bm.AskParam();
+
+    if (param.colorspace == Colorspace_YUV)
+      {
+	assert(param.chroma == Chroma_420 ||
+               param.chroma == Chroma_444); // ,"cannot draw circle because chroma pixels are not square");
+      }
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	if (!bm.AskBitmap(b).IsEmpty())
+	  DrawCircle(bm.AskBitmap(b),
+		     param.ChromaScaleH(b,x0), param.ChromaScaleV(b,y0),
+		     param.ChromaScaleH(b,radius), color.c[i], fill);
+      }
+  }
+
+  template <class T> void DrawCircle(Bitmap<T>& bm,const Point2D<int>& p, int radius,T color,bool fill)
+  { DrawCircle(bm,p.x,p.y,radius,color,fill); }
+  template <class T> void DrawCircle(Image<T>&  bm,const Point2D<int>& p, int radius,Color<T> color,bool fill)
+  { DrawCircle(bm,p.x,p.y,radius,color,fill); }
+  template <class T> void DrawCircle(Bitmap<T>& bm,const Point2D<double>& p, int radius,T color,bool fill)
+  { DrawCircle(bm,(int)(p.x+0.5),(int)(p.y+0.5),radius,color,fill); }
+  template <class T> void DrawCircle(Image<T>&  bm,const Point2D<double>& p, int radius,Color<T> color,bool fill)
+  { DrawCircle(bm,(int)(p.x+0.5),(int)(p.y+0.5),radius,color,fill); }
+
+
+  template <class T> void DrawRectangle(Bitmap<T>& bm,int x1,int y1,int w, int h,T color)
+  {
+    //fprintf(stderr,"depreceated use of old DrawRectangle() function.\n");
+    DrawRectangle_NEW(bm,x1,y1,x1+w-1,y1+h-1, color);
+  }
+
+  template <class T> void DrawRectangle_NEW(Bitmap<T>& bm,int px1,int py1,int px2,int py2,T color)
+  {
+    const int x1 = std::min(px1,px2);
+    const int x2 = std::max(px1,px2);
+    const int y1 = std::min(py1,py2);
+    const int y2 = std::max(py1,py2);
+
+    const int xmin = std::max(bm.AskMinX(), x1);
+    const int xmax = std::min(bm.AskMaxX(), x2);
+    const int ymin = std::max(bm.AskMinY(), y1);
+    const int ymax = std::min(bm.AskMaxY(), y2);
+
+    T*const* p = bm.AskFrame();
+
+    // top line
+    if (y1>= bm.AskMinY() && y1<=bm.AskMaxY())
+      {
+	for (int x=xmin;x<=xmax;x++)  p[y1][x] = color;
+      }
+
+    // bottom line
+    if (y2>= bm.AskMinY() && y2<=bm.AskMaxY())
+      {
+	for (int x=xmin;x<=xmax;x++)  p[y2][x] = color;
+      }
+
+    // left line
+    if (x1>= bm.AskMinX() && x1<= bm.AskMaxX())
+      {
+	for (int y=ymin;y<ymax;y++)  p[y][x1] = color;
+      }
+
+    // right line
+    if (x2>= bm.AskMinX() && x2<= bm.AskMaxX())
+      {
+	for (int y=ymin;y<ymax;y++)  p[y][x2] = color;
+      }
+  }
+
+
+  template <class T> void DrawRectangle(Image<T>&  bm,int x1,int y1,int w, int h,Color<T> color)
+  {
+    //fprintf(stderr, "depreceated use of old DrawRectangle() function.\n");
+    DrawRectangle_NEW(bm,x1,y1,x1+w-1,y1+h-1,color);
+  }
+
+  template <class T> void DrawRectangle_NEW(Image<T>&  bm,int x1,int y1,int x2, int y2,Color<T> color)
+  {
+    ImageParam param = bm.AskParam();
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	if (!bm.AskBitmap(b).IsEmpty())
+	  DrawRectangle_NEW(bm.AskBitmap(b),
+			    param.ChromaScaleH(b,x1), param.ChromaScaleV(b,y1),
+			    param.ChromaScaleH(b,x2), param.ChromaScaleH(b,y2),
+			    color.c[i]);
+      }
+  }
+
+  template <class T> void DrawArrow(Bitmap<T>& bm,int x0,int y0,int x1, int y1, T color,
+				    double alpha,int l,bool bothends)
+  {
+    DrawLine(bm,x0,y0,x1,y1,color);     
+
+    alpha *= M_PI/180.0;
+
+    // draw head of arrow
+    int xa,ya,dxp,dyp;
+    double norm;
+      
+    dxp = x1-x0;
+    dyp = y1-y0;
+
+    norm = ::sqrt((double)(dxp*dxp+dyp*dyp));
+
+    if (norm>0.0)
+      {
+	xa = (int)((::cos(alpha)*dxp-::sin(alpha)*dyp)*l/norm);
+	ya = (int)((::sin(alpha)*dxp+::cos(alpha)*dyp)*l/norm);
+
+	DrawLine(bm,x1,y1,x1-xa,y1-ya,color);     
+
+	if (bothends == true)
+	  {
+	    DrawLine(bm,x0,y0,x0+xa,y0+ya,color);
+	  }
+
+	xa = (int)(( ::cos(alpha)*dxp+::sin(alpha)*dyp)*l/norm);
+	ya = (int)((-::sin(alpha)*dxp+::cos(alpha)*dyp)*l/norm);
+
+	DrawLine(bm,x1,y1,x1-xa,y1-ya,color);  
+
+	if (bothends == true)
+	  {
+	    DrawLine(bm,x0,y0,x0+xa,y0+ya,color);
+	  }
+      }
+  }
+
+  template <class T> void DrawArrow(Image<T>& img,int x0,int y0,int x1, int y1, const Color<T>& color,
+				    double alpha,int l,bool bothends)
+  {
+    ImageParam param = img.AskParam();
+
+    if (param.colorspace == Colorspace_YUV)
+      {
+	assert(param.chroma == Chroma_420 ||
+               param.chroma == Chroma_444); // ,"cannot draw circle because chroma pixels are not square");
+      }
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	if (!img.AskBitmap(b).IsEmpty())
+	  DrawArrow(img.AskBitmap(b),
+		    param.ChromaScaleH(b,x0), param.ChromaScaleV(b,y0),
+		    param.ChromaScaleH(b,x1), param.ChromaScaleV(b,y1),
+		    color.c[i], alpha,l,bothends);
+      }
+  }
+
+  template <class T> void rasterize_triangle_scanline(T*const p,double* x, double* col,int w)
+  {
+    const double FLT_SMALL_EPSILON = 1e-8;
+
+    // apply top-left fill-convention to scanline
+
+    int xs = (int)ceil(x[0]);
+    int xe = (int)ceil(x[1]) - 1;
+
+    if (xe < xs)
+      return;
+
+
+    // calculate slopes
+
+    double invDeltaX = x[1]-x[0];
+
+    if (invDeltaX < FLT_SMALL_EPSILON) invDeltaX = 1.0f;
+    else invDeltaX = 1.0f / invDeltaX; 
+
+    double sub = (double)xs - x[0];
+
+    double slopecol = (col[1] - col[0]) * invDeltaX;
+    double colval = col[0];
+    colval += slopecol * sub;
+
+    // rasterize line
+
+    if (xs<0 ) { colval += -xs*slopecol; xs=0; }
+    if (xe>=w) xe=w-1;
+
+    for(int x=xs; x<=xe; x++) {
+      p[x] = (T)colval;
+      colval += slopecol;
+    }
+  }
+
+
+  template <class T> void DrawTriangle(Bitmap<T>& bm, const Point2D<double>* in_p, const T* c)
+  {
+    const double FLT_SMALL_EPSILON = 1e-8;
+
+    Pixel*const* pbm = bm.AskFrame();
+    int w=bm.AskWidth(), h=bm.AskHeight();
+
+    Point2D<double> p[3];
+    double col[3];
+    for (int i=0;i<3;i++) { p[i]=in_p[i]; col[i]=c[i]; }
+
+    // order points in increasing y order
+
+    if (p[0].y > p[1].y) { std::swap(p[0],p[1]); std::swap(col[0],col[1]); }
+    if (p[0].y > p[2].y) { std::swap(p[0],p[2]); std::swap(col[0],col[2]); }
+    if (p[1].y > p[2].y) { std::swap(p[1],p[2]); std::swap(col[1],col[2]); }
+
+    // calculate delta y of the edges
+
+    double invydelta[3]; // 0 - long edge / 1 - top sub-triangle / 2 - bottom sub-triangle
+
+    invydelta[0] = p[2].y - p[0].y;
+    if (invydelta[0] < FLT_SMALL_EPSILON) return;
+
+    invydelta[1] = p[1].y - p[0].y;
+    invydelta[2] = p[2].y - p[1].y;
+
+    invydelta[0] = 1.0f / invydelta[0];
+    if (invydelta[1] > FLT_SMALL_EPSILON) invydelta[1] = 1.0f / invydelta[1];
+    if (invydelta[2] > FLT_SMALL_EPSILON) invydelta[2] = 1.0f / invydelta[2];
+
+    // find if the major edge is left or right aligned
+
+    int left;
+    double v1[2],v2[2];
+    v1[0] = p[0].x - p[2].x;
+    v1[1] = p[0].y - p[2].y;
+    v2[0] = p[1].x - p[0].x;
+    v2[1] = p[1].y - p[0].y;
+
+    if (v1[0] * v2[1] - v1[1] * v2[0] > 0) left = 0; else left = 1;
+    //cout << "left: " << left << endl;
+
+
+    // calculate slopes for the major edge
+
+    double slopex[2];
+    double xpos[2];
+    slopex[0] = (p[2].x-p[0].x) * invydelta[0];
+    xpos  [0] = p[0].x;
+
+    double slopecol[2];
+    double colval[2];
+    slopecol[0] = (col[2]-col[0]) * invydelta[0];
+    colval[0]   = col[0];
+    //cout << "main edge slope: " << slopecol[0] << endl;
+
+
+    // rasterize upper sub-triangle
+
+    if (invydelta[1] > FLT_SMALL_EPSILON) {
+      // calculate slopes for top edge
+
+      slopex[1] = (p[1].x-p[0].x) * invydelta[1];
+      xpos  [1] = p[0].x;
+
+      slopecol[1] = (col[1]-col[0]) * invydelta[1];
+      colval  [1] = col[0];
+      //cout << "minor edge slope: " << slopecol[1] << endl;
+
+      int yStart= (int)ceil(p[0].y);
+      int yEnd  = (int)ceil(p[1].y) - 1;
+
+      double sub= (double)yStart - p[0].y;
+
+      xpos[0]  += slopex[0] * sub;
+      colval[0]+= slopecol[0] * sub;
+
+      xpos[1]  += slopex[1] * sub;
+      colval[1]+= slopecol[1] * sub;
+
+      // rasterize the edge scanlines
+
+      for(int y = yStart; y <= yEnd; y++) {
+	double pos[2];
+	pos[left]  = xpos[0];
+	pos[1-left]= xpos[1];
+
+	double color[2];
+	color[left]   = colval[0];
+	color[1-left] = colval[1];
+
+	// draw a scanline
+
+	if (y>=0 && y<h)
+	  rasterize_triangle_scanline(pbm[y],pos,color,w);
+
+	xpos[0]   += slopex[0];
+	colval[0] += slopecol[0];
+
+	xpos[1]   += slopex[1];
+	colval[1] += slopecol[1];
+      }
+    }
+
+    // rasterize lower sub-triangle
+
+    if(invydelta[2] > FLT_SMALL_EPSILON) {
+      // advance major edge attributes to middle point (if we have process the other edge)
+
+      if(invydelta[1] > FLT_SMALL_EPSILON) {
+	double dy = p[1].y - p[0].y;
+	xpos[0]   = p[0].x + slopex[0]*dy;
+	colval[0] = col[0] + slopecol[0]*dy;
+      }
+
+      // calculate slopes for bottom edge
+
+      slopex[1] = (p[2].x-p[1].x) * invydelta[2];
+      xpos  [1] = p[1].x;
+
+      slopecol[1] = (col[2]-col[1]) * invydelta[2];
+      colval[1]   = col[1];
+
+      int yStart= (int)ceil(p[1].y);
+      int yEnd  = (int)ceil(p[2].y) - 1;
+
+      double sub= (double)yStart - p[1].y;
+
+      xpos[0]  += slopex[0] * sub;
+      colval[0]+= slopecol[0] * sub;
+
+      xpos[1]  += slopex[1] * sub;
+      colval[1]+= slopecol[1] * sub;
+
+      // rasterize the edge scanlines
+
+      for (int y = yStart; y <= yEnd; y++) {
+	double pos[2];
+	pos[left]  = xpos[0];
+	pos[1-left]= xpos[1];
+
+	double color[2];
+	color[left]   = colval[0];
+	color[1-left] = colval[1];
+
+	// draw a scanline
+
+	if (y>=0 && y<h)
+	  rasterize_triangle_scanline(pbm[y],pos,color,w);
+
+	xpos[0] += slopex[0];
+	colval[0] += slopecol[0];
+
+	xpos[1]   += slopex[1];
+	colval[1] += slopecol[1];
+      }
+    }
+  }
+
+
+
+}
+
+#endif
