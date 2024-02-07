@@ -47,4 +47,29 @@ namespace videogfx {
   template <class T> void HalfPlusOffset(Bitmap<T>& bm,T offset); // p = p/2+offset
 
   /* dest = a-b */
-  template <class T> void Ab
+  template <class T> void AbsoluteDifference(Bitmap<T>& dest,const Bitmap<T>& a,const Bitmap<T>& b);
+  template <class T> void ContrastBrightness(Bitmap<T>& bm,double contrast,double brightness);
+  template <class T> void ClipValues(Bitmap<T>& bm,T low,T high);
+  template <class T> void SearchForMinMaxValues(const Bitmap<T>& bm,T& low,T& high);
+  template <class T> void StretchValues(Bitmap<T>& bm,T low,T high);
+  template <class T> void BinaryThreshold(Bitmap<T>& bm,T thresh,T setlow,T sethigh); // setlow if bm[]<thresh else sethigh
+
+  template <class Pel> void ModuloRange(Bitmap<Pel>& bm, Pel mini, Pel maxi);
+
+
+
+  // --------------------- implementation ------------------------
+
+  template <class T> void MakeAbsolute(Bitmap<T>& bm)
+  {
+    T*const* p = bm.AskFrame();
+
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	p[y][x] = abs(p[y][x]);
+  }
+
+  template <class T> void Inverse(Bitmap<T>& bm,T m
