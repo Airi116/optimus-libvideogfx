@@ -29,4 +29,25 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 T
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_GRAPHICS_DRAW_SCALE_HH
+#define LIBVIDEOGFX_GRAPHICS_DRAW_SCALE_HH
+
+#include <libvideogfx/graphics/datatypes/bitmap.hh>
+#include <libvideogfx/graphics/datatypes/image.hh>
+
+namespace videogfx {
+
+  /* In Scale_NN and Scale_Bilinear, scaling is done such that the first pixels and
+     the last pixels in each row/column match exactly. For an assignment that matches
+     more closely to, e.g., the binomial decimation, a different scaling table would
+     be needed (TODO / w/newW instead of (w-1)/(newW-1) ).
+  */
+
+  template <class Pel> void Scale_NN      (Bitmap<Pel>& dst,const Bitmap<Pel>& src, int newWidth, int newHeight);
+  template <class Pel> void Scale_Bilinear(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int newWidth, int newHeight);
+
+  template <class Pel> void DoubleSize_Dup  (Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+  template <class Pel> v
