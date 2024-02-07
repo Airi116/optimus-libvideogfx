@@ -201,4 +201,47 @@ namespace videogfx {
 
     ContrastBrightness(bm,1.0,-mini);
     maxi -= mini;
-    mini  = 0
+    mini  = 0;
+    ContrastBrightness(bm,((double)(high-low))/maxi,0.0);
+    maxi = high-low;
+    mini = 0;
+
+    if (low!=0) ContrastBrightness(bm,1.0,low);
+    maxi = high;
+    mini = low;
+  }
+
+  template <class T> void BinaryThreshold(Bitmap<T>& bm,T thresh,T setlow,T sethigh)
+  {
+    int w=bm.AskWidth(), h=bm.AskHeight();
+
+    Pixel*const* p = bm.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  if (p[y][x] < thresh) p[y][x] = setlow;
+	  else                  p[y][x] = sethigh;
+	}
+  }
+
+  template <class Pel>
+  void ModuloRange(Bitmap<Pel>& bm, Pel mini, Pel maxi)
+  {
+    Pel range = maxi-mini;
+
+    Pel*const* p = bm.AskFrame();
+    int w = bm.AskWidth();
+    int h = bm.AskHeight();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  while (p[y][x] <  mini) p[y][x] += range;
+	  while (p[y][x] >= maxi) p[y][x] -= range;
+	}
+  }
+
+}
+
+#endif
