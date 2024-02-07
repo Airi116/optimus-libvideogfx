@@ -66,3 +66,102 @@ namespace videogfx {
 
   // -----------------------------------------------------------------------------------------
   // --------------------------------- implementation ----------------------------------------
+  // -----------------------------------------------------------------------------------------
+
+  template <class T> Image<T> MakeImage(Bitmap<T>& bm)
+  {
+    Image<T> img;
+    img.ReplaceBitmap(Bitmap_Y, bm);
+
+    ImageParam spec;
+    spec.width  = bm.AskWidth();
+    spec.height = bm.AskHeight();
+    spec.colorspace = Colorspace_Greyscale;
+    img.SetParam(spec);
+
+    return img;
+  }
+
+  template <class T> const Image<T> MakeImage(const Bitmap<T>& bm)
+  {
+    Image<T> img;
+    img.ReplaceBitmap(Bitmap_Y, bm);
+
+    ImageParam spec;
+    spec.width  = bm.AskWidth();
+    spec.height = bm.AskHeight();
+    spec.colorspace = Colorspace_Greyscale;
+    img.SetParam(spec);
+
+    return img;
+  }
+
+  template <class A,class B> void ConvertBitmap(Bitmap<B>& dst,const Bitmap<A>& src)
+  {
+    int w=src.AskWidth();
+    int h=src.AskHeight();
+    int x0=src.AskXOffset();
+    int y0=src.AskYOffset();
+
+    dst.Create(w,h);
+    dst.MoveZero(x0,y0);
+
+    const A*const* ap = src.AskFrame();
+    B*const* bp = dst.AskFrame();
+
+    for (int y=-y0;y<h-y0;y++)
+      for (int x=-x0;x<w-x0;x++)
+	bp[y][x] = static_cast<B>(ap[y][x]);
+  }
+
+
+  template <class T> void Crop(Image<T>& dest, const Image<T>& src,
+			       int left, int right, int top, int bottom)
+  {
+    ImageParam param = src.AskParam();
+
+    param.width -= left+right;
+    param.height -= top+bottom;
+    param.xoffset = param.yoffset = 0;
+
+    dest.Create(param);
+
+    Copy(dest, 0,0,
+	 src, left, top,
+	 param.width, param.height);
+  }
+
+  template <class T> void Enlarge(Bitmap<T>& dest, const Bitmap<T>& src,
+				  int addleft, int addtop, int addright, int addbottom, T bkgcolor)
+  {
+    // create new bitmap and fill with background color
+
+    dest.Create( src.AskWidth()+addleft+addright, src.AskHeight()+addtop+addbottom );
+    Clear(dest,bkgcolor);
+
+    dest.MoveZero(addleft + src.AskXOffset(),
+		  addtop  + src.AskYOffset());
+
+    Copy(dest, -src.AskXOffset(), -src.AskYOffset(),
+	 src,  -src.AskXOffset(), -src.AskYOffset(), src.AskWidth(), src.AskHeight());
+  }
+
+
+  template <class T> void Enlarge(Image<T>& dest, const Image<T>& src,
+				  int addleft, int addtop, int addright, int addbottom,Color<T> bkgcolor)
+  {
+    ImageParam param = src.AskParam();
+    param.width  += addleft+addright;
+    param.height += addtop +addbottom;
+    param.xoffset += addleft;
+    param.yoffset += addtop;
+
+    dest.Create(param);
+    Clear(dest,bkgcolor);
+
+    Copy(dest, -src.AskXOffset(), -src.AskYOffset(),
+	 src,  -src.AskXOffset(), -src.AskYOffset(), src.AskWidth(), src.AskHeight());
+  }
+}
+
+#endif
