@@ -72,4 +72,47 @@ namespace videogfx {
 	p[y][x] = abs(p[y][x]);
   }
 
-  template <class T> void Inverse(Bitmap<T>& bm,T m
+  template <class T> void Inverse(Bitmap<T>& bm,T maxval)
+  {
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    T*const* p = bm.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	p[y][x] = maxval-p[y][x];
+  }
+
+  template <class T> void Add(Bitmap<T>& dest,T val)
+  {
+    const int w = dest.AskWidth();
+    const int h = dest.AskHeight();
+
+    dest.Create(w,h);
+
+    T*const* pd = dest.AskFrame(); // get this pointer first, in case pd==pa or pd==pb
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  pd[y][x] += val;
+	}
+  }
+
+  template <class T> void AddValues(Bitmap<T>& dest,const Bitmap<T>& a,const Bitmap<T>& b)
+  {
+    const int w = a.AskWidth();
+    const int h = a.AskHeight();
+
+    dest.Create(w,h);
+
+    T*const* pd = dest.AskFrame(); // get this pointer first, in case pd==pa or pd==pb
+    const T*const* pa = a.AskFrame();
+    const T*const* pb = b.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  pd[y][x] = (pa[y][x]+pb[y][x]); /// TODO
+	}
