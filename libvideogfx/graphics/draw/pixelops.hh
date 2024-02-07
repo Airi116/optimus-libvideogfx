@@ -116,3 +116,43 @@ namespace videogfx {
 	{
 	  pd[y][x] = (pa[y][x]+pb[y][x]); /// TODO
 	}
+  }
+
+  template <class T> void AbsoluteDifference(Bitmap<T>& dest,const Bitmap<T>& a,const Bitmap<T>& b)
+  {
+    const int w = a.AskWidth();
+    const int h = a.AskHeight();
+
+    dest.Create(w,h);
+
+    T*const* pd = dest.AskFrame(); // get this pointer first, in case pd==pa or pd==pb
+    const T*const* pa = a.AskFrame();
+    const T*const* pb = b.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  pd[y][x] = abs(pa[y][x]-pb[y][x]); /// TODO
+	}
+  }
+
+  template <class T> void ContrastBrightness(Bitmap<T>& bm,double contrast,double brightness)
+  {
+    T*const* p = bm.AskFrame();
+
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	p[y][x] = (T)(contrast*p[y][x]+brightness);
+  }
+
+  template <class T> void HalfPlusOffset(Bitmap<T>& bm,T offset)
+  {
+    T*const* p = bm.AskFrame();
+
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    for (int y=0;y<
