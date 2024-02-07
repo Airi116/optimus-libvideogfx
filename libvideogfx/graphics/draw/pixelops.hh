@@ -155,4 +155,50 @@ namespace videogfx {
     const int w = bm.AskWidth();
     const int h = bm.AskHeight();
 
-    for (int y=0;y<
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	p[y][x] = (T)(p[y][x]/2+offset);
+  }
+
+  template <class T> void ClipValues(Bitmap<T>& bm,T low,T high)
+  {
+    T*const* p = bm.AskFrame();
+
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  if (p[y][x] < low) p[y][x]=low;
+	  else if (p[y][x] > high) p[y][x]=high;
+	}
+  }
+
+
+  template <class T> void SearchForMinMaxValues(const Bitmap<T>& bm,T& low,T& high)
+  {
+    const T*const* p = bm.AskFrame();
+
+    const int w = bm.AskWidth();
+    const int h = bm.AskHeight();
+
+    low=high=p[0][0];
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  if (p[y][x] < low)  low =p[y][x];
+	  if (p[y][x] > high) high=p[y][x];
+	}
+  }
+
+
+  template <class T> void StretchValues(Bitmap<T>& bm,T low,T high)
+  {
+    T mini,maxi;
+    SearchForMinMaxValues(bm,mini,maxi);
+
+    ContrastBrightness(bm,1.0,-mini);
+    maxi -= mini;
+    mini  = 0
