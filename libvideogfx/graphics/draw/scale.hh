@@ -322,4 +322,43 @@ namespace videogfx {
   {
     for (int x=0;x<newW;x++)
       {
-	if 
+	if (factor==NULL)
+	  {
+	    mapping[x] = ((w-1)*x + (newW-1)/2)/(newW -1);
+	  }
+	else
+	  {
+	    // The -1 (A) is to prevent setting mapping[x] to the maximum value.
+	    // Hence, we can simply access mapping[x]+1 in the interpolation algorithm without the danger of overflow.
+	    int pos = (256*(w-1) -1/*A*/ )*x/(newW -1);
+	    mapping[x] = pos/256;
+	    factor[x]  = pos%256;
+	  }
+      }
+  }
+
+
+  template <class Pel> void Scale_NN(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int newWidth, int newHeight)
+  {
+    int* mapX = new int[newWidth];
+    int* mapY = new int[newHeight];
+
+    int w = src.getWidth();
+    int h = src.getHeight();
+
+    FillScaleMapping(mapX, NULL, w, newWidth);
+    FillScaleMapping(mapY, NULL, h, newHeight);
+
+    dst.Create(newWidth, newHeight);
+
+    const Pel*const* in  = src.AskFrame();
+    /* */ Pel*const* out = dst.AskFrame();
+
+    for (int y=0;y<newHeight;y++)
+      {
+	const int iy = mapY[y];
+
+	for (int x=0;x<newWidth;x++)
+	  {
+	    dst[y][x] = in[iy][ mapX[x] ];
+	  }
