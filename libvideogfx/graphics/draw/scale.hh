@@ -50,4 +50,22 @@ namespace videogfx {
   template <class Pel> void Scale_Bilinear(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int newWidth, int newHeight);
 
   template <class Pel> void DoubleSize_Dup  (Bitmap<Pel>& dst,const Bitmap<Pel>& src);
-  template <class Pel> v
+  template <class Pel> void DoubleSize_Dup_H(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+  template <class Pel> void DoubleSize_Dup_V(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+
+  template <class Pel> void HalfSize_Avg  (Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+  template <class Pel> void HalfSize_Avg_H(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+  template <class Pel> void HalfSize_Avg_V(Bitmap<Pel>& dst,const Bitmap<Pel>& src);
+
+  template <class Pel> void ScaleDownOctaves_Avg(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int nOctaves);
+
+
+  /* Copy scaled version of region into another bitmap.
+   */
+  template <class Pel> void CopyScaled(Bitmap<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Bitmap<Pel>& src, int srcx0,int srcy0, int sw,int sh);
+  template <class Pel> void CopyScaled(Image<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Image<Pel>& src, int srcx0,int srcy0, int sw,int sh);
+
+  // Same as above, complete image/bitmap is inserted.
+  template <class Pel> void C
