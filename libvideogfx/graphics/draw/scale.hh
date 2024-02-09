@@ -292,4 +292,34 @@ namespace videogfx {
     for (int i=0;i<4;i++)
       {
 	BitmapChannel b = (BitmapChannel)i;
-	CopyScaled(dst.AskBitmap(b)
+	CopyScaled(dst.AskBitmap(b),
+		   param.ChromaScaleH(b,dstx0),param.ChromaScaleV(b,dsty0),
+		   param.ChromaScaleH(b,dw), param.ChromaScaleV(b,dh),
+
+		   src.AskBitmap(b),
+		   param.ChromaScaleH(b,srcx0),param.ChromaScaleV(b,srcy0),
+		   param.ChromaScaleH(b,sw), param.ChromaScaleV(b,sh));
+      }
+  }
+
+  template <class Pel> void CopyScaled(Bitmap<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Bitmap<Pel>& src)
+  {
+    CopyScaled(dst,dstx0,dsty0,dw,dh, src,
+	       -src.AskXOffset(),-src.AskYOffset(),src.AskWidth()-src.AskXOffset(),src.AskHeight()-src.AskYOffset());
+  }
+
+  template <class Pel> void CopyScaled(Image<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Image<Pel>& src)
+  {
+    CopyScaled(dst,dstx0,dsty0,dw,dh, src,
+	       -src.AskXOffset(),-src.AskYOffset(),src.AskWidth()-src.AskXOffset(),src.AskHeight()-src.AskYOffset());
+  }
+
+
+
+  inline void FillScaleMapping(int* mapping, unsigned char* factor, int w, int newW)
+  {
+    for (int x=0;x<newW;x++)
+      {
+	if 
