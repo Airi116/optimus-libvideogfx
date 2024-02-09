@@ -150,4 +150,54 @@ namespace videogfx {
 
     dst.Create(neww,newh);
 
-    const Pel
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h/2;y++)
+      for (int x=0;x<w/2;x++)
+	{
+	  dp[y][x] = (sp[2*y  ][2*x] + sp[2*y  ][2*x+1] +
+		      sp[2*y+1][2*x] + sp[2*y+1][2*x+1]) / 4;
+	}
+
+    if (neww*2 != w)
+      {
+	assert(w==neww*2-1);
+	for (int y=0;y<newh;y++)
+	  dp[y][neww-1] = sp[2*y][w-1];
+      }
+
+    if (newh*2 != h)
+      {
+	assert(h==newh*2-1);
+	for (int x=0;x<neww;x++)
+	  dp[newh-1][x] = sp[h-1][2*x];
+      }
+  }
+
+  template <class Pel> void HalfSize_Avg_H(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    const int neww = (w+1)/2;
+
+    dst.Create(neww,h);
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w/2;x++)
+	{
+	  dp[y][x] = (sp[y][2*x] + sp[y][2*x+1]) / 2;
+	}
+
+    if (neww*2 != w)
+      {
+	assert(w==neww*2-1);
+	for (int y=0;y<h;y++)
+	  dp[y][neww-1] = sp[y][w-1];
+ 
