@@ -102,4 +102,52 @@ namespace videogfx {
   {
     assert(&dst != &src);
 
-    const int 
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    dst.Create(w*2,h);
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  dp[y][x*2  ] =
+	    dp[y][x*2+1] = sp[y][x];
+	}
+  }
+
+  template <class Pel> void DoubleSize_Dup_V(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    dst.Create(w,h*2);
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  dp[y*2  ][x] =
+	    dp[y*2+1][x] = sp[y][x];
+	}
+  }
+
+  template <class Pel> void HalfSize_Avg  (Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    const int newh = (h+1)/2;
+    const int neww = (w+1)/2;
+
+    dst.Create(neww,newh);
+
+    const Pel
