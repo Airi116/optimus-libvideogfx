@@ -68,4 +68,38 @@ namespace videogfx {
 				       const Image<Pel>& src, int srcx0,int srcy0, int sw,int sh);
 
   // Same as above, complete image/bitmap is inserted.
-  template <class Pel> void C
+  template <class Pel> void CopyScaled(Bitmap<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Bitmap<Pel>& src);
+  template <class Pel> void CopyScaled(Image<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Image<Pel>& src);
+
+
+  // ------------------------------- implementation -----------------------------------
+
+  template <class Pel> void DoubleSize_Dup  (Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    dst.Create(w*2,h*2);
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	{
+	  dp[y*2  ][x*2  ] =
+	    dp[y*2  ][x*2+1] =
+	    dp[y*2+1][x*2  ] =
+	    dp[y*2+1][x*2+1] = sp[y][x];
+	}
+  }
+
+  template <class Pel> void DoubleSize_Dup_H(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int 
