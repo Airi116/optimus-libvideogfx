@@ -252,4 +252,44 @@ namespace videogfx {
   }
 
   template <class Pel> void CopyScaled(Bitmap<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
-				       
+				       const Bitmap<Pel>& src, int srcx0,int srcy0, int sw,int sh)
+  {
+    if (src.IsEmpty()) return;
+
+    const Pel*const* sp = src.AskFrame();
+    /* */ Pel*const* dp = dst.AskFrame();
+
+    int w = dst.AskWidth();
+    int h = dst.AskHeight();
+    int srcw = src.AskWidth();
+    int srch = src.AskHeight();
+
+    for (int y=std::max(0,-dsty0);y<dh;y++)
+      {
+	int srcy = srcy0 + y*sh/dh;
+	if (srcy<0) continue;
+	if (srcy>=srch) break;
+	if (dsty0+y>=h) break;
+
+	for (int x=std::max(0,-dstx0);x<dw;x++)
+	  {
+	    int srcx = srcx0+x*sw/dw;
+	    if (srcx<0) continue;
+	    if (srcx>srcw) break;
+	    if (dstx0+x>=w) break;
+
+	    dp[dsty0+y][dstx0+x] = sp[srcy][srcx];
+	  }
+      }
+  }
+
+
+  template <class Pel> void CopyScaled(Image<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       const Image<Pel>& src, int srcx0,int srcy0, int sw,int sh)
+  {
+    ImageParam param = src.AskParam();
+
+    for (int i=0;i<4;i++)
+      {
+	BitmapChannel b = (BitmapChannel)i;
+	CopyScaled(dst.AskBitmap(b)
