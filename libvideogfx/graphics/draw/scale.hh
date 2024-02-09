@@ -200,4 +200,56 @@ namespace videogfx {
 	assert(w==neww*2-1);
 	for (int y=0;y<h;y++)
 	  dp[y][neww-1] = sp[y][w-1];
- 
+      }
+  }
+
+  template <class Pel> void HalfSize_Avg_V(Bitmap<Pel>& dst,const Bitmap<Pel>& src)
+  {
+    assert(&dst != &src);
+
+    const int w = src.AskWidth();
+    const int h = src.AskHeight();
+
+    const int newh = (h+1)/2;
+
+    dst.Create(w,newh);
+
+    const Pel*const* sp = src.AskFrame();
+    Pel*const* dp = dst.AskFrame();
+
+    for (int y=0;y<h/2;y++)
+      for (int x=0;x<w;x++)
+	{
+	  dp[y][x] = (sp[2*y  ][x] + sp[2*y+1][x]) / 2;
+	}
+
+    if (newh*2 != h)
+      {
+	assert(h==newh*2-1);
+	for (int x=0;x<w;x++)
+	  dp[newh-1][x] = sp[h-1][x];
+      }
+  }
+
+  template <class Pel> void ScaleDownOctaves_Avg(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int nOctaves)
+  {
+    if (nOctaves==0)
+      { dst = src.Clone(); }
+    else
+      {
+	HalfSize_Avg(dst,src);
+	nOctaves--;
+
+	while (nOctaves>0)
+	  {
+	    Bitmap<Pel> tmp = dst;
+	    dst.Release();
+	    
+	    HalfSize_Avg(dst,tmp);
+	    nOctaves--;
+	  }
+      }
+  }
+
+  template <class Pel> void CopyScaled(Bitmap<Pel>& dst,       int dstx0,int dsty0, int dw,int dh,
+				       
