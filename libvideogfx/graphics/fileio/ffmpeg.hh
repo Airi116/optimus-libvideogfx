@@ -21,4 +21,49 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *************************************************************
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_GRAPHICS_FILEIO_FFMPEG_HH
+#define LIBVIDEOGFX_GRAPHICS_FILEIO_FFMPEG_HH
+
+#include <libvideogfx/graphics/datatypes/image.hh>
+
+struct AVFormatContext;
+struct AVInputFormat;
+struct AVCodecContext; 
+struct AVCodec;
+struct AVFrame;
+
+namespace videogfx
+{
+  class FileReader_FFMPEG
+  {
+  public:
+    FileReader_FFMPEG();
+    ~FileReader_FFMPEG();
+
+    bool Open(const char* filedescr);
+    void Close();
+
+    bool IsEOF() const { return m_eof; }
+    bool ReadImage(Image<Pixel>&);
+    void SkipToImage(int nr);
+
+    int AskWidth() const { return w; }
+    int AskHeight() const { return h; }
+    float getFPS() const { return fps; }
+
+  private:
+    struct AVFormatContext* formatCtx;
+    struct AVCodecContext* codecCtx;
+    int                   videoStreamIdx;
+    struct AVCodec* codec;
+    struct AVFrame* frame;
+    struct AVFrame* frameRGB;
+    uint8* buffer;
+    int  w,h;
+    float fps;
+
+    int  m_preloadFrameNr;
+    bool m_eof;
+
