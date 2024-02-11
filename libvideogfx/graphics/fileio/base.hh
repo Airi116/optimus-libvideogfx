@@ -43,4 +43,28 @@ namespace videogfx {
   class ImageReader
   {
   public:
-    virtual ~Imag
+    virtual ~ImageReader() { }
+
+    virtual ImageParam AskImageParam() const = 0;
+    virtual int  AskNFrames() const { return INT_MAX; } // endless stream
+    virtual bool IsEOF() const { return false; } // endless stream
+
+    virtual void ReadImage(Image<Pixel>&) = 0;
+    virtual bool SkipToImage(int nr)
+    { assert(false); return false; } // , "frame-skipping not implemented"); return false; }
+
+  };
+
+
+
+  class ImageWriter
+  {
+  public:
+    virtual ~ImageWriter() { }
+
+    virtual void WriteImage(const Image<Pixel>&) = 0;
+  };
+
+}
+
+#endif
