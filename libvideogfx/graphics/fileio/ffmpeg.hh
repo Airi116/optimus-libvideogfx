@@ -67,3 +67,11 @@ namespace videogfx
     int  m_preloadFrameNr;
     bool m_eof;
 
+    bool m_isInSync;
+
+    void convertRGBBuffer(Image<Pixel>& img);
+    void preload(int framenr);
+  };
+}
+
+#endif
