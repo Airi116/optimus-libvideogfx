@@ -400,4 +400,22 @@ namespace videogfx {
 	    Pel A = in[iy][ix];
 	    Pel B = in[iy][ix+1];
 	    Pel C = in[iy+1][ix];
-	   
+	    Pel D = in[iy+1][ix+1];
+
+	    Pel left  = (A*256 + (C-A)*factor) / 256;
+	    Pel right = (B*256 + (D-B)*factor) / 256;
+
+	    dst[y][x] = (left*256 + (right-left)*factorX[x]) / 256;
+	  }
+      }
+
+    delete[] mapX;
+    delete[] mapY;
+    delete[] factorX;
+    delete[] factorY;
+  }
+
+}
+
+
+#endif
