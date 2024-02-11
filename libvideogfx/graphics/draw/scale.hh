@@ -362,3 +362,42 @@ namespace videogfx {
 	  {
 	    dst[y][x] = in[iy][ mapX[x] ];
 	  }
+      }
+
+    delete[] mapX;
+    delete[] mapY;
+  }
+
+
+  template <class Pel> void Scale_Bilinear(Bitmap<Pel>& dst,const Bitmap<Pel>& src, int newWidth, int newHeight)
+  {
+    int* mapX = new int[newWidth];
+    int* mapY = new int[newHeight];
+    unsigned char* factorX = new unsigned char[newWidth];
+    unsigned char* factorY = new unsigned char[newHeight];
+
+    int w = src.getWidth();
+    int h = src.getHeight();
+
+    // we set the maximum value to w-1 so that we can always access the pixel at mapX[x]+1
+    FillScaleMapping(mapX, factorX, w, newWidth);
+    FillScaleMapping(mapY, factorY, h, newHeight);
+
+    dst.Create(newWidth, newHeight);
+
+    const Pel*const* in  = src.AskFrame();
+    /* */ Pel*const* out = dst.AskFrame();
+
+    for (int y=0;y<newHeight;y++)
+      {
+	const int iy = mapY[y];
+	const int factor = factorY[y];
+
+	for (int x=0;x<newWidth;x++)
+	  {
+	    int ix = mapX[x];
+
+	    Pel A = in[iy][ix];
+	    Pel B = in[iy][ix+1];
+	    Pel C = in[iy+1][ix];
+	   
