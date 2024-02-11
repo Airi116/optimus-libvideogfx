@@ -43,4 +43,37 @@ libvideogfx_graphics_fileio_la_SOURCES = \
 	raw.hh  \
 	raw.cc  \
 	yuv.cc	\
-	yuv.h
+	yuv.hh	\
+	yuv4mpeg.cc	\
+	yuv4mpeg.hh	\
+	yuv_vqeg.cc	\
+	yuv_vqeg.hh	\
+	imagesink.hh	\
+	imagesink.cc	\
+	unified_reader.hh \
+	unified_reader.cc \
+	unified_writer.hh \
+	unified_writer.cc \
+	$(linux_sources) \
+	$(ffmpeg_sources)
+
+libvideogfx_graphics_fileio_include_HEADERS = \
+	base.hh \
+        uyvy.hh	\
+	jpeg.hh	\
+	png.hh	\
+	mpeg.hh	\
+	ppm.hh  \
+	raw.hh  \
+	yuv.hh	\
+	yuv4mpeg.hh	\
+	yuv_vqeg.hh	\
+	imagesink.hh	\
+	unified_reader.hh \
+	unified_writer.hh \
+	$(linux_headers) \
+	$(ffmpeg_headers)
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)
+
