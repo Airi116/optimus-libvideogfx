@@ -190,4 +190,40 @@ int FFMPEG_Writer::AddVideoStream(int w,int h,float fps, int bitrate)
     return -1;
   }
 
-  if (avcodec_
+  if (avcodec_open2(c, codec, NULL) < 0) {
+    std::cerr << "could not open codec\n";
+    return -1;
+  }
+
+  video_outbuf = NULL;
+  if (!(oc->oformat->flags & AVFMT_RAWPICTURE)) {
+    video_outbuf_size = 200000;
+    video_outbuf = (uint8_t*)av_malloc(video_outbuf_size);
+  }
+
+  picture = allocPicture(c->pix_fmt, c->width, c->height);
+  if (!picture) {
+    std::cerr << "could not allocate picture\n";
+    return -1;
+  }
+
+  tmp_picture = NULL;
+  if (c->pix_fmt != PIX_FMT_YUV420P) {
+    tmp_picture = allocPicture(PIX_FMT_YUV420P, c->width, c->height);
+    if (!tmp_picture) {
+      std::cerr << "could not allocate picture\n";
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+int FFMPEG_Writer::AddAudioStream(int samplerate,int nchannels, int bitrate)
+{
+  std::cout << "int FFMPEG_Writer::AddAudioStream(" << samplerate << "," << nchannels << "," << bitrate << ")\n";
+
+  AVStream *st;
+  st = audioStream = avformat_new_stream(oc, NULL);
+  if (!st) {
+    std::cerr << "could not
