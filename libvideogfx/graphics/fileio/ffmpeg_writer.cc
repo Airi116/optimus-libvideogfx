@@ -226,4 +226,53 @@ int FFMPEG_Writer::AddAudioStream(int samplerate,int nchannels, int bitrate)
   AVStream *st;
   st = audioStream = avformat_new_stream(oc, NULL);
   if (!st) {
-    std::cerr << "could not
+    std::cerr << "could not alloc ffmpeg audio stream\n";
+    return .1;
+  }
+
+  st->id = 1;
+  AVCodecContext *c;
+  c = st->codec;
+  c->codec_id = CODEC_ID_MP3; //fmt->audio_codec;
+  c->codec_type = AVMEDIA_TYPE_AUDIO;
+  c->sample_fmt = AV_SAMPLE_FMT_S16;
+  c->bit_rate = bitrate;
+  c->sample_rate = samplerate;
+  c->channels = nchannels;
+
+  if(oc->oformat->flags & AVFMT_GLOBALHEADER)
+    c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+
+
+  // openAudio()
+
+  AVCodec *codec;
+
+  codec = avcodec_find_encoder(c->codec_id);
+  if (!codec) {
+    std::cerr << "codec not found\n";
+    exit(1);
+  }
+
+  if (avcodec_open2(c, codec, NULL) < 0) {
+    std::cerr << "could not open codec\n";
+    exit(1);
+  }
+
+
+  // alloc audio buffers
+
+  audio_outbuf_size = FF_MIN_BUFFER_SIZE;
+  audio_outbuf = (uint8_t*)av_malloc(audio_outbuf_size);
+  audio_input_frame_size = c->frame_size;
+    
+  samples = (int16_t*)av_malloc(audio_input_frame_size * 2 * c->channels);
+  nBufferedSamples=0;
+
+  return 0;
+}
+
+
+bool FFMPEG_Writer::Start()
+{
+  std::cout << "bool FFMPEG_Writer:
