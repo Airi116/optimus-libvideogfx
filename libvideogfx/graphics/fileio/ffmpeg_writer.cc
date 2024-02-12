@@ -315,4 +315,37 @@ void FFMPEG_Writer::PushImage(const Image<Pixel>& img, int channel)
 				       PIX_FMT_YUV420P,
 				       c->width, c->height,
 				       c->pix_fmt,
-				       SWS_BICUBIC, NULL, NULL, NULL)
+				       SWS_BICUBIC, NULL, NULL, NULL);
+      if (img_convert_ctx == NULL) {
+	std::cerr << "cannot initialize context\n";
+	exit(1);
+      }
+    }
+    fillImage(tmp_picture, c->width, c->height, yuv);
+    sws_scale(img_convert_ctx, tmp_picture->data, tmp_picture->linesize,
+	      0, c->height, picture->data, picture->linesize);
+  } else {
+    fillImage(picture, c->width, c->height, yuv);
+  }
+
+
+  if (oc->oformat->flags & AVFMT_RAWPICTURE) {
+    AVPacket pkt;
+    av_init_packet(&pkt);
+
+    pkt.flags |= AV_PKT_FLAG_KEY;
+    pkt.stream_index= st->index;
+    pkt.data= (uint8_t *)picture;
+    pkt.size= sizeof(AVPicture);
+
+    ret = av_interleaved_write_frame(oc, &pkt);
+  } else {
+    out_size = avcodec_encode_video(c, video_outbuf, video_outbuf_size, picture);
+    if (out_size > 0) {
+      AVPacket pkt;
+      av_init_packet(&pkt);
+
+      if (c->coded_frame->pts != AV_NOPTS_VALUE)
+	pkt.pts= av_rescale_q(c->coded_frame->pts, c->time_base, st->time_base);
+      if(c->coded_frame->key_frame)
+	pkt.flags |= AV_PKT_FLAG
