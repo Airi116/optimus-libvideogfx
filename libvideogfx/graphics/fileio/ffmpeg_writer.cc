@@ -275,4 +275,44 @@ int FFMPEG_Writer::AddAudioStream(int samplerate,int nchannels, int bitrate)
 
 bool FFMPEG_Writer::Start()
 {
-  std::cout << "bool FFMPEG_Writer:
+  std::cout << "bool FFMPEG_Writer::Start()\n";
+
+  //av_set_parameters(oc, NULL);
+  av_dump_format(oc, 0, mFilename.c_str(), 1);
+
+  if (avio_open(&oc->pb, mFilename.c_str(), AVIO_FLAG_WRITE) < 0) {
+    std::cerr << "Could not open '" << mFilename << "'\n";
+    return false;
+  }
+
+#ifdef HAVE_AVFORMAT_AVFORMAT_WRITE_HEADER
+  avformat_write_header(oc, NULL);
+#else
+  av_write_header(oc);
+#endif
+  return true;
+}
+
+
+void FFMPEG_Writer::PushImage(const Image<Pixel>& img, int channel)
+{
+  //std::cout << "void FFMPEG_Writer::PushImage(const Image<Pixel>& img, int channel)\n";
+
+  const Image<Pixel> yuv = ChangeColorspace_NoCopy(img,
+						   Colorspace_YUV,
+						   Chroma_420);
+
+  AVStream* st = videoStream;
+
+  int out_size, ret;
+  AVCodecContext *c;
+
+  c = st->codec;
+
+  if (c->pix_fmt != PIX_FMT_YUV420P) {
+    if (img_convert_ctx == NULL) {
+      img_convert_ctx = sws_getContext(c->width, c->height,
+				       PIX_FMT_YUV420P,
+				       c->width, c->height,
+				       c->pix_fmt,
+				       SWS_BICUBIC, NULL, NULL, NULL)
