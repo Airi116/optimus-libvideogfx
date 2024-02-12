@@ -348,4 +348,43 @@ void FFMPEG_Writer::PushImage(const Image<Pixel>& img, int channel)
       if (c->coded_frame->pts != AV_NOPTS_VALUE)
 	pkt.pts= av_rescale_q(c->coded_frame->pts, c->time_base, st->time_base);
       if(c->coded_frame->key_frame)
-	pkt.flags |= AV_PKT_FLAG
+	pkt.flags |= AV_PKT_FLAG_KEY;
+      pkt.stream_index= st->index;
+      pkt.data= video_outbuf;
+      pkt.size= out_size;
+
+      ret = av_interleaved_write_frame(oc, &pkt);
+    } else {
+      ret = 0;
+    }
+  }
+  if (ret != 0) {
+    std::cerr << "error writing video\n";
+    exit(1);
+  }
+
+}
+
+void FFMPEG_Writer::PushAudioSamples(const int16* p,int n, int channel)
+{
+  //std::cout << "void FFMPEG_Writer::PushAudioSamples(const int16* p,int n, int channel)\n";
+
+  //std::cout << "---\n";
+  //std::cout << nBufferedSamples << " <+ " << n << "\n";
+
+  // if there are still buffered samples, append some more until we have a complete audio frame
+
+  if (nBufferedSamples>0)
+    {
+      int maxAdd = audio_input_frame_size-nBufferedSamples;
+      int nAdd = std::min(maxAdd,n);
+
+      memcpy(samples+nBufferedSamples, p, nAdd*2);
+      p += nAdd;
+      n -= nAdd;
+      nBufferedSamples+=nAdd;
+
+      //std::cout << "fill buffer " << nAdd << "\n";
+    }
+
+  //std::cout << nBufferedSamples << " <+ " << n
