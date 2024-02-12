@@ -387,4 +387,54 @@ void FFMPEG_Writer::PushAudioSamples(const int16* p,int n, int channel)
       //std::cout << "fill buffer " << nAdd << "\n";
     }
 
-  //std::cout << nBufferedSamples << " <+ " << n
+  //std::cout << nBufferedSamples << " <+ " << n << "\n";
+
+  // if buffer is full, encode this frame
+
+  if (nBufferedSamples==audio_input_frame_size)
+    {
+      encodeAudioFrame(samples);
+      nBufferedSamples=0;
+      //std::cout << "encode buffer\n";
+    }
+
+  //std::cout << nBufferedSamples << " <+ " << n << "\n";
+
+  // encode more frames from input
+
+  while (n>=audio_input_frame_size)
+    {
+      /*
+      for (int i=0;i<n;i++)
+        {
+          std::cout << p[i] << " ";
+          if ((i%32)==31) std::cout << "\n";
+        }
+      */
+
+      encodeAudioFrame(p);
+      p += audio_input_frame_size;
+      n -= audio_input_frame_size;
+      //std::cout << "encode input\n";
+    }
+
+  //std::cout << nBufferedSamples << " <+ " << n << "\n";
+
+  // copy remaining samples into buffer
+
+  if (n>0)
+    {
+      memcpy(samples, p, n*2);
+      nBufferedSamples += n;
+      //std::cout << "copy to buffer\n";
+    }
+
+  //std::cout << nBufferedSamples << " <+ " << n << "\n";
+}
+
+
+void FFMPEG_Writer::flushAudioBuffer()
+{
+  if (nBufferedSamples>0)
+    {
+      // fi
