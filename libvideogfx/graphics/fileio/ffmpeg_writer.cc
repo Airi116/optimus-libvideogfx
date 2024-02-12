@@ -88,4 +88,58 @@ static AVFrame *allocPicture(enum PixelFormat pix_fmt, int width, int height)
 
 static void fillImage(AVFrame *pict, int width, int height, const Image<Pixel>& yuv)
 {
-  
+  for (int y=0;y<height;y++)
+    memcpy(&pict->data[0][y * pict->linesize[0]], yuv.AskFrameY()[y], width);
+
+  for (int y=0;y<height/2;y++)
+    memcpy(&pict->data[1][y * pict->linesize[1]], yuv.AskFrameCb()[y], width/2);
+
+  for (int y=0;y<height/2;y++)
+    memcpy(&pict->data[2][y * pict->linesize[2]], yuv.AskFrameCr()[y], width/2);
+}
+
+
+
+
+FFMPEG_Writer::FFMPEG_Writer()
+{
+  av_register_all();
+
+  img_convert_ctx = NULL;
+}
+
+
+FFMPEG_Writer::~FFMPEG_Writer()
+{
+  if (oc) { Close(); }
+}
+
+void FFMPEG_Writer::Open(const char* filename, const char* format)
+{
+  fmt = av_guess_format(format,NULL,NULL);
+#ifdef HAVE_AVFORMAT_ALLOW_CONTEXT
+  oc = avformat_alloc_context();
+#else
+  oc = av_alloc_format_context();
+#endif
+  oc->oformat = fmt;
+
+  mFilename = filename;
+}
+
+void FFMPEG_Writer::Close()
+{
+  av_write_trailer(oc);
+  avio_close(oc->pb);
+
+  av_free(oc);
+
+  oc=NULL;
+}
+
+int gcd(int a,int b)
+{
+  while (b!=0)
+    {
+      int h=a%b;
+      a=b;
