@@ -143,3 +143,51 @@ int gcd(int a,int b)
     {
       int h=a%b;
       a=b;
+      b=h;
+    }
+  return a;
+}
+
+int FFMPEG_Writer::AddVideoStream(int w,int h,float fps, int bitrate)
+{
+  std::cout << "int FFMPEG_Writer::AddVideoStream(" << w << "," << h << "," << fps << "," << bitrate << ")\n";
+
+  AVStream *st;
+  st = videoStream = avformat_new_stream(oc, NULL);
+  if (!st) {
+    std::cerr << "Could not alloc ffmpeg video stream\n";
+    return -1;
+  }
+
+  st->id = 0;
+  int d = roundf(fps*100);
+  int n = 100;
+  int g = gcd(d,n);
+
+  AVCodecContext *c;
+  c = st->codec;
+  c->codec_id = fmt->video_codec;
+  c->codec_type = AVMEDIA_TYPE_VIDEO;
+  c->bit_rate = bitrate;
+  c->width  = w;
+  c->height = h;
+  c->time_base.den = d/g;
+  c->time_base.num = n/g;
+  c->gop_size = 25;
+  c->pix_fmt = PIX_FMT_YUV420P;
+
+  if(oc->oformat->flags & AVFMT_GLOBALHEADER)
+    c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+
+
+  // openVideo()
+
+  AVCodec *codec;
+
+  codec = avcodec_find_encoder(c->codec_id);
+  if (!codec) {
+    std::cerr << "codec not found\n";
+    return -1;
+  }
+
+  if (avcodec_
