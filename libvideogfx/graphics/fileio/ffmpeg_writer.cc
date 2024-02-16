@@ -491,4 +491,39 @@ static void openAudio(AVFormatContext *oc, AVStream *st)
 
 
 
-st
+static bool fillAudio(int16_t *samples, int frame_size, int nb_channels)
+{
+  int maxLen = audio.getNFrames() - audio_samplePtr;
+  int n = std::min(maxLen, frame_size);
+
+  if (n==0) return false;
+
+  audio.extractData(samples, n, audio_samplePtr);
+
+  audio_samplePtr += n;
+
+  return true;
+}
+
+static bool writeAudioFrame(AVFormatContext *oc, AVStream *st)
+{
+    AVCodecContext *c;
+    AVPacket pkt;
+    av_init_packet(&pkt);
+
+    c = st->codec;
+    
+    bool cont = fillAudio(samples, audio_input_frame_size, c->channels);
+    if (!cont) return false;
+
+    pkt.size= avcodec_encode_audio(c, audio_outbuf, audio_outbuf_size, samples);
+
+    if (c->coded_frame && c->coded_frame->pts != AV_NOPTS_VALUE)
+        pkt.pts= av_rescale_q(c->coded_frame->pts, c->time_base, st->time_base);
+    pkt.flags |= AV_PKT_FLAG_KEY;
+    pkt.stream_index= st->index;
+    pkt.data= audio_outbuf;
+
+    if (av_interleaved_write_frame(oc, &pkt) != 0) {
+      std::cerr << "cannot write audio\n";
+      exit(1)
