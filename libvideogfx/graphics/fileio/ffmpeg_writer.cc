@@ -437,4 +437,58 @@ void FFMPEG_Writer::flushAudioBuffer()
 {
   if (nBufferedSamples>0)
     {
-      // fi
+      // fill will zeros
+
+      memset(samples,0, (audio_input_frame_size-nBufferedSamples)*2);
+      encodeAudioFrame(samples);
+
+      nBufferedSamples=0;
+    }
+}
+
+void FFMPEG_Writer::encodeAudioFrame(const int16* p)
+{
+    AVPacket pkt;
+    av_init_packet(&pkt);
+
+    AVCodecContext *c = audioStream->codec;
+    
+    pkt.size= avcodec_encode_audio(c, audio_outbuf, audio_outbuf_size, p);
+
+    if (c->coded_frame && c->coded_frame->pts != AV_NOPTS_VALUE)
+      pkt.pts= av_rescale_q(c->coded_frame->pts, c->time_base, audioStream->time_base);
+    pkt.flags |= AV_PKT_FLAG_KEY;
+    pkt.stream_index= audioStream->index;
+    pkt.data= audio_outbuf;
+
+    if (av_interleaved_write_frame(oc, &pkt) != 0) {
+      std::cerr << "cannot write audio\n";
+      assert(false);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------------------------------------
+
+
+#if 0
+int audio_samplePtr=0;
+//SoundFile audio;
+
+
+static void openAudio(AVFormatContext *oc, AVStream *st)
+{
+}
+
+
+
+st
