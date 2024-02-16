@@ -526,4 +526,51 @@ static bool writeAudioFrame(AVFormatContext *oc, AVStream *st)
 
     if (av_interleaved_write_frame(oc, &pkt) != 0) {
       std::cerr << "cannot write audio\n";
-      exit(1)
+      exit(1);
+    }
+
+    return true;
+}
+#endif
+
+
+#if 0
+const char* outputFile=0;
+const char* slidesFile=0;
+const char* audioFile =0;
+const char* outputFormat="avi";
+
+int main(int argc, char** argv)
+{
+  audio.open(audioFile);
+  int sampleRate = audio.getSampleRate();
+
+
+  openAudio(oc, audioStream);
+  openVideo(oc, videoStream);
+
+
+  for (;;)
+    {
+      double audio_pts, video_pts;
+
+      audio_pts = (double)audioStream->pts.val * audioStream->time_base.num/audioStream->time_base.den;
+      video_pts = (double)videoStream->pts.val * videoStream->time_base.num/videoStream->time_base.den;
+
+      advanceSlides(video_pts);
+
+      if (audio_pts < video_pts) {
+	if (!writeAudioFrame(oc, audioStream))
+	  break;
+      }
+      else
+	writeVideoFrame(oc, videoStream);
+    }
+
+
+  return 0;
+}
+
+#endif
+
+}
