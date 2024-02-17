@@ -73,4 +73,62 @@ namespace videogfx {
 
   void ImageSink_Save::SendImage(const Image<Pixel>& img)
   {
-    
+    assert(IsFormatSupported(d_format));
+
+    // construct output filename
+
+    bool  number = false;
+    char* suffix = NULL;
+
+    switch(d_format)
+      {
+      case Format_JPEG:
+	number = true;
+	suffix = "jpg";
+	break;
+      case Format_PPM:
+	number = true;
+	suffix = "ppm";
+	break;
+      case Format_PGM:
+	number = true;
+	suffix = "pgm";
+	break;
+      case Format_PNG:
+	number = true;
+	suffix = "png";
+	break;
+      }
+
+    assert(suffix);
+
+    char* buf = new char[strlen(d_filename_template) + 100];
+
+    if (number)
+      sprintf(buf,"%s%05d",d_filename_template,d_curr_nr);
+    else
+      strcpy(buf,d_filename_template);
+
+    if (d_autosuffix)
+      {
+	strcat(buf,".");
+	strcat(buf,suffix);
+      }
+
+
+    // save file
+
+    switch(d_format)
+      {
+      case Format_JPEG:
+	{
+	  Image<Pixel> dst;
+	  if (img.AskParam().colorspace == Colorspace_YUV &&
+	      img.AskParam().chroma     == Chroma_420)
+	    {
+	      dst = img;
+	    }
+	  else
+	    {
+	      ImageParam param = img.AskParam();
+	      param.chroma
