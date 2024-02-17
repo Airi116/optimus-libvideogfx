@@ -131,4 +131,57 @@ namespace videogfx {
 	  else
 	    {
 	      ImageParam param = img.AskParam();
-	      param.chroma
+	      param.chroma = Chroma_420;
+	      dst.SetParam(param);
+	      ChangeColorspace(dst,img,Colorspace_YUV);
+	    }
+
+	  WriteImage_JPEG(dst,buf);
+	}
+	break;
+
+      case Format_PPM:
+	{
+	  Image<Pixel> dst;
+	  if (img.AskParam().colorspace == Colorspace_RGB)
+	    dst = img;
+	  else
+	    ChangeColorspace(dst,img,Colorspace_RGB);
+
+	  ofstream ostr(buf);
+	  WriteImage_PPM(dst,ostr);
+	}
+	break;
+
+      case Format_PGM:
+	{
+	  Image<Pixel> dst;
+	  if (img.AskParam().colorspace == Colorspace_Greyscale)
+	    dst = img;
+	  else
+	    ChangeColorspace(dst,img,Colorspace_Greyscale);
+
+	  ofstream ostr(buf);
+	  WriteImage_PPM(dst,ostr);
+	}
+	break;
+
+      case Format_PNG:
+	{
+	  Image<Pixel> dst;
+	  if (img.AskParam().colorspace == Colorspace_RGB)
+	    dst = img;
+	  else
+	    ChangeColorspace(dst,img,Colorspace_RGB);
+
+	  ofstream ostr(buf);
+	  WriteImage_PNG(dst,ostr);
+	}
+	break;
+      }
+
+    delete[] buf;
+    d_curr_nr++;
+  }
+
+}
