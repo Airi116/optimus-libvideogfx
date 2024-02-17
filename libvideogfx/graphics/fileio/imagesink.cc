@@ -21,4 +21,56 @@
 #include <libvideogfx/graphics/fileio/jpeg.hh>
 #include <libvideogfx/graphics/fileio/ppm.hh>
 #include <libvideogfx/graphics/fileio/png.hh>
-#include <l
+#include <libvideogfx/graphics/color/colorspace.hh>
+#include <stdio.h>
+
+namespace videogfx {
+  using namespace std;
+
+  ImageSink_Save::ImageSink_Save(ImageFileFormat fmt)
+    : d_filename_template(NULL),
+      d_curr_nr(0)
+  {
+    SetFileFormat(fmt);
+    SetFilename("img",true);
+  }
+
+  ImageSink_Save::~ImageSink_Save()
+  {
+    if (d_filename_template) delete[] d_filename_template;
+  }
+
+  bool ImageSink_Save::IsFormatSupported(ImageFileFormat f)
+  {
+    switch (f)
+      {
+      case Format_PPM:
+      case Format_PGM:
+	return true;
+	break;
+      case Format_JPEG:
+	return JPEG_Supported();
+	break;
+      case Format_PNG:
+	return PNG_Supported();
+	break;
+      }
+
+    assert(0);
+    return false;
+  }
+
+  void ImageSink_Save::SetFilename(const char* tmpl, bool autosuffix)
+  {
+    if (d_filename_template) delete[] d_filename_template;
+
+    int len = strlen(tmpl)+(autosuffix ? 4 : 0)+1;
+    d_filename_template = new char[len];
+
+    strcpy(d_filename_template,tmpl);
+    d_autosuffix = autosuffix;
+  }
+
+  void ImageSink_Save::SendImage(const Image<Pixel>& img)
+  {
+    
