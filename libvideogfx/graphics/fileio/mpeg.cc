@@ -54,4 +54,48 @@ namespace videogfx {
     if (d_image_cache_full)
       return false;
 
-    //d_image_cache_f
+    //d_image_cache_full = const_cast<FileReader_MPEG*>(this)->Preload(d_next_image_cache);
+    d_image_cache_full = Preload(d_next_image_cache);
+
+    return !d_image_cache_full;
+  }
+
+
+  void FileReader_MPEG::SkipToImage(int nr)
+  {
+    assert(nr>=d_next_framenr); //"cannot search backwards in MPEG stream (not implemented yet)");
+
+    Image<Pixel> dummy;
+    while (nr>d_next_framenr)
+      ReadImage(dummy);
+  }
+
+  static int32 Read4(FILE* fh)
+  {
+    int32 n=0;
+    unsigned char c;
+    fread(&c,1,1,fh); n |= ((int32)c)<<24;
+    fread(&c,1,1,fh); n |= ((int32)c)<<16;
+    fread(&c,1,1,fh); n |= ((int32)c)<<8;
+    fread(&c,1,1,fh); n |= (int32)c;
+
+    return n;
+  }
+
+
+  static int16 Read2(FILE* fh)
+  {
+    int16 n=0;
+    unsigned char c;
+    fread(&c,1,1,fh); n |= ((int16)c)<<8;
+    fread(&c,1,1,fh); n |= (int16)c;
+
+    return n;
+  }
+
+  static void Skip(FILE* fh,int n)
+  {
+    unsigned char c[100];
+    while (n)
+      {
+	i
