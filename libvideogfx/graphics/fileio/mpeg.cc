@@ -98,4 +98,60 @@ namespace videogfx {
     unsigned char c[100];
     while (n)
       {
-	i
+	int nskip = min(100,n);
+	fread(&c,nskip,1,fh);
+	n-=nskip;
+      }
+  }
+
+
+  bool FileReader_MPEG::ReadImage(Image<Pixel>& img)
+  {
+    if (d_image_cache_full)
+      {
+	img = d_next_image_cache;
+	d_image_cache_full = false;
+	d_next_image_cache.Release();
+	d_next_framenr++;
+
+	return true;
+      }
+    else
+      {
+	bool image_read = Preload(img);
+	d_next_framenr++;
+
+	return image_read;
+      }
+  }
+
+  bool FileReader_MPEG::Preload(Image<Pixel>& dest) const
+  {
+    int framenr;
+
+    framenr=Read4(d_fh);
+    int w = Read2(d_fh);
+    int h = Read2(d_fh);
+
+    Skip(d_fh,128-4-2-2);
+
+    // cerr << "Nr: " << framenr << " width: " << spec.width << " height: " << spec.height << endl;
+
+    if (feof(d_fh))
+      return false;
+
+    ImageParam spec = dest.AskParam();
+
+    if (spec.width != w || spec.height != h ||
+	spec.chroma != Chroma_420 ||
+	spec.colorspace != Colorspace_YUV)
+      {
+	spec.chroma     = Chroma_420;
+	spec.colorspace = Colorspace_YUV;
+	spec.width =w;
+	spec.height=h;
+
+	dest.Create(spec);
+      }
+
+    Pixel*const* yp = dest.
