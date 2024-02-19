@@ -154,4 +154,23 @@ namespace videogfx {
 	dest.Create(spec);
       }
 
-    Pixel*const* yp = dest.
+    Pixel*const* yp = dest.AskFrameY();
+    Pixel*const* up = dest.AskFrameU();
+    Pixel*const* vp = dest.AskFrameV();
+
+    for (int y=0;y<h;y++)
+      fread(yp[y],w,1,d_fh);
+
+    int cw,ch;
+    spec.AskChromaSizes(cw,ch);
+
+    for (int y=0;y<ch;y++)
+      fread(up[y],cw,1,d_fh);
+
+    for (int y=0;y<ch;y++)
+      fread(vp[y],cw,1,d_fh);
+
+    return true;
+  }
+
+}
