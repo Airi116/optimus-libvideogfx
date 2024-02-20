@@ -386,3 +386,71 @@ namespace videogfx {
 	    for (int x = 0; x < w; x++) {
 	      // could use memcpy here
 	      *p++ = Y[y][x];
+	    }
+	  }
+      }
+    } else {
+      const Pixel*const* R = img.AskFrameR();
+      const Pixel*const* G = img.AskFrameG();
+      const Pixel*const* B = img.AskFrameB();
+      const Pixel*const* A = ( param.has_alpha ? img.AskFrameA() : NULL );
+
+      for (int y = 0; y < h; y++) {
+	uint8* p = row_pointers[y];
+
+	if (param.has_alpha)
+	  {
+	    for (int x = 0;x < w; x++) {
+	      *p++ = R[y][x];
+	      *p++ = G[y][x];
+	      *p++ = B[y][x];
+	      *p++ = A[y][x];
+	    }
+	  }
+	else
+	  {
+	    for (int x = 0;x < w; x++) {
+	      *p++ = R[y][x];
+	      *p++ = G[y][x];
+	      *p++ = B[y][x];
+	    }
+	  }
+      }
+    }
+
+
+    png_write_image(png_ptr, row_pointers);
+
+    /* It is REQUIRED to call this to finish writing the rest of the file */
+    png_write_end(png_ptr, info_ptr);
+
+    /* clean up after the write, and free any memory allocated */
+    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+
+    for (int y = 0; y < h; y++) {
+      delete[] row_pointers[y];
+    } // for
+
+    delete[] row_pointers;
+  }
+
+#endif
+
+
+  bool ReadImage_PNG(Image<Pixel>& img, const char* filename)
+  {
+    ifstream ifs(filename, ios::in | ios::binary);
+    if (!ifs)
+      { return false; }
+
+    ReadImage_PNG(img, ifs);
+    return true;
+  }
+
+  void WriteImage_PNG(const char* filename, const Image<Pixel>& img)
+  {
+    ofstream ofs(filename, ios::out | ios::binary);
+    assert(ofs);
+    WriteImage_PNG(ofs, img);
+  }
+}
