@@ -51,4 +51,26 @@ namespace videogfx {
     void SetSize(int w,int h) { d_w=w; d_h=h; }
     void SetBitsPerPixels(int bpp) { d_bpp=bpp; }
     void SetHeaderSkip(int nbytes) { d_header_bytes=nbytes; }
-    void SetLittleEndian(bool flag=true) { d_little_endia
+    void SetLittleEndian(bool flag=true) { d_little_endian=flag; }
+
+    void ReadImage(Image<uint16>&, std::ifstream&);
+    void ReadImage(Image<uint16>&, const char* name);
+
+    void ReadImage(Image<Pixel>&, std::ifstream&);
+    void ReadImage(Image<Pixel>&, const char* name);
+
+    void ReadMedicalXRay(Image<Pixel>&,  const char* name);
+    void ReadMedicalXRay(Image<uint16>&, const char* name);
+
+  private:
+    int  d_w,d_h;
+    int  d_bpp;
+    int  d_header_bytes;
+    bool d_little_endian;
+
+    void ReadImageData(Image<uint16>& img, std::ifstream& istr);
+    void Convert16to8 (Image<Pixel>&, Image<uint16>&);
+  };
+}
+
+#endif
