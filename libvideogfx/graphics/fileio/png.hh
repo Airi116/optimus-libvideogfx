@@ -51,4 +51,16 @@ namespace videogfx {
   void WriteImage_PNG(const char* filename,const Image<Pixel>& img);
 
   // obsolete
-  inline void WriteImage_PNG(const Image<Pixel>& img, std::ostream& strea
+  inline void WriteImage_PNG(const Image<Pixel>& img, std::ostream& stream)
+  {
+    std::cerr << "you're using the old syntax of libvideogfx::WriteImage_PNG()\n";
+    WriteImage_PNG(stream,img);
+  }
+  inline void WriteImage_PNG(const Image<Pixel>& img, const char* filename)
+  {
+    std::cerr << "you're using the old syntax of libvideogfx::WriteImage_PNG()\n";
+    WriteImage_PNG(filename,img);
+  }
+}
+
+#endif
