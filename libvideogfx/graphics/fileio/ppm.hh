@@ -96,3 +96,20 @@ namespace videogfx {
   {
   public:
     FileWriter_PPM();
+
+    void WriteYUVAsGreyscale(bool flag) { d_yuv_as_grey=flag; }
+    void WriteRGBAsGreyscale(bool flag) { d_rgb_as_grey=flag; }
+    void WriteGreyscaleAsRGB(bool flag) { d_grey_as_rgb=flag; }
+
+    void Write(const Image<Pixel>&,const char* filename);
+    void Write(const Image<Pixel>&,std::ostream&);
+
+  private:
+    bool d_yuv_as_grey;
+    bool d_rgb_as_grey;
+    bool d_grey_as_rgb;
+  };
+
+}
+
+#endif
