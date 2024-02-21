@@ -43,4 +43,44 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Tem
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#include <libvideogfx/unified_reader.hh>
+
+
+#if 0
+#ifndef LIBVIDEOGFX_GRAPHICS_FILEIO_UNIFIED_LOADER_HH
+#define LIBVIDEOGFX_GRAPHICS_FILEIO_UNIFIED_LOADER_HH
+
+#include <libvideogfx/graphics/datatypes/image.hh>
+
+namespace videogfx {
+
+  class LoaderPlugin
+  {
+  public:
+    LoaderPlugin() : prev(NULL) { }
+    virtual ~LoaderPlugin() { if (prev) delete prev; }
+
+    void SetPrevious(LoaderPlugin* previous);
+
+    virtual int  AskNFrames() const = 0;
+    virtual bool IsEOF() const = 0;
+
+    virtual bool SkipToImage(int nr) { return false; }
+    virtual void ReadImage(Image<Pixel>&) = 0;
+
+  protected:
+    LoaderPlugin* prev;
+  };
+
+
+  class FileIOFactory
+  {
+  public:
+    FileIOFactory();
+    virtual ~FileIOFactory() { }
+
+    /* Parse the specification. If the loader factory can handle it, it removes
+       the option from the specification and appends
