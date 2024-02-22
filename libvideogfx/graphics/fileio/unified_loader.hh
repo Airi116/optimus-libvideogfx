@@ -111,4 +111,38 @@ namespace videogfx {
     int  AskFrameNr() const { return d_framenr; }
 
     void ReadImage(Image<Pixel>&);
-    void PeekImage(Image<Pixel>&);  // don't modify the image since 
+    void PeekImage(Image<Pixel>&);  // don't modify the image since it may still be used internally
+
+    int  AskWidth() const;
+    int  AskHeight() const;
+
+    // plugin handling
+
+    static void RegisterPlugin(const FileIOFactory*);
+
+  private:
+    Image<Pixel> d_preload;
+    int          d_framenr;
+
+    LoaderPlugin* d_loader_pipeline;
+    Colorspace    d_colorspace;
+    ChromaFormat  d_chroma;
+
+    static const FileIOFactory* s_plugins[MAX_LOADER_PLUGINS];
+    static int s_nplugins;
+
+    int width,height;
+  };
+
+
+  char* ExtractNextOption(const char* spec); // returned memory has to be freed with delete[]
+  int  ExtractNextNumber(const char* spec);
+  bool MatchOption(const char* spec,const char* option);
+  bool CheckSuffix(const char* spec,const char* suffix);
+  void RemoveOption(char* spec);
+  bool ExtractSize(char* spec,int& w,int& h);
+  void ExtractSize(char* spec,int& w,int& h,int default_w,int default_h);
+}
+
+#endif
+#endif
