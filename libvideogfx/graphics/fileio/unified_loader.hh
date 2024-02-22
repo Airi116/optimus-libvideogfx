@@ -83,4 +83,32 @@ namespace videogfx {
     virtual ~FileIOFactory() { }
 
     /* Parse the specification. If the loader factory can handle it, it removes
-       the option from the specification and appends
+       the option from the specification and appends it to the plugin pipeline. */
+    virtual LoaderPlugin* ParseSpec(char** spec) const = 0;
+    virtual const char* Name() const { return "noname"; }
+  };
+
+
+#define MAX_LOADER_PLUGINS 100
+
+  class UnifiedImageLoader
+  {
+  public:
+    UnifiedImageLoader() : d_framenr(0), d_loader_pipeline(NULL),
+			   d_colorspace(Colorspace_Invalid), d_chroma(Chroma_Invalid) { width=height=0; }
+    ~UnifiedImageLoader() { if (d_loader_pipeline) delete d_loader_pipeline; }
+
+    bool SetInput(const char* input_specification);
+    void SetTargetColorspace(Colorspace c = Colorspace_Invalid) { d_colorspace=c; }   // invalid -> keep input colorspace
+    void SetTargetChroma(ChromaFormat c = Chroma_Invalid) { d_chroma=c; } // invalid -> input input chroma
+
+    // usage
+
+    int  AskNFrames() const;
+    bool IsEOF() const;
+
+    bool SkipToImage(int nr);
+    int  AskFrameNr() const { return d_framenr; }
+
+    void ReadImage(Image<Pixel>&);
+    void PeekImage(Image<Pixel>&);  // don't modify the image since 
