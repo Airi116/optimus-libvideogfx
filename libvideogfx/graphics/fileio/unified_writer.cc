@@ -467,3 +467,319 @@ namespace videogfx {
 	      int b = ExtractNextNumber(*spec); RemoveOption(*spec);
 
 	      wr->SetColor(r,g,b);
+	    }
+
+	  return wr;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: alpha overlay"; }
+
+  } singleton_alphaoverlay;
+
+
+  // ------------------------------------------------------------------------------
+
+
+
+  class WriterStage_Resize : public WriterStage
+  {
+  public:
+    WriterStage_Resize() { w=h=0; }
+
+    void SetParam(int ww,int hh) { w=ww; h=hh; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      Image<Pixel> tmp;
+
+      ImageParam spec=img.AskParam();
+      spec.width = w;
+      spec.height = h;
+      tmp.Create(spec);
+      CopyScaled(tmp,0,0,w,h,img);
+
+      assert(next);
+      next->WriteImage(tmp);
+    }
+
+  private:
+    int w,h;
+  };
+
+
+  static class WriterStageFactory_Resize : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "resize"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Resize* resize = new WriterStage_Resize;
+	  int w = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  int h = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  resize->SetParam(w,h);
+	  return resize;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: resize image"; }
+
+  } singleton_resize;
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class WriterStage_Start : public WriterStage
+  {
+  public:
+    WriterStage_Start() { d_delay=0; }
+
+    void SetStartFrame(int s) { d_delay=s; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      if (d_delay)
+	{ d_delay--; }
+      else
+	next->WriteImage(img);
+    }
+
+  private:
+    int d_delay;
+  };
+
+
+  static class WriterStageFactory_Start : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "start"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Start* startf = new WriterStage_Start;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  startf->SetStartFrame(f);
+	  return startf;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set start-frame"; }
+
+  } singleton_startframe;
+
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class WriterStage_Length : public WriterStage
+  {
+  public:
+    WriterStage_Length() { d_len=INT_MAX; }
+
+    void SetSeqLength(int l) { d_len=l; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      if (d_len)
+	{ next->WriteImage(img); d_len--; }
+    }
+
+  private:
+    int d_len;
+  };
+
+
+  static class WriterStageFactory_Length : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "length"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Length* len = new WriterStage_Length;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  len->SetSeqLength(f);
+	  return len;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set sequence length"; }
+
+  } singleton_seqlength;
+
+
+  static class WriterStageFactory_Range : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "range"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Length* len   = new WriterStage_Length;
+	  WriterStage_Start*  start = new WriterStage_Start;
+	  int s = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  int e = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  start->SetStartFrame(s);
+	  len->SetSeqLength(e);
+	  start->AppendAtEnd(len);
+	  return start;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set sequence range"; }
+
+  } singleton_seqrange;
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class WriterStage_Decimate : public WriterStage
+  {
+  public:
+    WriterStage_Decimate() { d_factor=1; d_cnt=0; }
+
+    void SetFactor(int f) { d_factor=f; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      if ((d_cnt % d_factor)==0)
+	next->WriteImage(img);
+    }
+
+  private:
+    int d_factor;
+    int d_cnt;
+  };
+
+
+  static class WriterStageFactory_Decimate : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "decimate"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Decimate* decim = new WriterStage_Decimate;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  decim->SetFactor(f);
+	  return decim;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: decimate frame-rate"; }
+
+  } singleton_decimate;
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class WriterStage_Duplicate : public WriterStage
+  {
+  public:
+    WriterStage_Duplicate() { d_factor=1; }
+
+    void SetFactor(int f) { d_factor=f; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      for (int i=0;i<d_factor;i++)
+	next->WriteImage(img);
+    }
+
+  private:
+    int d_factor;
+  };
+
+
+  static class WriterStageFactory_Duplicate : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "duplicate"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_Duplicate* dupl = new WriterStage_Duplicate;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  dupl->SetFactor(f);
+	  return dupl;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: duplicate frames"; }
+
+  } singleton_duplicate;
+
+  // ------------------------------------------------------------------------------
+
+
+  class WriterStage_ContrastBright : public WriterStage
+  {
+  public:
+    WriterStage_ContrastBright() { d_bright=0.0; d_contrast=1.0; }
+
+    void SetFactors(double b,double c) { d_bright=b; d_contrast=c; }
+
+    void WriteImage(const Image<Pixel>& img)
+    {
+      Image<Pixel> tmp;
+      ChangeColorspace(tmp,img, Colorspace_RGB);
+      ContrastBrightness(tmp.AskBitmapR(), d_contrast, d_bright);
+      ContrastBrightness(tmp.AskBitmapG(), d_contrast, d_bright);
+      ContrastBrightness(tmp.AskBitmapB(), d_contrast, d_bright);
+      next->WriteImage(tmp);
+    }
+
+  private:
+    double d_bright, d_contrast;
+  };
+
+
+  static class WriterStageFactory_ContastBright : public WriterStageFactory
+  {
+  public:
+    WriterStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "contrastbright"))
+	{
+	  RemoveOption(*spec);
+	  WriterStage_ContrastBright* dupl = new WriterStage_ContrastBright;
+	  int c = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  int b = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  dupl->SetFactors(b, c/100.0);
+	  return dupl;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: change contrast & brightness"; }
+
+  } singleton_contrastbright;
+
+
+}
