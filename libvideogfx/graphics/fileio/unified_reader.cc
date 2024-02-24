@@ -1124,3 +1124,363 @@ namespace videogfx {
       d_istr.open("cache.yuv");
       d_reader.SetYUVStream(d_istr);
       d_reader.SetImageParam(spec);
+
+      d_initialized=true;
+    }
+
+    bool d_initialized;
+
+    ImageParam d_spec;
+
+    ifstream d_istr;
+    ImageReader_YUV1 d_reader;
+    ImageWriter_YUV1 d_writer;
+  };
+
+
+  static class ReaderStageFactory_SeekCache : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "cache"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_SeekCache* cache = new ReaderStage_SeekCache;
+	  //int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  //decim->SetFactor(f);
+	  return cache;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "seek cache"; }
+
+  } singleton_cache;
+
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class ReaderStage_Decimate : public ReaderStage
+  {
+  public:
+    ReaderStage_Decimate() { d_factor=1; }
+
+    void SetFactor(int f) { d_factor=f; }
+
+    int  AskNFrames() const { assert(prev); return prev->AskNFrames()/d_factor; }
+    bool IsEOF() const { assert(prev); return prev->IsEOF(); }
+
+    bool SkipToImage(int nr) { assert(prev); return prev->SkipToImage(nr*d_factor); }
+    void ReadImage(Image<Pixel>& img)
+    {
+      for (int i=0;i<d_factor;i++)
+	prev->ReadImage(img);
+    }
+
+  private:
+    int d_factor;
+  };
+
+
+  static class ReaderStageFactory_Decimate : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "decimate"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Decimate* decim = new ReaderStage_Decimate;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  decim->SetFactor(f);
+	  return decim;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: decimate frame-rate"; }
+
+  } singleton_decimate;
+
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class ReaderStage_Duplicate : public ReaderStage
+  {
+  public:
+    ReaderStage_Duplicate() { d_factor=1; d_repeat=1; d_read_next=true; }
+
+    void SetFactor(int f) { d_factor=d_repeat=f; d_read_next=true; }
+
+    int  AskNFrames() const { assert(prev); return prev->AskNFrames()*d_factor; }
+    bool IsEOF() const { assert(prev); return d_repeat==0 && prev->IsEOF(); }
+
+    bool SkipToImage(int nr)
+    {
+      assert(prev);
+      bool success = prev->SkipToImage(nr/d_factor);
+      if (success) { d_read_next=true; d_repeat=d_factor-(nr%d_factor); }
+      return success;
+    }
+
+    void ReadImage(Image<Pixel>& img)
+    {
+      if (d_read_next)
+	{
+	  prev->ReadImage(d_buf);
+	  d_read_next=false;
+	}
+
+      d_repeat--;
+      if (d_repeat==0) { d_repeat=d_factor; d_read_next=true; }
+      CopyToNew(img, d_buf);
+    }
+
+  private:
+    int d_factor;
+    int d_repeat;
+    bool d_read_next;
+    Image<Pixel> d_buf;
+  };
+
+
+  static class ReaderStageFactory_Duplicate : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "duplicate"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Duplicate* dupl = new ReaderStage_Duplicate;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  dupl->SetFactor(f);
+	  return dupl;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: duplicate frames"; }
+
+  } singleton_duplicate;
+
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class ReaderStage_Start : public ReaderStage
+  {
+  public:
+    ReaderStage_Start() { d_start=0; d_startupread=0; }
+
+    void SetStartFrame(int s) { d_start=s; d_startupread=s; }
+
+    int  AskNFrames() const { assert(prev); return prev->AskNFrames()-d_start; }
+    bool IsEOF() const { assert(prev); return prev->IsEOF(); }
+
+    bool SkipToImage(int nr) { assert(prev); d_startupread=0; return prev->SkipToImage(nr+d_start); }
+    void ReadImage(Image<Pixel>& img)
+    {
+      while (d_startupread)
+	{
+	  prev->ReadImage(img);
+	  d_startupread--;
+	}
+
+      prev->ReadImage(img);
+    }
+
+  private:
+    int d_startupread;
+    int d_start;
+  };
+
+
+  static class ReaderStageFactory_Start : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "start"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Start* startf = new ReaderStage_Start;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  startf->SetStartFrame(f);
+	  return startf;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set start-frame"; }
+
+  } singleton_startframe;
+
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class ReaderStage_Length : public ReaderStage
+  {
+  public:
+    ReaderStage_Length() { d_curr=0; d_len=INT_MAX; }
+
+    void SetSeqLength(int l) { d_len=l; }
+
+    int  AskNFrames() const { assert(prev); return std::min(prev->AskNFrames(),d_len); }
+    bool IsEOF() const { assert(prev); if (d_curr>=d_len) return true; else return prev->IsEOF(); }
+
+    bool SkipToImage(int nr) { assert(prev); d_curr=nr; return prev->SkipToImage(nr); }
+    void ReadImage(Image<Pixel>& img)
+    {
+      prev->ReadImage(img);
+      d_curr++;
+    }
+
+  private:
+    int d_len;
+    int d_curr;
+  };
+
+
+  static class ReaderStageFactory_Length : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "length"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Length* len = new ReaderStage_Length;
+	  int f = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  len->SetSeqLength(f);
+	  return len;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set sequence length"; }
+
+  } singleton_seqlength;
+
+
+  static class ReaderStageFactory_Range : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "range"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Length* len   = new ReaderStage_Length;
+	  ReaderStage_Start*  start = new ReaderStage_Start;
+	  int s = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  int e = ExtractNextNumber(*spec); RemoveOption(*spec);
+	  start->SetStartFrame(s);
+	  len->SetSeqLength(e);
+	  len->SetPrevious(start);
+	  return len;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: set sequence range"; }
+
+  } singleton_seqrange;
+
+
+  // ------------------------------------------------------------------------------
+
+
+  class ReaderStage_Alpha : public ReaderStage
+  {
+  public:
+    ReaderStage_Alpha() { d_framenr=0; fh=NULL; }
+    ~ReaderStage_Alpha() { if (fh) fclose(fh); }
+
+    void SetAlphaStream(const char* name) { fh=fopen(name,"rb"); }
+
+    int  AskNFrames() const { assert(prev); return prev->AskNFrames(); }
+    bool IsEOF() const { assert(prev); return prev->IsEOF(); }
+
+    bool SkipToImage(int nr) { assert(prev); d_framenr=nr; return prev->SkipToImage(nr); }
+    void ReadImage(Image<Pixel>& img)
+    {
+      // read image as usual
+
+      prev->ReadImage(img);
+      d_framenr++;
+
+
+      // seek to position of current alpha mask
+
+      int w=img.AskWidth(), h=img.AskHeight();
+      int size = w*h;
+
+      fseek(fh, size*d_framenr, SEEK_SET);
+
+
+      // load alpha mask
+
+      Bitmap<Pixel> alpha;
+      alpha.Create(w,h);
+
+      for (int y=0;y<h;y++)
+	{
+	  fread(alpha.AskFrame()[y], w,1, fh);
+	}
+
+
+      // insert alpha mask into image
+
+      img.ReplaceBitmap(Bitmap_Alpha, alpha);
+      ImageParam spec;
+      spec = img.AskParam();
+      spec.has_alpha = true;
+      img.SetParam(spec);
+    }
+
+  private:
+    FILE* fh;
+    int d_framenr;
+  };
+
+
+  static class ReaderStageFactory_Alpha : public ReaderStageFactory
+  {
+  public:
+    ReaderStage* ParseSpec(char** spec) const
+    {
+      if (MatchOption(*spec, "alpha"))
+	{
+	  RemoveOption(*spec);
+	  ReaderStage_Alpha* alpha = new ReaderStage_Alpha;
+	  char* name = ExtractNextOption(*spec); RemoveOption(*spec);
+	  alpha->SetAlphaStream(name);
+	  delete[] name;
+	  return alpha;
+	}
+      else
+	return NULL;
+    }
+
+    const char* Name() const { return "filter: add alpha channel"; }
+
+  } singleton_alpha;
+
+
+}
+
