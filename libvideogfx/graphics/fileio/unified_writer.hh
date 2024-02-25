@@ -73,4 +73,32 @@ namespace videogfx {
   {
   public:
     WriterStageFactory();
-    virt
+    virtual ~WriterStageFactory() { }
+
+    /* Parse the specification. If the loader factory can handle it, it removes
+       the option from the specification and appends it to the plugin pipeline. */
+    virtual WriterStage* ParseSpec(char** spec) const = 0;
+    virtual const char* AskName() const { return "noname"; }
+  };
+
+
+#define MAX_WRITER_PLUGINS 100
+
+  /* A universal writer that uses a specification string to build a writer pipeline.
+     The available loaders can be extended with plugins that implement a WriterStageFactory.
+   */
+  class UnifiedImageWriter : public ImageWriter
+  {
+  public:
+    UnifiedImageWriter() : d_writer_pipeline(NULL) { }
+    ~UnifiedImageWriter() { if (d_writer_pipeline) delete d_writer_pipeline; }
+
+    bool SetOutput(const char* output_specification);
+
+    // usage
+
+    void WriteImage(const Image<Pixel>&);
+
+    // plugin handling
+
+    static const char* AskPluginName(int idx); // returns name of plugin or NULL if idx exceeds the number of p
