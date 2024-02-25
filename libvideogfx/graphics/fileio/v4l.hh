@@ -28,4 +28,38 @@
     Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along 
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_GRAPHICS_FILEIO_V4L_HH
+#define LIBVIDEOGFX_GRAPHICS_FILEIO_V4L_HH
+
+#include <libvideogfx/graphics/datatypes/image.hh>
+
+
+namespace videogfx {
+
+  class V4L_Grabber
+  {
+  public:
+    V4L_Grabber();
+    ~V4L_Grabber();
+
+    // initialization
+
+    void SetDevice(const char* device);
+    void SetGreyscaleMode(bool greyscale=true) { d_greyscale=greyscale; }
+    void SetChroma(ChromaFormat chroma) { d_chroma=chroma; }
+    void DoChromaAvgOn422To420(bool flag=true) { d_avg_422_to_420=flag; }
+    void SetResolution(int w,int h);
+    void AskResolution(int& w,int& h) const { w = d_width; h = d_height; }
+
+    void StartGrabbing();
+
+    void Grab(Image<Pixel>&);
+
+  private:
+    char* d_device;
+    int  d_fd;
+    int  palette
