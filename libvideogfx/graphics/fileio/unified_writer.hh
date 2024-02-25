@@ -101,4 +101,17 @@ namespace videogfx {
 
     // plugin handling
 
-    static const char* AskPluginName(int idx); // returns name of plugin or NULL if idx exceeds the number of p
+    static const char* AskPluginName(int idx); // returns name of plugin or NULL if idx exceeds the number of plugins
+
+  private:
+    static void RegisterPlugin(const WriterStageFactory*);
+    friend class WriterStageFactory;
+
+    WriterStage* d_writer_pipeline;
+
+    static const WriterStageFactory* s_plugins[MAX_WRITER_PLUGINS];
+    static int s_nplugins;
+  };
+}
+
+#endif
