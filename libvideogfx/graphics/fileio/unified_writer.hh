@@ -41,4 +41,36 @@
 namespace videogfx {
 
   /* A WriterStage implements a file writer or an image filter.
-   *
+   * WriterStages can be concatenated to a chain of filters vis SetPrevious().
+   */
+  class WriterStage
+  {
+  public:
+    WriterStage() : next(NULL) { }
+    virtual ~WriterStage() { if (next) delete next; }
+
+    /* Append a stage at the end of this pipeline. */
+    void AppendAtEnd(WriterStage* next);
+
+    virtual void WriteImage(const Image<Pixel>&) = 0;
+
+  protected:
+    WriterStage* next;
+  };
+
+
+  /* Allocate and configure a WriterStage based on a specification string.
+     If the WriterStageFactory object recognizes the first option in the
+     specification string, it removes these options and returns a
+     corresponding WriterStage. Otherwise, it returns NULL and leaves
+     the specification string unmodified.
+
+     The Factory is a singleton class. Derived classes should not be exported
+     and exactly one object should be allocated. This object will register
+     itself as plugin.
+  */
+  class WriterStageFactory
+  {
+  public:
+    WriterStageFactory();
+    virt
