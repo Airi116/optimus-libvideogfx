@@ -42,4 +42,21 @@
 
 #include <libvideogfx/graphics/datatypes/image.hh>
 
-namespace vi
+namespace videogfx {
+
+  // Return true if the image file size matches the specified size.
+  bool CheckFileSize_UYVY(std::ifstream& istr,int w,int h);
+
+  void ReadImage_UYVY (Image<Pixel>&,std::ifstream& istr,int w,int h);
+  void WriteImage_UYVY(std::ofstream& ostr, const Image<Pixel>&);
+
+  // obsolete
+  inline void WriteImage_UYVY(const Image<Pixel>& img,std::ofstream& ostr)
+  {
+    std::cerr << "you're using the old syntax of libvideogfx::WriteImage_UYVY()\n";
+    WriteImage_UYVY(ostr,img);
+  }
+
+}
+
+#endif
