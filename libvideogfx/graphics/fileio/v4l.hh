@@ -62,4 +62,18 @@ namespace videogfx {
   private:
     char* d_device;
     int  d_fd;
-    int  palette
+    int  palette;
+
+    int d_width,d_height;
+    bool d_greyscale;
+    ChromaFormat d_chroma;
+    bool d_avg_422_to_420;
+
+    struct GrabData* d_grabdata;
+
+    int d_nextbuf;
+  };
+
+}
+
+#endif
