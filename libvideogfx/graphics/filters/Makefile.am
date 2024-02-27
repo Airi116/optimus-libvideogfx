@@ -28,4 +28,13 @@ libvideogfx_graphics_filters_la_SOURCES = \
 	resampler.h \
 	$(mmx_sources)
 
-libvideogfx_graphics_filters_include_HEADERS = 
+libvideogfx_graphics_filters_include_HEADERS = \
+	linear.hh	\
+	median.hh	\
+	binomial.hh	\
+	scale.hh \
+	resampler.h \
+	$(mmx_headers)
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)
