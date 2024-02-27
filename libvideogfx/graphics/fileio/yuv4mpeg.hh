@@ -88,3 +88,8 @@ namespace videogfx {
 
   private:
     std::ostream* d_yuvstr;
+    bool d_header_written;
+  };
+}
+
+#endif
