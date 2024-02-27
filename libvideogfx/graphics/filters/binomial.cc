@@ -45,4 +45,37 @@
   .        I15 I13 I11 I09   I07 I05 I03 I01     ...
   .     =  O07 O06 O05 O04   O03 O02 O01 O00    16bit
   .        \              \ /              /
-  Reg:      O07 
+  Reg:      O07 O06 O05 O04 O03 O02 O01 O00      8bit
+  MEM:      O00 O01 O02 O03 O04 O05 O06 O07      8bit
+ */
+
+namespace videogfx {
+
+#if ENABLE_MMX
+  static void LowPass_Binomial_Downsample_MMX (Bitmap<Pixel>& destbm, const Bitmap<Pixel>& srcbm)
+  {
+    destbm.Create((srcbm.AskWidth()+1)/2,(srcbm.AskHeight()+1)/2 ,8);
+
+    const Pixel*const* src = srcbm.AskFrame();
+    Pixel*const* dst = destbm.AskFrame();
+    int w = srcbm.AskWidth();
+    int h = srcbm.AskHeight();
+
+    uint8* line = new Pixel[w+32];
+    uint8* l = &line[16];
+
+    uint64 hb = 0xFF00FF00L; hb = hb | (hb<<32);  // do it the awkward way to be compilable with Windows
+    uint64 lb = 0x00FF00FFL; lb = lb | (lb<<32);
+    uint64 a2 = 0x00020002L; a2 = a2 | (a2<<32);
+
+    for (int y=0;y<h;y+=2)
+      {
+	// Column transform
+
+	pxor_r2r(mm0,mm0);
+
+	for (int x=0;x<w;x+=8)
+	  {
+	    uint64* sp_m1 = (uint64*)&src[y-1][x];
+	    uint64* sp_0  = (uint64*)&src[y  ][x];
+	    uint
