@@ -211,4 +211,41 @@ namespace videogfx {
   {
     destbm.Create(srcbm.AskWidth(),srcbm.AskHeight() ,8,8,8);
 
-    const Pixel*const* src = srcbm.AskFra
+    const Pixel*const* src = srcbm.AskFrame();
+    Pixel*const* dst = destbm.AskFrame();
+    int w = srcbm.AskWidth();
+    int h = srcbm.AskHeight();
+
+    uint8* line = new Pixel[w+32];
+    uint8* l = &line[16];
+
+    uint64 hb = 0xFF00FF00L; hb = hb | (hb<<32);  // do it the awkward way to be compilable with Windows
+    uint64 lb = 0x00FF00FFL; lb = lb | (lb<<32);
+    uint64 a2 = 0x00020002L; a2 = a2 | (a2<<32);
+
+    for (int y=0;y<h;y++)
+      {
+	// Column transform
+
+	pxor_r2r(mm0,mm0);
+
+	for (int x=0;x<w;x+=8)
+	  {
+	    uint64* sp_m1 = (uint64*)&src[y-1][x];
+	    uint64* sp_0  = (uint64*)&src[y  ][x];
+	    uint64* sp_p1 = (uint64*)&src[y+1][x];
+	    uint64* dp    = (uint64*)&l[x];
+
+	    // unpack 8 pixels of (y-1) to 16bit in (mm1,mm2)
+
+	    movq_m2r(*sp_m1,mm1);
+	    movq_r2r(mm1,mm2);
+	    punpckhbw_r2r(mm0,mm1);
+	    punpcklbw_r2r(mm0,mm2);
+
+	    // unpack 8 pixels of (y) to 16bit and add twice to (mm1,mm2)
+
+	    movq_m2r(*sp_0,mm3);
+	    movq_r2r(mm3,mm4);
+	    punpckhbw_r2r(mm0,mm3);
+	    punpcklbw_r2r(mm0,mm4)
