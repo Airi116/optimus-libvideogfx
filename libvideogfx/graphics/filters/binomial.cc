@@ -14,4 +14,35 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 T
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#include <libvideogfx/graphics/filters/binomial.hh>
+#include <libvideogfx/arch/cpu.hh>
+#include "config.h"
+
+#if ENABLE_MMX
+#  include "libvideogfx/arch/mmx.h"
+#endif
+
+
+#include <iostream>
+  using namespace std;
+
+
+/*
+  Flow graph for row transform:
+
+  MEM:      I00 I01 I02 I03 I04 I05 I06 I07      8bit      I08 I09 I10 I11 I12 I13 I14 I15
+  Reg:      I07 I06 I05 I04 I03 I02 I01 I00      8bit                   .....
+  .        /  deinterlace / \  deinterlace \
+  .        I07 I05 I03 I01   I06 I04 I02 I00    16bit
+
+  .       -----------------------------------
+
+  .        I13 I11 I09 I07   I05 I03 I01 I-1    16bit
+  .    2*  I14 I12 I10 I08   I06 I04 I02 I00     ...
+  .        I15 I13 I11 I09   I07 I05 I03 I01     ...
+  .     =  O07 O06 O05 O04   O03 O02 O01 O00    16bit
+  .        \              \ /              /
+  Reg:      O07 
