@@ -64,4 +64,24 @@ namespace videogfx {
       {
 	d_yuvstr->read(line,1440);
 
-	// TODO: 525: bottom field fi
+	// TODO: 525: bottom field first
+	//       625: top field first
+
+	Pixel* ypp = yp[y];
+	Pixel* upp = up[y];
+	Pixel* vpp = vp[y];
+	char*  lp  = line;
+
+	for (int x=0;x<1440;x+=4)
+	  {
+	    *upp++ = *lp++;
+	    *ypp++ = *lp++;
+	    *vpp++ = *lp++;
+	    *ypp++ = *lp++;
+	  }
+      }
+
+    d_nextframe++;
+  }
+
+}
