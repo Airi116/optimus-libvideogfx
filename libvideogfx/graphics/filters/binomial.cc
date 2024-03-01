@@ -674,4 +674,27 @@ namespace videogfx {
 #if ENABLE_MMX
     if (cpu->HasMMX())
       {
-	LowPass_Binomial_MMX (dest, im
+	LowPass_Binomial_MMX (dest, img);
+
+	return;
+      }
+#endif
+
+    LowPass_Binomial_scalar (dest, img);
+  }
+
+  void LowPass_Binomial_Downsample(Bitmap<Pixel>& dest, const Bitmap<Pixel>& img)
+  {
+    CPU_Capabilities* cpu = CPU_Capabilities::AskCapabilities();
+
+#if ENABLE_MMX
+    if (cpu->HasMMX())
+      {
+	LowPass_Binomial_Downsample_MMX (dest, img);
+	return;
+      }
+#endif
+
+    LowPass_Binomial_Downsample_scalar (dest, img);
+  }
+}
