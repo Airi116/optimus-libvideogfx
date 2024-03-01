@@ -453,4 +453,62 @@ namespace videogfx {
     int h = srcbm.AskHeight();
 
     volatile short* line = new short[srcbm.AskAlignedWidth()+32];
-    volatile short* 
+    volatile short* l = &line[16];
+
+    uint64 a2 = 0x00020002L; a2 = a2 | (a2<<32);
+
+    for (int y=0;y<h;y++)
+      {
+	// Column transform
+
+	for (int x=0;x<w;x+=4)
+	  {
+	    uint64* sp_m1 = (uint64*)&src[y-1][x];
+	    uint64* sp_0  = (uint64*)&src[y  ][x];
+	    uint64* sp_p1 = (uint64*)&src[y+1][x];
+	    uint64* dp    = (uint64*)&l[x];
+
+#if 0
+	    for (int i=0;i<1;i++)
+	      ((int16*)dp)[i] = (((int16*)sp_m1)[i] + 2*((int16*)sp_0)[i] + ((int16*)sp_p1)[i] + 2)>>2;
+#endif
+
+#if 1
+	    movq_m2r(*sp_0,mm1);
+#if 1
+	    paddw_r2r(mm1,mm1);
+	    paddw_m2r(*sp_m1,mm1);
+	    paddw_m2r(*sp_p1,mm1);
+
+	    // divide by 4
+
+	    paddw_m2r(a2,mm1);
+	    psraw_i2r(2,mm1);
+
+	    // store to line buffer
+#endif
+	    movq_r2m(mm1,*dp);
+#endif
+	  }
+
+	l[-1] = l[0];
+	l[w]  = l[w-1];
+
+	// Row transform
+
+#if 1
+	{
+	  // initialize
+
+	  uint64* s0 = (uint64*)&l[-4];
+	  uint64* s1 = (uint64*)&l[0];
+
+	  movq_m2r(*s0,mm1);
+	  movq_m2r(*s1,mm2);
+	}
+#endif
+
+	for (int x=0;x<w;x+=4)
+	  {
+	    uint64* sp_p1 = (uint64*)&l[x+4];
+	    uint64* dp    = (uint64*)&dst
