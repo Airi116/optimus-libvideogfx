@@ -295,4 +295,39 @@ namespace videogfx {
 	    uint64* sp1_0  = (uint64*)&l[x+1];
 	    uint64* sp1_p1 = (uint64*)&l[x+1+8];
 
-	
+	    // --------------------- first 8 output pixels -------------------------
+
+	    // "deinterlace" 8 pixels at (x) to 16bit to (mm1,mm2)
+
+	    movq_m2r(*sp_0,mm1);
+	    movq_r2r(mm1,mm2);
+	    pand_m2r(hb,mm1);
+	    psrlw_i2r(8,mm1);       // mm1: I07 I05 I03 I01
+	    pand_m2r(lb,mm2);       // mm2: I06 I04 I02 I00
+
+	    // "deinterlace" 8 pixels at (x+8) to 16bit to (mm3,mm4)
+
+	    movq_m2r(*sp_p1,mm3);
+	    movq_r2r(mm3,mm4);
+	    pand_m2r(hb,mm3);
+	    psrlw_i2r(8,mm3);       // mm3: I15 I13 I11 I09
+	    pand_m2r(lb,mm4);       // mm4: I14 I12 I10 I08
+
+	    // --- process first 4 output pixels ---
+
+	    // construct mm5 with: I13 I11 I09 I07
+
+	    movq_r2r(mm3,mm5);
+	    movq_r2r(mm1,mm6);
+	    psllq_i2r(16,mm5);
+	    psrlq_i2r(48,mm6);
+	    por_r2r(mm6,mm5);
+
+	    //  sum filter in mm5:     I13 I11 I09 I07
+
+	    paddw_r2r(mm4,mm5);  // 2* I14 I12 I10 I08
+	    paddw_r2r(mm4,mm5);
+	    paddw_r2r(mm3,mm5);  //    I15 I13 I11 I09
+
+	    paddw_m2r(a2,mm5);
+	    psrlw_i2r(2,
