@@ -330,4 +330,45 @@ namespace videogfx {
 	    paddw_r2r(mm3,mm5);  //    I15 I13 I11 I09
 
 	    paddw_m2r(a2,mm5);
-	    psrlw_i2r(2,
+	    psrlw_i2r(2,mm5); // divide by 4
+
+	    // --- process next 4 output pixels ---
+
+	    // construct mm0 with: I05 I03 I01 I-1
+
+	    movq_m2r(*sp_m1,mm7);
+	    pand_m2r(hb,mm7);       // mm7: I-1 xxx xxx xxx
+	    psrlq_i2r(56,mm7);
+
+	    movq_r2r(mm1,mm0);
+	    psllq_i2r(16,mm0);
+	    por_r2r(mm7,mm0);
+
+	    // sum filter in mm0:      I05 I03 I01 I-1
+
+	    paddw_r2r(mm2,mm0); // 2*  I06 I04 I02 I00
+	    paddw_r2r(mm2,mm0);
+	    paddw_r2r(mm1,mm0); //     I07 I05 I03 I01
+
+	    paddw_m2r(a2,mm0);
+	    psrlw_i2r(2,mm0);  // divide by 4
+
+
+	    // build 8 output pixels and save
+
+	    //packuswb_r2r(mm5,mm0);
+
+	    movq_r2m(mm0,*dp);
+	    movq_r2m(mm5,*dp2);
+
+	    // --------------------- second 8 output pixels -------------------------
+
+	    // "deinterlace" 8 pixels at (x) to 16bit to (mm1,mm2)
+
+	    movq_m2r(*sp1_0,mm1);
+	    movq_r2r(mm1,mm2);
+	    pand_m2r(hb,mm1);
+	    psrlw_i2r(8,mm1);       // mm1: I07 I05 I03 I01
+	    pand_m2r(lb,mm2);       // mm2: I06 I04 I02 I00
+
+	    // "deinterla
