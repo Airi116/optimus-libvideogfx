@@ -574,4 +574,52 @@ namespace videogfx {
   template <class T> void LowPass_Binomial_scalar (Bitmap<T>& outbm, const Bitmap<T>& inbm)
   {
     int w,h;
-    out
+    outbm.Create(w=inbm.AskWidth(),h=inbm.AskHeight(),4,4,4); //8,8,8);
+
+    const T*const* ip = inbm.AskFrame();
+    T*const* op = outbm.AskFrame();
+
+    T* line = new T[w+32];
+    T* l=line+16;
+
+    const int round=2;
+
+    for (int y=0;y<h;y++)
+      {
+	for (int x=0;x<w;x++)
+	  l[x] = (ip[y-1][x] + ip[y][x]+ip[y][x] + ip[y+1][x] + round)>>2;
+
+	l[-1]=l[0];
+	l[w]=l[w-1];
+
+	for (int x=0;x<w;x++)
+	  op[y][x] = (l[x-1] + l[x]+l[x] + l[x+1] + round)>>2;
+      }
+
+    delete[] line;
+  }
+
+  static void LowPass_Binomial_Downsample_scalar (Bitmap<Pixel>& outbm, const Bitmap<Pixel>& inbm)
+  {
+    int w,h;
+    outbm.Create(((w=inbm.AskWidth())+1)/2,((h=inbm.AskHeight())+1)/2,8,8,8);
+
+    const Pixel*const* ip = inbm.AskFrame();
+    Pixel*const* op = outbm.AskFrame();
+
+    Pixel* line = new Pixel[w+32];
+    Pixel* l=line+16;
+
+    const int round=2;
+
+    for (int y=0;y<h;y+=2)
+      {
+	for (int x=0;x<w;x++)
+	  l[x] = (ip[y-1][x] + ip[y][x]+ip[y][x] + ip[y+1][x] + round)>>2;
+
+	l[-1]=l[0];
+	l[w]=l[w-1];
+
+	for (int x=0;x<w;x+=2)
+	  op[y][x] = (l[x-1] + l[x]+l[x] + l[x+1] + round)>>2;
+     
