@@ -511,4 +511,67 @@ namespace videogfx {
 	for (int x=0;x<w;x+=4)
 	  {
 	    uint64* sp_p1 = (uint64*)&l[x+4];
-	    uint64* dp    = (uint64*)&dst
+	    uint64* dp    = (uint64*)&dst[y][x];
+
+#if 0
+	    uint64* sp_p0 = (uint64*)&l[x];
+	    for (int i=0;i<1;i++)
+	      ((int16*)dp)[i] = ((int16*)sp_p0)[i];
+
+	    //*dp = sp_p1[-1];
+#endif
+
+	    // load next 4 input values
+
+#if 1
+	    movq_r2r(mm1,mm0);
+	    movq_r2r(mm2,mm1);
+	    movq_m2r(*sp_p1,mm2);
+#if 1
+	    // prepare left vector
+
+	    movq_r2r(mm0,mm5);
+	    psrlq_i2r(48,mm5);
+
+	    movq_r2r(mm1,mm6);
+	    psllq_i2r(16,mm6);
+	    por_r2r(mm5,mm6);
+
+	    // prepare right vector
+
+	    movq_r2r(mm2,mm3);
+	    psllq_i2r(48,mm3);
+
+	    movq_r2r(mm1,mm4);
+	    psrlq_i2r(16,mm4);
+	    por_r2r(mm3,mm4);
+
+	    // add filter values
+
+	    paddw_r2r(mm1,mm4);
+	    paddw_r2r(mm6,mm4);
+	    paddw_r2r(mm1,mm4);
+
+	    // divide by 4
+
+	    paddw_m2r(a2,mm4);
+	    psraw_i2r(2,mm4);
+
+	    movq_r2m(mm4,*dp);
+#endif
+	    //movq_r2m(mm1,*dp);
+#endif
+	  }
+      }
+
+    emms();
+
+    delete[] line;
+  }
+#endif
+
+
+  template <class T> void LowPass_Binomial_scalar (Bitmap<T>& outbm, const Bitmap<T>& inbm)
+  {
+    int w,h;
+    out
