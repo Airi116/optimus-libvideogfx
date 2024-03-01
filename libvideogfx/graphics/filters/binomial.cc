@@ -248,4 +248,51 @@ namespace videogfx {
 	    movq_m2r(*sp_0,mm3);
 	    movq_r2r(mm3,mm4);
 	    punpckhbw_r2r(mm0,mm3);
-	    punpcklbw_r2r(mm0,mm4)
+	    punpcklbw_r2r(mm0,mm4);
+	    paddw_r2r(mm3,mm1);
+	    paddw_r2r(mm4,mm2);
+	    paddw_r2r(mm3,mm1);
+	    paddw_r2r(mm4,mm2);
+
+	    // unpack 8 pixels of (y+1) to 16bit and add to (mm1,mm2)
+
+	    movq_m2r(*sp_p1,mm5);
+	    movq_r2r(mm5,mm6);
+	    punpckhbw_r2r(mm0,mm5);
+	    punpcklbw_r2r(mm0,mm6);
+	    paddw_r2r(mm5,mm1);
+	    paddw_r2r(mm6,mm2);
+
+	    // divide by 4
+
+	    paddw_m2r(a2,mm1);
+	    paddw_m2r(a2,mm2);
+
+	    psrlw_i2r(2,mm1);
+	    psrlw_i2r(2,mm2);
+
+	    // store to line buffer
+
+	    packuswb_r2r(mm1,mm2);
+
+	    movq_r2m(mm2,*dp);
+	  }
+
+	l[-1] = l[0];
+	l[w]  = l[w-1];
+
+	// Row transform
+
+	for (int x=0;x<w;x+=16)
+	  {
+	    uint64* sp_m1 = (uint64*)&l[x-8];
+	    uint64* sp_0  = (uint64*)&l[x];
+	    uint64* sp_p1 = (uint64*)&l[x+8];
+	    uint64* dp    = (uint64*)&dst[y][x];
+	    uint64* dp2   = (uint64*)&dst[y][x+8];
+
+	    uint64* sp1_m1 = (uint64*)&l[x+1-8];
+	    uint64* sp1_0  = (uint64*)&l[x+1];
+	    uint64* sp1_p1 = (uint64*)&l[x+1+8];
+
+	
