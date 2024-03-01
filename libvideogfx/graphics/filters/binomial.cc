@@ -622,4 +622,56 @@ namespace videogfx {
 
 	for (int x=0;x<w;x+=2)
 	  op[y][x] = (l[x-1] + l[x]+l[x] + l[x+1] + round)>>2;
-     
+      }
+
+    delete[] line;
+  }
+
+
+  void LowPass_Binomial (Bitmap<Pixel>& dest, const Bitmap<Pixel>& img)
+  {
+    CPU_Capabilities* cpu = CPU_Capabilities::AskCapabilities();
+
+#if ENABLE_MMX
+    if (cpu->HasMMX())
+      {
+	LowPass_Binomial_MMX (dest, img);
+	return;
+      }
+#endif
+
+    LowPass_Binomial_scalar (dest, img);
+  }
+
+#if 1
+  static void Compare(const Bitmap<short>& d1,const Bitmap<short>& d2)
+  {
+    int w = d1.AskWidth();
+    int h = d1.AskHeight();
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+	if (d1.AskFrame()[y][x] != d2.AskFrame()[y][x])
+	  {
+	    cout << "DIFF: " << x << ";" << y << " "
+		 << d1.AskFrame()[y][x] << " "
+		 << d2.AskFrame()[y][x] << endl;
+	  }
+  }
+#endif
+
+  void LowPass_Binomial (Bitmap<short>& dest, const Bitmap<short>& img)
+  {
+    CPU_Capabilities* cpu = CPU_Capabilities::AskCapabilities();
+
+#if 0
+    Bitmap<short> dm,ds;
+    LowPass_Binomial_MMX   (dm, img);
+    LowPass_Binomial_scalar(ds, img);
+    Compare(dm,ds);
+#endif
+
+#if ENABLE_MMX
+    if (cpu->HasMMX())
+      {
+	LowPass_Binomial_MMX (dest, im
