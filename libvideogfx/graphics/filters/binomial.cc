@@ -412,4 +412,45 @@ namespace videogfx {
 
 	    // sum filter in mm0:      I05 I03 I01 I-1
 
-	    pad
+	    paddw_r2r(mm2,mm0); // 2*  I06 I04 I02 I00
+	    paddw_r2r(mm2,mm0);
+	    paddw_r2r(mm1,mm0); //     I07 I05 I03 I01
+
+	    paddw_m2r(a2,mm0);
+	    psrlw_i2r(2,mm0);  // divide by 4
+
+
+	    // build 8 output pixels and save
+
+	    //packuswb_r2r(mm5,mm0);
+
+	    psllq_i2r(8,mm5);
+	    psllq_i2r(8,mm0);
+
+	    por_m2r(*dp,mm0);
+	    por_m2r(*dp2,mm5);
+
+	    movq_r2m(mm0,*dp);
+	    movq_r2m(mm5,*dp2);
+	  }
+      }
+
+    emms();
+
+    delete[] line;
+  }
+
+
+  static void LowPass_Binomial_MMX (Bitmap<short>& destbm, const Bitmap<short>& srcbm)
+  {
+    assert(sizeof(short)==2);
+
+    destbm.Create(srcbm.AskWidth(),srcbm.AskHeight() ,4,8,4); //4,4,4);   STRANGE: ,4,4,4 does sometimes produce different result
+
+    const short*const* src = srcbm.AskFrame();
+    volatile short*const* dst = destbm.AskFrame();
+    int w = srcbm.AskWidth();
+    int h = srcbm.AskHeight();
+
+    volatile short* line = new short[srcbm.AskAlignedWidth()+32];
+    volatile short* 
