@@ -61,4 +61,49 @@ namespace videogfx {
 
     for (int y=0;y<h;y+=2)
       {
-	/
+	// Column transform
+
+	pxor_r2r(mm0,mm0);
+
+	for (int x=0;x<w;x+=8)
+	  {
+	    uint64* sp_m1 = (uint64*)&src[y-1][x];
+	    uint64* sp_0  = (uint64*)&src[y  ][x];
+	    uint64* sp_p1 = (uint64*)&src[y+1][x];
+	    uint64* dp    = (uint64*)&l[x];
+
+	    // unpack 8 pixels of (y-1) to 16bit in (mm1,mm2)
+
+	    movq_m2r(*sp_m1,mm1);
+	    movq_r2r(mm1,mm2);
+	    punpckhbw_r2r(mm0,mm1);
+	    punpcklbw_r2r(mm0,mm2);
+
+	    // unpack 8 pixels of (y) to 16bit and add twice to (mm1,mm2)
+
+	    movq_m2r(*sp_0,mm3);
+	    movq_r2r(mm3,mm4);
+	    punpckhbw_r2r(mm0,mm3);
+	    punpcklbw_r2r(mm0,mm4);
+	    paddw_r2r(mm3,mm1);
+	    paddw_r2r(mm4,mm2);
+	    paddw_r2r(mm3,mm1);
+	    paddw_r2r(mm4,mm2);
+
+	    // unpack 8 pixels of (y+1) to 16bit and add to (mm1,mm2)
+
+	    movq_m2r(*sp_p1,mm5);
+	    movq_r2r(mm5,mm6);
+	    punpckhbw_r2r(mm0,mm5);
+	    punpcklbw_r2r(mm0,mm6);
+	    paddw_r2r(mm5,mm1);
+	    paddw_r2r(mm6,mm2);
+
+	    // divide by 4
+
+	    psrlw_i2r(2,mm1);
+	    psrlw_i2r(2,mm2);
+
+	    // store to line buffer
+
+	    pac
