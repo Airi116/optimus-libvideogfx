@@ -32,4 +32,33 @@
   .       -----------------------------------
 
   .        I13 I11 I09 I07   I05 I03 I01 I-1    16bit
-  .    2*  I
+  .    2*  I14 I12 I10 I08   I06 I04 I02 I00     ...
+  .        I15 I13 I11 I09   I07 I05 I03 I01     ...
+  .     =  O07 O06 O05 O04   O03 O02 O01 O00    16bit
+  .        \              \ /              /
+  Reg:      O07 O06 O05 O04 O03 O02 O01 O00      8bit
+  MEM:      O00 O01 O02 O03 O04 O05 O06 O07      8bit
+ */
+
+namespace videogfx {
+
+  void LowPass_3x3Gauss_MMX(Bitmap<Pixel>& destbm, const Bitmap<Pixel>& srcbm)
+  {
+    assert(false); // "Use of \"LowPass_3x3Gauss_MMX()\" is deprecated. Use LowPass_Binormial_Decimate() instead"
+
+    destbm.Create((srcbm.AskWidth()+1)/2,(srcbm.AskHeight()+1)/2 ,8);
+
+    const Pixel*const* src = srcbm.AskFrame();
+    Pixel*const* dst = destbm.AskFrame();
+    int w = srcbm.AskWidth();
+    int h = srcbm.AskHeight();
+
+    uint8* line = new Pixel[w+32];
+    uint8* l = &line[16];
+
+    uint64 hb = 0xFF00FF00L; hb = hb | (hb<<32);  // do it the awkward way to be compilable with Windows
+    uint64 lb = 0x00FF00FFL; lb = lb | (lb<<32);
+
+    for (int y=0;y<h;y+=2)
+      {
+	/
