@@ -95,4 +95,43 @@ namespace videogfx {
 			 yp[y  ][x+1] +
 			 4*yp[y  ][x  ]    +4)/8;
 	  up2[y][x] = (  up[y-1][x  ] +
-			 up[
+			 up[y+1][x  ] +
+			 up[y  ][x-1] +
+			 up[y  ][x+1] +
+			 4*up[y  ][x  ]    +4)/8;
+	  vp2[y][x] = (  vp[y-1][x  ] +
+			 vp[y+1][x  ] +
+			 vp[y  ][x-1] +
+			 vp[y  ][x+1] +
+			 4*vp[y  ][x  ]    +4)/8;
+	}
+
+    // Copy border from old image to filtered one.
+
+    for (int x=0;x<w;x++)
+      {
+	yp2[  0][x]=yp[  0][x]; up2[  0][x]=up[  0][x]; vp2[  0][x]=vp[  0][x];
+	yp2[h-1][x]=yp[h-1][x]; up2[h-1][x]=up[h-1][x]; vp2[h-1][x]=vp[h-1][x];
+      }
+
+    for (int y=0;y<h;y++)
+      {
+	yp2[y][  0]=yp[y][  0]; up2[y][0  ]=up[y][  0]; vp2[y][  0]=vp[y][  0];
+	yp2[y][w-1]=yp[y][w-1]; up2[y][w-1]=up[y][w-1]; vp2[y][w-1]=vp[y][w-1];
+      }
+  }
+
+
+
+  void LowPass_3x3mean(const Image_YUV<Pixel>& img,Image_YUV<Pixel>& dest)
+  {
+    // Get image parameters and assure that they are in the right format.
+    ImageParam_YUV param;
+    img.GetParam(param);
+
+    ImageParam_YUV param2;
+    dest.GetParam(param2);
+
+    assert(param.chroma ==Chroma444);
+    assert(param2.chroma==Chroma444);
+    assert(&img != &dest);  // Lowpass needs two image
