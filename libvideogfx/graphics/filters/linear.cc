@@ -167,4 +167,42 @@ namespace videogfx {
 			 yp[y  ][x  ] +
 			 yp[y  ][x+1] +
 			 yp[y+1][x-1] +
-			 yp[y+1][x
+			 yp[y+1][x  ] +
+			 yp[y+1][x+1]    +4)/9;
+	  up2[y][x] = (  up[y-1][x-1] +
+			 up[y-1][x  ] +
+			 up[y-1][x+1] +
+			 up[y  ][x-1] +
+			 up[y  ][x  ] +
+			 up[y  ][x+1] +
+			 up[y+1][x-1] +
+			 up[y+1][x  ] +
+			 up[y+1][x+1]    +4)/9;
+	  vp2[y][x] = (  vp[y-1][x-1] +
+			 vp[y-1][x  ] +
+			 vp[y-1][x+1] +
+			 vp[y  ][x-1] +
+			 vp[y  ][x  ] +
+			 vp[y  ][x+1] +
+			 vp[y+1][x-1] +
+			 vp[y+1][x  ] +
+			 vp[y+1][x+1]    +4)/9;
+	}
+
+    // Copy border from old image to filtered one.
+
+    for (int x=0;x<param.width;x++)
+      {
+	yp2[  0][x]=yp[  0][x]; up2[  0][x]=up[  0][x]; vp2[  0][x]=vp[  0][x];
+	yp2[h-1][x]=yp[h-1][x]; up2[h-1][x]=up[h-1][x]; vp2[h-1][x]=vp[h-1][x];
+      }
+
+    for (int y=0;y<param.height;y++)
+      {
+	yp2[y][  0]=yp[y][  0]; up2[y][0  ]=up[y][  0]; vp2[y][  0]=vp[y][  0];
+	yp2[y][w-1]=yp[y][w-1]; up2[y][w-1]=up[y][w-1]; vp2[y][w-1]=vp[y][w-1];
+      }
+  }
+
+
+  void InterpolateH_Tap4(const Pixel*const* src,Pixel*const* dst,int dst_width,in
