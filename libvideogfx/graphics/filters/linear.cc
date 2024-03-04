@@ -292,3 +292,48 @@ namespace videogfx {
 
     double minus_twosigma2inv = -1.0/(2*sigma*sigma);
 
+    int lastidx=MAXRANGE-1;
+    for (int i=0;i<MAXRANGE;i++)
+      {
+	filt[i] = exp(i*i*minus_twosigma2inv);
+
+	if (filt[i] < cutoffval)
+	  { lastidx = i-1; break; }
+      }
+
+    if (lastidx==MAXRANGE-1)
+      throw "CreateGaussFilter(): Gauss filter is too wide.";
+
+    filter.Create(2*lastidx+1 , -lastidx);
+    double* f = filter.AskData();
+
+    for (int i=0;i<=lastidx;i++)
+      f[-i]=f[i]=filt[i];
+
+    if (normalize) NormalizeFilter(filter);
+  }
+
+
+  void CreateGaussDerivFilter(Array<double>& filter,double sigma,double cutoffval)
+  {
+    CreateGaussFilter(filter,sigma,cutoffval,false);
+
+    for (int i=filter.AskStartIdx();i<=filter.AskEndIdx();i++)
+      filter.AskData()[i] *= i;
+
+    // normalize
+
+    double sum=0.0;
+
+    int i0 = filter.AskStartIdx();
+    int i1 = filter.AskEndIdx();
+
+    double* f = filter.AskData();
+
+    for (int i=i0;i<=i1;i++)
+      sum += i*f[i];
+
+    const double fact = 1.0/sum;
+
+    for (int i=i0;i<=i1;i++)
+    
