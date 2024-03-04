@@ -205,4 +205,44 @@ namespace videogfx {
   }
 
 
-  void InterpolateH_Tap4(const Pixel*const* src,Pixel*const* dst,int dst_width,in
+  void InterpolateH_Tap4(const Pixel*const* src,Pixel*const* dst,int dst_width,int height)
+  {
+    int src_width = (dst_width+1)/2;
+
+    // Create a chroma-line buffer in the range [-1 .. cw]
+    Pixel* line = new Pixel[src_width+2];
+    Pixel* linep = &line[1];
+
+    // Process interpolation filter
+    for (int y=0;y<height;y++)
+      {
+	// copy line and duplicate pixels at the end
+	for (int x=0;x<src_width;x++)
+	  linep[x] = src[y][x];
+	linep[-1]        = linep[0];
+	linep[src_width] = linep[src_width-1];
+
+	// Apply filter (1 3 3 1)//4
+	for (int x=0;x<src_width;x++)
+	  {
+	    dst[y][2*x  ] = (linep[x]*3 + linep[x-1]+2)/4;
+	    dst[y][2*x+1] = (linep[x]*3 + linep[x+1]+2)/4;
+	  }
+      }
+
+    delete[] line;
+  }
+
+
+  void InterpolateV_Tap4(const Pixel*const* src,Pixel*const* dst,int width,int dst_height)
+  {
+    int src_height = (dst_height+1)/2;
+
+    // Create a chroma-line buffer in the range [-1 .. cw]
+    Pixel* line = new Pixel[src_height+2];
+    Pixel* linep = &line[1];
+
+    // Process interpolation filter
+    for (int x=0;x<width;x++)
+      {
+	// copy line and duplicate pi
