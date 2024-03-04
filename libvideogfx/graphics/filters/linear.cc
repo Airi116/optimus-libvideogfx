@@ -134,4 +134,37 @@ namespace videogfx {
 
     assert(param.chroma ==Chroma444);
     assert(param2.chroma==Chroma444);
-    assert(&img != &dest);  // Lowpass needs two image
+    assert(&img != &dest);  // Lowpass needs two image buffers for correct operation.
+
+    // Give hint as the destination image will be completely overwritten.
+    dest.Hint_ContentIsNotUsedAnymore();
+
+
+    Pixel*const* yp2  = dest.AskFrameY();
+    Pixel*const* up2  = dest.AskFrameU();
+    Pixel*const* vp2  = dest.AskFrameV();
+
+    const Pixel*const* yp  = img.AskFrameY_const();
+    const Pixel*const* up  = img.AskFrameU_const();
+    const Pixel*const* vp  = img.AskFrameV_const();
+
+    /* Do lowpass filtering.
+       We filter all of the image except a one pixel wide border because the
+       filter size is 3x3. This border will simply be copied from the original
+       image.
+    */
+     
+    int w = param.width;
+    int h = param.height;
+
+    for (int y=1;y<param.height-1;y++)
+      for (int x=1;x<param.width-1;x++)
+	{
+	  yp2[y][x] = (  yp[y-1][x-1] +
+			 yp[y-1][x  ] +
+			 yp[y-1][x+1] +
+			 yp[y  ][x-1] +
+			 yp[y  ][x  ] +
+			 yp[y  ][x+1] +
+			 yp[y+1][x-1] +
+			 yp[y+1][x
