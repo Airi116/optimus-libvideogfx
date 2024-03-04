@@ -245,4 +245,50 @@ namespace videogfx {
     // Process interpolation filter
     for (int x=0;x<width;x++)
       {
-	// copy line and duplicate pi
+	// copy line and duplicate pixels at the end
+	for (int y=0;y<src_height;y++)
+	  linep[y] = src[y][x];
+	linep[-1]         = linep[0];
+	linep[src_height] = linep[src_height-1];
+
+	// Apply filter (1 3 3 1)//4
+	for (int y=0;y<src_height;y++)
+	  {
+	    dst[2*y  ][x] = (linep[y]*3 + linep[y-1]+2)/4;
+	    dst[2*y+1][x] = (linep[y]*3 + linep[y+1]+2)/4;
+	  }
+      }
+
+    delete[] line;
+  }
+
+#endif
+
+
+  void NormalizeFilter(Array<double>& filter)
+  {
+    double sum=0.0;
+    int i0 = filter.AskStartIdx();
+    int i1 = filter.AskEndIdx();
+
+    double* f = filter.AskData();
+
+    for (int i=i0;i<=i1;i++)
+      sum += f[i];
+
+    assert(sum != 0.0); //, "Filter cannot be normalized since coefficients sum to zero.");
+
+    const double fact = 1.0/sum;
+
+    for (int i=i0;i<=i1;i++)
+      f[i] *= fact;
+  }
+
+
+  void CreateGaussFilter(Array<double>& filter,double sigma,double cutoffval,bool normalize)
+  {
+#define MAXRANGE 100
+    double filt[MAXRANGE];
+
+    double minus_twosigma2inv = -1.0/(2*sigma*sigma);
+
