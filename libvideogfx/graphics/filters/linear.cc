@@ -452,4 +452,10 @@ namespace videogfx {
 
   template void ConvolveH (Bitmap<Pixel>&,const Bitmap<Pixel>&,const Array<double>&);
   template void ConvolveV (Bitmap<Pixel>&,const Bitmap<Pixel>&,const Array<double>&);
-  template void ConvolveHV(Bitmap<Pixel>&,const Bitmap<Pixel>&,const 
+  template void ConvolveHV(Bitmap<Pixel>&,const Bitmap<Pixel>&,const Array<double>&);
+
+  template void ConvolveH (Bitmap<Pixel>&,const Array<double>&);
+  template void ConvolveV (Bitmap<Pixel>&,const Array<double>&);
+  template void ConvolveHV(Bitmap<Pixel>&,const Array<double>&);
+
+}
