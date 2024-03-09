@@ -49,4 +49,38 @@ namespace videogfx {
 	d_mat[r][c] = ((r==c) ? 1 : 0);
   }
 
-  Matrix4G   Matrix4G::operator+(const Matrix4G& m) c
+  Matrix4G   Matrix4G::operator+(const Matrix4G& m) const
+  {
+    assert(d_rows    == m.d_rows); //    "matrix dimensions differ (rows)");
+    assert(d_columns == m.d_columns); // "matrix dimensions differ (columns)");
+
+    Matrix4G mat(d_rows,d_columns);
+
+    for (int r=0;r<d_rows;r++)
+      for (int c=0;c<d_columns;c++)
+	mat.d_mat[r][c] = d_mat[r][c] + m.d_mat[r][c];
+
+    return mat;
+  }
+
+  Matrix4G   Matrix4G::operator-(const Matrix4G& m) const
+  {
+    assert(d_rows    == m.d_rows); //    "matrix dimensions differ (rows)");
+    assert(d_columns == m.d_columns); // "matrix dimensions differ (columns)");
+
+    Matrix4G mat(d_rows,d_columns);
+
+    for (int r=0;r<d_rows;r++)
+      for (int c=0;c<d_columns;c++)
+	mat.d_mat[r][c] = d_mat[r][c] - m.d_mat[r][c];
+
+    return mat;
+  }
+
+  Matrix4G   Matrix4G::operator*(const Matrix4G& b) const
+  {
+    const Matrix4G& a = *this;
+
+    assert(a.d_columns == b.d_rows); // "matrix sizes are incompatible for multiplication");
+
+    Matrix4G mat(a.d_rows,b.d_columns);
