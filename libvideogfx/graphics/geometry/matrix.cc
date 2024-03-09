@@ -84,3 +84,54 @@ namespace videogfx {
     assert(a.d_columns == b.d_rows); // "matrix sizes are incompatible for multiplication");
 
     Matrix4G mat(a.d_rows,b.d_columns);
+
+    for (int i=0;i<a.d_rows;i++)
+      for (int j=0;j<b.d_columns;j++)
+	{
+	  double sum=0.0;
+	  for (int k=0;k<a.d_columns;k++)
+	    {
+	      sum += a.d_mat[i][k] * b.d_mat[k][j];
+	    }
+
+	  mat.d_mat[i][j] = sum;
+	}
+
+    return mat;
+  }
+
+  Matrix4G Matrix4G::operator*(double factor) const
+  {
+    Matrix4G mat(d_rows,d_columns);
+
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	{
+	  mat.d_mat[i][j] = d_mat[i][j] * factor;
+	}
+
+    return mat;
+  }
+
+  Matrix4G Matrix4G::operator/(double factor) const
+  {
+    //AssertDescr(factor != 0.0, "Cannot divide matrix through zero.");
+
+    Matrix4G mat(d_rows,d_columns);
+
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	{
+	  mat.d_mat[i][j] = d_mat[i][j] / factor;
+	}
+
+    return mat;
+  }
+
+  const Matrix4G& Matrix4G::operator=(const Matrix4G& m)
+  {
+    d_rows    = m.d_rows;
+    d_columns = m.d_columns;
+
+    assert(d_rows<=4);
+    assert(d_column
