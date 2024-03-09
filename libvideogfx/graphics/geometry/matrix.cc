@@ -134,4 +134,48 @@ namespace videogfx {
     d_columns = m.d_columns;
 
     assert(d_rows<=4);
-    assert(d_column
+    assert(d_columns<=4);
+
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	d_mat[i][j] = m.d_mat[i][j];
+
+    return *this;
+  }
+
+  Matrix4G Matrix4G::Transpose() const
+  {
+    Matrix4G mat(d_columns, d_rows);
+
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	mat.d_mat[j][i] = d_mat[i][j];
+
+    return mat;
+  }
+
+  double   Matrix4G::Det() const
+  {
+    if (d_rows==3 && d_columns==3)
+      {
+	return (d_mat[0][0]*(d_mat[1][1]*d_mat[2][2] - d_mat[1][2]*d_mat[2][1]) +
+		d_mat[0][1]*(d_mat[1][2]*d_mat[2][0] - d_mat[2][2]*d_mat[1][0]) +
+		d_mat[0][2]*(d_mat[1][0]*d_mat[2][1] - d_mat[2][0]*d_mat[1][1]));
+      }
+    else if (d_rows==2 && d_columns==2)
+      {
+	return (d_mat[0][0]*d_mat[1][1]) - (d_mat[0][1]*d_mat[1][0]);
+      }
+    else
+      {
+	assert(0); // not implemented
+      }
+  }
+
+  double   Matrix4G::Trace() const
+  {
+    assert(d_columns == d_rows); // "matrix sizes are incompatible for multiplication");
+
+    double sum=0.0;
+    for (int i=0; i<d_rows; i++)
+      s
