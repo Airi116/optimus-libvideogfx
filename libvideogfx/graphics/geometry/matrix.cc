@@ -178,4 +178,53 @@ namespace videogfx {
 
     double sum=0.0;
     for (int i=0; i<d_rows; i++)
-      s
+      sum += d_mat[i][i];
+
+    return sum;
+  }
+
+  /* Helper function for 4x4 matrix inverse. */
+  inline void InverseInplace2x2(double m[4])
+  {
+    double det = 1.0/(m[0]*m[3]-m[1]*m[2]);
+    m[1] = -m[1];
+    m[2] = -m[2];
+    swap(m[0],m[3]);
+
+    for (int i=0;i<4;i++) m[i] *= det;
+  }
+
+  /* Helper function for 4x4 matrix inverse. */
+  /* c = a*b */
+  inline void Mult2x2(double c[4],double a[4],double b[4])
+  {
+    c[0] = a[0]*b[0] + a[1]*b[2];
+    c[1] = a[0]*b[1] + a[1]*b[3];
+    c[2] = a[2]*b[0] + a[3]*b[2];
+    c[3] = a[2]*b[1] + a[3]*b[3];
+  }
+
+  Matrix4G Matrix4G::Inverse() const
+  {
+    assert(d_rows == d_columns); // "matrix must be square for inverse computation");
+
+    Matrix4G inv(d_rows,d_rows);
+
+    if (d_rows==1)
+      {
+	inv[0][0] = 1.0/d_mat[0][0];
+
+	return inv;
+      }
+    else if (d_rows==2)
+      {
+	double det = d_mat[0][0]*d_mat[1][1] - d_mat[0][1]*d_mat[1][0];
+	assert(det != 0.0);
+
+	inv[0][0] =  d_mat[1][1]/det;
+	inv[0][1] = -d_mat[0][1]/det;
+	inv[1][0] = -d_mat[1][0]/det;
+	inv[1][1] =  d_mat[0][0]/det;
+
+	return inv;
+ 
