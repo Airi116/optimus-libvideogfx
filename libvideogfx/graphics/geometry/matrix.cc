@@ -448,4 +448,43 @@ namespace videogfx {
     mat[0][0] = x;
     mat[1][1] = y;
     mat[2][2] = z;
-    re
+    return mat;
+  }
+
+  Matrix4G Scale3D(double x,double y,double z)
+  {
+    Matrix4G mat(4,4);
+    mat[0][0] = x;
+    mat[1][1] = y;
+    mat[2][2] = z;
+    return mat;
+  }
+
+  Matrix4G CrossProduct(const Matrix4G& vec1, const Matrix4G& vec2)
+  {
+    assert(vec1.AskRows()==3);
+    assert(vec1.AskColumns()==1);
+    assert(vec2.AskRows()==3);
+    assert(vec2.AskColumns()==1);
+
+    Matrix4G result(3,1);
+
+    result[0][0] = vec1[1][0]*vec2[2][0] - vec2[1][0]*vec1[2][0];
+    result[1][0] = vec1[2][0]*vec2[0][0] - vec2[2][0]*vec1[0][0];
+    result[2][0] = vec1[0][0]*vec2[1][0] - vec2[0][0]*vec1[1][0];
+
+    return result;
+  }
+
+  Point2D<double> TransformPoint(const Matrix4G& mat, Point2D<double>& p)
+  {
+    assert(mat.AskRows()==3);
+    assert(mat.AskColumns()==3);
+
+    double x = p.x*mat[0][0] + p.y*mat[0][1] + mat[0][2];
+    double y = p.x*mat[1][0] + p.y*mat[1][1] + mat[1][2];
+    double w = p.x*mat[2][0] + p.y*mat[2][1] + mat[2][2];
+
+    Point2D<double> newpoint;
+    newpoint.x = x/w;
+    newpoint
