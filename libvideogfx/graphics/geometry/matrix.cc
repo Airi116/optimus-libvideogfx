@@ -326,4 +326,59 @@ namespace videogfx {
     for (int i=0;i<d_rows;i++)
       for (int j=0;j<d_columns;j++)
 	{
-	  sum += d_mat[i][j]
+	  sum += d_mat[i][j] * d_mat[i][j];
+	}
+
+    return sqrt(sum);
+  }
+
+  void Matrix4G::DeleteColumn(int column)
+  {
+    d_columns--;
+
+    for (int j=column;j<d_columns;j++)
+      for (int i=0;i<d_rows;i++)
+	d_mat[i][j] = d_mat[i][j+1];
+  }
+
+  void Matrix4G::DeleteRow(int row)
+  {
+    d_rows--;
+
+    for (int i=row;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	d_mat[i][j] = d_mat[i+1][j];
+  }
+
+  void Matrix4G::AddColumn()
+  {
+    assert(d_columns<4);
+    d_columns++;
+  }
+
+  void Matrix4G::AddRow()
+  {
+    assert(d_rows<4);
+    d_rows++;
+  }
+
+  Matrix4G Matrix4G::SubMatrix(int row0,int col0, int h,int w) const
+  {
+    Matrix4G sub(h,w);
+
+    for (int r=0;r<h;r++)
+      for (int c=0;c<w;c++)
+	sub[r][c]=d_mat[r+row0][c+col0];
+
+    return sub;
+  }
+
+
+  Matrix4G CrossProductMatrix(const Matrix4G& v)
+  {
+    assert(v.AskRows()==3);
+    assert(v.AskColumns()==1);
+
+    Matrix4G mat(3,3);
+    mat[0][0]=    0   ; mat[0][1]=-v[2][0]; mat[0][2]= v[1][0];
+    mat[1][0]= v[2][0]; mat
