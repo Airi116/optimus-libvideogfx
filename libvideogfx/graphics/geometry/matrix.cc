@@ -227,4 +227,32 @@ namespace videogfx {
 	inv[1][1] =  d_mat[0][0]/det;
 
 	return inv;
- 
+      }
+    else if (d_rows==3)
+      {
+	/*
+	  3x3 matrix inverse written with cross products:
+	  [ u v w ]^-1 = 1/(u*(vxw)) [ vxw | wxu | uxv ]^T
+	*/
+	inv[0][0] = +(d_mat[1][1]*d_mat[2][2] - d_mat[1][2]*d_mat[2][1]);
+	inv[0][1] = -(d_mat[2][2]*d_mat[0][1] - d_mat[2][1]*d_mat[0][2]);
+	inv[0][2] = +(d_mat[1][2]*d_mat[0][1] - d_mat[1][1]*d_mat[0][2]);
+
+	inv[1][0] = -(d_mat[2][2]*d_mat[1][0] - d_mat[2][0]*d_mat[1][2]);
+	inv[1][1] = +(d_mat[2][2]*d_mat[0][0] - d_mat[2][0]*d_mat[0][2]);
+	inv[1][2] = -(d_mat[1][2]*d_mat[0][0] - d_mat[1][0]*d_mat[0][2]);
+
+	inv[2][0] = +(d_mat[2][1]*d_mat[1][0] - d_mat[2][0]*d_mat[1][1]);
+	inv[2][1] = -(d_mat[2][1]*d_mat[0][0] - d_mat[2][0]*d_mat[0][1]);
+	inv[2][2] = +(d_mat[1][1]*d_mat[0][0] - d_mat[1][0]*d_mat[0][1]);
+
+	double det = Det();
+	assert(det != 0.0);
+	return inv/det;
+      }
+    else if (d_rows==4)
+      {
+	double A[4],B[4],C[4],D[4];
+
+	/* The 4x4 matrix inverse uses the Strassen algorithm for block-matrix inversion
+	   (see http://en
