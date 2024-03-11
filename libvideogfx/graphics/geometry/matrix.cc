@@ -414,4 +414,38 @@ namespace videogfx {
   Matrix4G RowVector(double a,double b,double c)
   { Matrix4G m(1,3); m[0][0]=a; m[0][1]=b; m[0][2]=c; return m; }
 
-  Matrix4G RowVector(double a,double b,double c,dou
+  Matrix4G RowVector(double a,double b,double c,double d)
+  { Matrix4G m(1,4); m[0][0]=a; m[0][1]=b; m[0][2]=c; m[0][3]=d; return m; }
+
+  Matrix4G CCWRotationX(double angle,int dim) { return GivensRotation(1,2,angle,dim); }
+  Matrix4G CCWRotationY(double angle,int dim) { return GivensRotation(2,0,angle,dim); }
+  Matrix4G CCWRotationZ(double angle,int dim) { return GivensRotation(0,1,angle,dim); }
+
+  Matrix4G CWRotationX(double angle,int dim) { return GivensRotation(2,1,angle,dim); }
+  Matrix4G CWRotationY(double angle,int dim) { return GivensRotation(0,2,angle,dim); }
+  Matrix4G CWRotationZ(double angle,int dim) { return GivensRotation(1,0,angle,dim); }
+
+  Matrix4G Translation3D(double tx,double ty,double tz)
+  {
+    Matrix4G t(4,4);
+    t[0][3]=tx;
+    t[1][3]=ty;
+    t[2][3]=tz;
+    return t;
+  }
+
+  Matrix4G Translation2D(double tx,double ty)
+  {
+    Matrix4G t(3,3);
+    t[0][2]=tx;
+    t[1][2]=ty;
+    return t;
+  }
+
+  Matrix4G Diag3(double x,double y,double z)
+  {
+    Matrix4G mat(3,3);
+    mat[0][0] = x;
+    mat[1][1] = y;
+    mat[2][2] = z;
+    re
