@@ -286,4 +286,44 @@ namespace videogfx {
 
 	inv[0][0] = A[0] + t1[0];  inv[0][1] = A[1] + t1[1];  inv[1][0] = A[2] + t1[2];  inv[1][1] = A[3] + t1[3];
 	inv[0][2] = -t2[0];  inv[0][3] = -t2[1];  inv[1][2] = -t2[2];  inv[1][3] = -t2[3];
-	inv[2][0] = -t3[0];  inv[2][1
+	inv[2][0] = -t3[0];  inv[2][1] = -t3[1];  inv[3][0] = -t3[2];  inv[3][1] = -t3[3];
+	inv[2][2] = dcab[0];  inv[2][3] = dcab[1];  inv[3][2] = dcab[2];  inv[3][3] = dcab[3];
+
+	return inv;
+      }
+    else
+      { assert(0); }
+  }
+
+
+  Matrix4G Matrix4G::PseudoInverse() const
+  {
+    Matrix4G T = Transpose();
+
+    // There seems to be some numerical instability problem with the pseudo-inverse.
+    // According to http://robotics.caltech.edu/~jwb/courses/ME115/handouts/pseudo.pdf,
+    // the inverse should be computed depending on the matrix sizes.
+
+    if (d_rows<d_columns)
+      return T * ((*this)*T).Inverse();
+    else
+      return (T*(*this)).Inverse() * T;
+  }
+
+
+  void Matrix4G::Threshold(double t)
+  {
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	if (d_mat[i][j]>-t && d_mat[i][j]<t)
+	  d_mat[i][j]=0.0;
+  }
+
+  double Matrix4G::Norm() const
+  {
+    double sum = 0.0;
+    
+    for (int i=0;i<d_rows;i++)
+      for (int j=0;j<d_columns;j++)
+	{
+	  sum += d_mat[i][j]
