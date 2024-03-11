@@ -487,4 +487,41 @@ namespace videogfx {
 
     Point2D<double> newpoint;
     newpoint.x = x/w;
-    newpoint
+    newpoint.y = y/w;
+
+    return newpoint;
+  }
+
+  void Line2PointPair(const Matrix4G& homoline, Point2D<double>* pts, double distance)
+  {
+    assert(homoline.AskRows()==3);
+    assert(homoline.AskColumns()==1);
+
+    double n[3]; // line parameters, normalized such that n_0^2 + n_1^2 = 1
+
+    double len = sqrt(homoline[0][0]*homoline[0][0] + homoline[1][0]*homoline[1][0]);
+    for (int i=0;i<3;i++)
+      n[i] = homoline[i][0]/len;
+
+    // find vector from origin to line that is perpendicular to line
+    pts[0].x = -n[2]*n[0];
+    pts[0].y = -n[2]*n[1];
+
+    // move from that point the 'distance' along the line in both directions
+    pts[1].x = pts[0].x - distance*n[1];
+    pts[1].y = pts[0].y + distance*n[0];
+    pts[0].x += distance*n[1];
+    pts[0].y -= distance*n[0];
+  }
+
+  ostream& operator<<(ostream& ostr, const Matrix4G& mat)
+  {
+    for (int i=0;i<mat.AskRows();i++)
+      {
+	for (int j=0;j<mat.AskColumns();j++)
+	  {
+	    ostr << setw(6) << mat[i][j] << ' ';
+	  }
+
+	ostr << endl;
+     
