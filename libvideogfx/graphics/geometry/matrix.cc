@@ -255,4 +255,35 @@ namespace videogfx {
 	double A[4],B[4],C[4],D[4];
 
 	/* The 4x4 matrix inverse uses the Strassen algorithm for block-matrix inversion
-	   (see http://en
+	   (see http://en.wikipedia.org/wiki/Invertible_matrix).
+	   The 2x2 block matrices are stored in a linear array:
+	   ( 0 1 )
+	   ( 2 3 )
+	*/
+
+	A[0] = d_mat[0][0];  A[1] = d_mat[0][1];  A[2] = d_mat[1][0];  A[3] = d_mat[1][1];
+	B[0] = d_mat[0][2];  B[1] = d_mat[0][3];  B[2] = d_mat[1][2];  B[3] = d_mat[1][3];
+	C[0] = d_mat[2][0];  C[1] = d_mat[2][1];  C[2] = d_mat[3][0];  C[3] = d_mat[3][1];
+	D[0] = d_mat[2][2];  D[1] = d_mat[2][3];  D[2] = d_mat[3][2];  D[3] = d_mat[3][3];
+
+	InverseInplace2x2(A);
+
+	double t1[4],t2[4],t3[4];
+	Mult2x2(t1,C,A);
+	Mult2x2(t2,t1,B);
+
+	double dcab[4];
+	for (int i=0;i<4;i++) dcab[i] = D[i]-t2[i];
+	InverseInplace2x2(dcab);
+
+	double ca[4], ab[4];
+	Mult2x2(ca, C,A);
+	Mult2x2(ab, A,B);
+
+	Mult2x2(t2, ab,dcab);
+	Mult2x2(t1, t2,ca);
+	Mult2x2(t3, dcab,ca);
+
+	inv[0][0] = A[0] + t1[0];  inv[0][1] = A[1] + t1[1];  inv[1][0] = A[2] + t1[2];  inv[1][1] = A[3] + t1[3];
+	inv[0][2] = -t2[0];  inv[0][3] = -t2[1];  inv[1][2] = -t2[2];  inv[1][3] = -t2[3];
+	inv[2][0] = -t3[0];  inv[2][1
