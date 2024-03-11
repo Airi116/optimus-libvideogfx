@@ -524,4 +524,9 @@ namespace videogfx {
 	  }
 
 	ostr << endl;
-     
+      }
+
+    return ostr;
+  }
+
+}
