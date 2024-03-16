@@ -81,4 +81,43 @@ namespace videogfx {
       for (int x=x0;x<=x1;x++)
 	{
 	  double t;
-	  t =
+	  t = (p1[y][x]-mean_in);            var_in   += t*t;
+	  t = (p2[y][x]-p1[y][x]-mean_diff); var_diff += t*t;
+	}
+    var_in   /= w*h;
+    var_diff /= w*h;
+
+    if (var_diff==0.0) return 9e+50;
+    else return 10.0*log10(var_in/var_diff);
+  }
+
+
+  double CalcPSNR(const Bitmap<Pixel>& img1,
+		  const Bitmap<Pixel>& img2,
+		  int x0,int y0,int x1,int y1)
+  {
+    const double mse = CalcMSE(img1,img2,x0,y0,x1,y1);
+    const double rmse = sqrt(mse);
+    const double psnr = 20*log10(255.0/rmse);
+
+    return psnr;
+  }
+
+
+  Bitmap<Pixel> CalcErrorMap(const Bitmap<Pixel>& img1,
+                             const Bitmap<Pixel>& img2,
+                             enum TransferCurve transfer_curve,
+                             bool inverted)
+  {
+    int w = img1.AskWidth();
+    int h = img1.AskHeight();
+
+    const Pixel*const* p1 = img1.AskFrame();
+    const Pixel*const* p2 = img2.AskFrame();
+
+    Bitmap<Pixel> error;
+    error.Create(w,h);
+
+    Pixel*const* p = error.AskFrame();
+
+
