@@ -121,3 +121,34 @@ namespace videogfx {
     Pixel*const* p = error.AskFrame();
 
 
+    // --- prepare transfer curve ---
+
+    Pixel transfer[255+1+255];
+    for (int d=-255;d<=255;d++)
+      {
+        switch (transfer_curve)
+          {
+          case TransferCurve_Linear:
+            transfer[d+255] = abs(d);
+            break;
+
+          case TransferCurve_Sqrt:
+            transfer[d+255] = sqrt(abs(d)/255.0)*255;
+            break;
+          }
+
+        if (inverted) transfer[d+255] = 255 - transfer[d+255];
+      }
+
+
+    // --- generate error map ---
+
+    for (int y=0;y<h;y++)
+      for (int x=0;x<w;x++)
+        {
+          p[y][x] = transfer[p1[y][x] - p2[y][x] + 255];
+        }
+
+    return error;
+  }
+}
