@@ -1,0 +1,7 @@
+/********************************************************************************
+  libvideogfx.hh  /  Dirk Farin, dirk.farin@gmx.de
+
+    This is a meta include file which includes every other include file.
+ ********************************************************************************
+    LibVideoGfx - video processing library
+    Copyright (C) 2002  D
