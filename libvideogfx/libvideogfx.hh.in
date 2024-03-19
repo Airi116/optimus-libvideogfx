@@ -47,4 +47,23 @@
 #include <libvideogfx/graphics/geometry/transform.hh>
 #include <libvideogfx/graphics/fileio/jpeg.hh>
 #include <libvideogfx/graphics/fileio/png.hh>
-#include <libvideogfx/graphic
+#include <libvideogfx/graphics/fileio/mpeg.hh>
+#include <libvideogfx/graphics/fileio/ppm.hh>
+#include <libvideogfx/graphics/fileio/raw.hh>
+#include <libvideogfx/graphics/fileio/uyvy.hh>
+#include <libvideogfx/graphics/fileio/yuv.hh>
+#include <libvideogfx/graphics/fileio/yuv4mpeg.hh>
+#include <libvideogfx/graphics/fileio/yuv_vqeg.hh>
+@LINUX_COMMENT@#include <libvideogfx/graphics/fileio/mplayer.hh>
+#include <libvideogfx/graphics/fileio/imagesink.hh>
+#include <libvideogfx/graphics/fileio/unified_reader.hh>
+#include <libvideogfx/graphics/fileio/unified_writer.hh>
+#include <libvideogfx/graphics/filters/linear.hh>
+#include <libvideogfx/graphics/filters/median.hh>
+#include <libvideogfx/graphics/filters/binomial.hh>
+#include <libvideogfx/graphics/filters/scale.hh>
+#include <libvideogfx/graphics/measure/snr.hh>
+#include <libvideogfx/graphics/measure/ssim.hh>
+#include <libvideogfx/graphics/visualize/regions.hh>
+#include <libvideogfx/audio/fileio/audiosink.hh>
+#inc
