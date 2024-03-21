@@ -10,4 +10,22 @@ libvideogfx_utility_bitstream_la_SOURCES = \
 	bitbuffer.hh \
 	bitbuffer.cc \
 	bitreader.cc	\
-	bitreader.hh	
+	bitreader.hh	\
+	bitreader.icc	\
+	bytebuffer.cc	\
+	inputstream.hh	\
+	inputstream.cc	\
+	inputstream_istr.hh	\
+	inputstream_istr.cc
+
+libvideogfx_utility_bitstream_include_HEADERS = \
+	bitbuffer.hh	\
+	bitreader_fast.hh	\
+	bitreader.hh	\
+	bitreader.icc	\
+	bytebuffer.hh	\
+	inputstream.hh	\
+	inputstream_istr.hh
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)
