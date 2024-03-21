@@ -29,4 +29,46 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_TYPES_HH
+#define LIBVIDEOGFX_TYPES_HH
+
+#if defined(__GCC__) && (__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 5)
+#include <stdint.h>
+#else
+#include <cstdint>
+#endif
+
+#include <cmath>
+
+namespace videogfx {
+
+  typedef uint64_t uint64;
+  typedef  int64_t  int64;
+  typedef uint32_t uint32;
+  typedef  int32_t  int32;
+  typedef uint16_t uint16;
+  typedef  int16_t  int16;
+  typedef uint8_t  uint8;
+  typedef  int8_t   int8;
+
+  typedef uint32 uint31;
+  typedef uint32 uint30;
+  typedef uint32 uint29;
+  typedef uint32 uint28;
+  typedef uint32 uint27;
+  typedef uint32 uint26;
+  typedef uint32 uint25;
+  typedef uint32 uint24;
+  typedef uint32 uint23;
+  typedef uint32 uint22;
+  typedef uint32 uint21;
+  typedef uint32 uint20;
+  typedef uint32 uint19;
+  typedef uint32 uint18;
+  typedef uint32 uint17;
+
+  typedef uint16 uint15;
+  
