@@ -108,4 +108,12 @@ namespace videogfx {
   inline uint32 RightBits(int n)  { return (((uint32)1)<<n)-1; }
   inline uint32 LeftBits32(int n) { return 0xFFFFFFFF - RightBits(32-n); }
 
-  inline uint16 Chan
+  inline uint16 ChangeEndian(uint16 v) { return (v>>8) | (v<<8); }
+  inline uint32 ChangeEndian(uint32 v) { return (v>>24) | ((v>>8)&0xFF00) | ((v&0xFF00)<<8) | (v<<24); }
+}
+
+#ifndef NULL
+#define NULL 0
+#endif
+
+#endif
