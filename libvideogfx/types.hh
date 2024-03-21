@@ -71,4 +71,41 @@ namespace videogfx {
   typedef uint32 uint17;
 
   typedef uint16 uint15;
-  
+  typedef uint16 uint14;
+  typedef uint16 uint13;
+  typedef uint16 uint12;
+  typedef uint16 uint11;
+  typedef uint16 uint10;
+  typedef uint16 uint9;
+  typedef int16 int15;
+  typedef int16 int14;
+  typedef int16 int13;
+  typedef int16 int12;
+  typedef int16 int11;
+  typedef int16 int10;
+  typedef int16 int9;
+
+  typedef uint8 uint1;
+  typedef uint8 uint2;
+  typedef uint8 uint3;
+  typedef uint8 uint4;
+  typedef uint8 uint5;
+  typedef uint8 uint6;
+  typedef uint8 uint7;
+  typedef  int8  int1;
+  typedef  int8  int2;
+  typedef  int8  int3;
+  typedef  int8  int4;
+
+  typedef uint8_t Pixel;
+
+  const Pixel BoolPixel_Set   = 255;
+  const Pixel BoolPixel_Clear = 0;
+
+  // template <class T> inline T abs(T a) { if (a<0) return -a; else return a; }
+  template <class T> inline int  sign(T x) { if (x<0) return -1; if (x>0) return 1; return 0; }
+
+  inline uint32 RightBits(int n)  { return (((uint32)1)<<n)-1; }
+  inline uint32 LeftBits32(int n) { return 0xFFFFFFFF - RightBits(32-n); }
+
+  inline uint16 Chan
