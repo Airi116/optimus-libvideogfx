@@ -40,4 +40,32 @@ namespace videogfx {
     BitBuffer();
     ~BitBuffer();
 
-    void Re
+    void Reset();
+
+    void WriteBits(uint32 bits,int nBits);       // input has to be right aligned
+    void WriteBool(bool b) { WriteBits(b ? 1 : 0 , 1); }
+    void WriteBitsMasked(uint32 bits,int nBits);
+    void AlignToByte0(); // Fill 0-bits until a byte boundary is reached. 0-7 bits are inserted.
+
+    void Flush(); // Fill 0-bits to next byte boundary and make all data available at the output buffer.
+
+    uint8* AskBuffer() const { return d_buffer; }
+    uint32 AskBitsInBuffer() const { return d_bufferidx*8 + sizeof(unsigned long)*8-d_freebits; }
+    int    AskLengthInBytes() const { return (AskBitsInBuffer()+7)/8; }
+
+  private:
+    uint8* d_buffer;
+    int    d_bufferidx;
+
+    int    d_buffersize;
+
+    unsigned long d_tmpbuf;
+    int    d_freebits;
+
+    void TmpToBuffer();
+    void EnlargeIfFull();
+  };
+
+}
+
+#endif
