@@ -57,4 +57,34 @@ namespace videogfx {
     BitReader(const uint8* buffer,uint32 len);
     ~BitReader();
 
-    inli
+    inline uint32 GetBits (int nbits);
+    inline uint32 PeekBits(int nbits);
+    inline void   SkipBits(int nbits);
+    inline void   SkipBitsFast(int nbits); /* Use ONLY when you called PeekBits() with at
+					      least as many bits before! */
+    inline void   SkipToByteBoundary();
+
+    int32  AskBitsLeft() const; // Return number of bits that have still not been read.
+
+    inline bool   IsEOF() const;       // True iff current cursor position at or behind file end
+    inline int    AskPosition() const { return (d_ptr-d_start)*8 -d_bitsleft; }
+
+  private:
+    uint64 d_buffer;   // remaining bits are always left-aligned
+    int    d_bitsleft;
+
+    const uint8* d_start;
+    mutable const uint8* d_ptr;
+    mutable const uint8* d_endptr;
+
+    InputStream* d_istr;
+    uint8*       d_filebuf;
+
+    void Refill32bits(); // read 32bits (or more) into the temporary buffer "d_buffer"
+  };
+
+#include "bitreader.icc"
+
+}
+
+#endif
