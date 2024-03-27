@@ -35,4 +35,33 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ********************************************************************************/
 
-#ifndef LIBVIDEO
+#ifndef LIBVIDEOGFX_UTILITY_BITSTREAM_INPUTSTREAM_HH
+#define LIBVIDEOGFX_UTILITY_BITSTREAM_INPUTSTREAM_HH
+
+#include <libvideogfx/types.hh>
+
+namespace videogfx {
+
+  class InputStream
+  {
+  public:
+    InputStream();
+    virtual ~InputStream();
+
+    /* Fill buffer 'mem' with up to 'maxlen' bytes. Number of bytes written is
+       returned. This may be less than requested but never less than 'minlen'.
+       the full buffer is filled. Only if the input does not contain enough
+       bytes to fill at least 'minlen' bytes into the buffer, less bytes are returned. */
+    uint32 FillBuffer(uint8* mem,uint32 maxlen,uint32 minlen=1);
+
+    /* Push back the given bytes to the input queue. You may push back
+       as many bytes as you want and call this function as often as you like to. */
+    void   Pushback(uint8* mem,int n_bytes);
+
+    virtual bool   IsEOF() const = 0;
+
+    /* If the stream is of finite length, you may call AskStreamLength().
+       It is however not guaranteed that the size of the stream will not
+       grow any more.
+
+ 
