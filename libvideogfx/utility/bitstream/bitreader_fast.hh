@@ -183,3 +183,85 @@ do {                                    \
 	  uint32 bits = GetBits(16)<<(nbits-16);
 
 	  // combine with lower bits
+
+	  bits |= PeekBits(nbits-16);
+
+
+	  // restore state
+
+	  d_buffer=copy_buffer;
+	  d_freebits = copy_freebits;
+	  d_ptr = copy_ptr;
+
+	  return bits;
+	}
+
+      uint32 bits = d_buffer>>(32-nbits);
+      return bits;
+    }
+
+    inline uint32 GetBits(int nbits)
+    {
+      //assert(nbits>16 || nbits <= 16-d_freebits);
+      //assert(d_freebits <= 0);
+
+      if (nbits>16)
+	{
+	  uint32 bits = GetBits(16)<<(nbits-16);
+	  bits |= GetBits(nbits-16);
+	  return bits;
+	}
+
+      uint32 bits = d_buffer>>(32-nbits);
+      d_buffer <<= nbits;
+      d_freebits += nbits;
+
+      Fill16Bits();
+
+      return bits;
+    }
+
+    inline void   SkipBits(int nbits)
+    {
+      //assert(nbits>16 || nbits <= 16-d_freebits);
+      //assert(d_freebits <= 0);
+
+      if (nbits>16)
+	{
+	  SkipBits(16);
+	  SkipBits(nbits-16);
+	  return;
+	}
+
+      d_buffer<<=nbits;
+      d_freebits += nbits;
+
+      Fill16Bits();
+    }
+  
+    inline int32 AskBitsLeft() const // Return number of bits that have still not been read.
+    {
+      return (d_endptr-d_ptr)*8 + 16-d_freebits;
+    }
+
+    inline bool   IsEOF() const       // True iff current cursor position is at or behind file end
+    {
+      return AskBitsLeft() <= 0;
+    }
+
+    inline int   AskPosition() const { return (d_ptr-d_start)*8 -(16-d_freebits); }
+    inline const uint8* AskData() const { return d_start; }
+
+  public:
+    uint32 d_buffer;
+    int    d_freebits; // number of invalid bits in top 16 bits of buffer
+
+  private:
+    const uint8* d_ptr;
+    const uint8* d_endptr;
+    const uint8* d_start;
+  };
+
+}
+
+#endif
