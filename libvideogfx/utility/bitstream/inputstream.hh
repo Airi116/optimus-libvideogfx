@@ -64,4 +64,23 @@ namespace videogfx {
        It is however not guaranteed that the size of the stream will not
        grow any more.
 
- 
+       These methods are provided to show a progress bar that displays
+       where you are when playing from a file. Displaying a progress
+       bar not always makes sense. If you are displaying a live video
+       signal, it is quite useless.
+    */
+    virtual bool   IsFiniteStream() const = 0;
+    virtual uint64 AskStreamLength() const = 0;
+
+
+    /* These methods allow seeking in the input stream if this is possible.
+       When the stream is located on a random access medium, seeking
+       will normally be possible. On the other hand, when playing a
+       stream that is received online via a network connection, seeking
+       is not possible.
+
+       Even when seeking is possible, it is not guaranteed that you can
+       seek to any arbitrary position. This may be the case when you buffer
+       for example the last 5 minutes of a live stream. So you may seek
+       back up to 5 minutes but not more. Although this application is
+       quite exotic you should check the result of "SetC
