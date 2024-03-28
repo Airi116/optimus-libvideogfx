@@ -84,4 +84,22 @@ namespace videogfx {
 
 	for (int i=n-1;i>=-1;i--)
 	  if (i==-1)
-	    ou
+	    output[0]=val;
+	  else if (val<output[i])
+	    output[i+1]=output[i];
+	  else
+	    {
+	      output[i+1]=val;
+	      break;
+	    }
+      }
+
+#ifndef NDEBUG
+    // safety check: samples are non-duplicates
+    for (int i=0;i<number;i++)
+      for (int j=0;j<i;j++)
+	{ assert(output[i] != output[j]); }
+#endif
+  }
+
+}
