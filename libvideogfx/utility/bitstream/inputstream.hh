@@ -83,4 +83,26 @@ namespace videogfx {
        seek to any arbitrary position. This may be the case when you buffer
        for example the last 5 minutes of a live stream. So you may seek
        back up to 5 minutes but not more. Although this application is
-       quite exotic you should check the result of "SetC
+       quite exotic you should check the result of "SetCurrentPosition()",
+       which is the position that the class decides to set the current
+       position really to.
+    */
+    virtual bool   MaySeek() const = 0;
+    virtual uint64 AskPosition() const = 0;
+    virtual uint64 SetPosition(uint64) = 0;
+
+  protected:
+    virtual uint32 MyFillBuffer(uint8* mem,uint32 maxlen) = 0;
+    uint32  BytesInPushbackQueue() const { return d_pushback_length; }
+    void    RemoveBytesFromPushbackQueue(int n);
+    void    ClearPushbackQueue() { RemoveBytesFromPushbackQueue(BytesInPushbackQueue()); }
+
+  private:
+    uint8* d_pushback_stack;
+    uint32 d_pushback_length;
+    uint32 d_pushback_size;
+  };
+
+}
+
+#endif
