@@ -29,4 +29,29 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *****
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_UTILITY_REFCNTR_HH
+#define LIBVIDEOGFX_UTILITY_REFCNTR_HH
+
+#include <assert.h>
+
+namespace videogfx {
+
+  class ReferenceCntr
+  {
+  public:
+    ReferenceCntr() : d_refcnt(0) { }
+    virtual ~ReferenceCntr() { }
+
+    void IncrRef() { d_refcnt++; }
+    void DecrRef() { d_refcnt--; assert(d_refcnt>=0); }
+    int  RefCntr() const { return d_refcnt; }
+
+  private:
+    int d_refcnt;
+  };
+
+}
+
+#endif
