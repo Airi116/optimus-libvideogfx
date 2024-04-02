@@ -55,4 +55,48 @@ namespace videogfx {
 
   ImageWindow_X11::ImageWindow_X11()
     : d_initialized(false),
-      d_se
+      d_server(NULL),
+      d_xpos(-1),d_ypos(-1)
+  {
+    d_x11data = new X11SpecificData;
+  }
+
+
+  ImageWindow_X11::~ImageWindow_X11()
+  {
+    //printf("ImageWindow_X11::~ImageWindow_X11()\n");
+    Close();
+
+    if (d_x11data) { delete d_x11data; d_x11data=NULL; }
+    if (d_server) delete d_server;
+  }
+
+  void ImageWindow_X11::Close()
+  {
+    if (!d_initialized)
+      return;
+
+    XUnmapWindow(d_x11data->d_display , d_x11data->d_win);
+    XFlush(d_x11data->d_display);
+    d_initialized=false;
+  }
+
+
+  Window   ImageWindow_X11::AskWindow()  { assert(d_initialized); return d_x11data->d_win; }
+  Display* ImageWindow_X11::AskDisplay() { return d_x11data->d_display; }
+
+
+  void ImageWindow_X11::Create(int w,int h,const char* title,X11Server* server,Window parent)
+  {
+    assert(!d_initialized);
+
+    // Get X11 server.
+
+    if (d_server) delete d_server;
+
+    if (server)
+      d_server = new X11ServerConnection(server);
+    else
+      d_server = new X11ServerConnection;
+
+ 
