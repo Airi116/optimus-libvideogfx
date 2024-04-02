@@ -89,4 +89,54 @@ namespace videogfx {
       return *this;
     }
 
-    SP<T>&
+    SP<T>& operator=(T* p)
+    {
+      if (p==NULL)
+	Decouple();
+      else
+	*this = SP<T>(p);
+
+      return *this;
+    }
+
+    bool IsNULL() const { return counter==NULL; }
+    T* operator->()  { assert(counter); return pointer; }
+    operator T*()    { assert(counter); return pointer; }
+    T& operator()()  { assert(counter); return *pointer; }
+
+    const T* operator->() const { assert(counter); return pointer; }
+    operator const T*()   const { assert(counter); return pointer; }
+    const T& operator()() const { assert(counter); return *pointer; }
+
+    void Decouple()
+    {
+      if (counter)
+	{
+	  (*counter)--;
+
+	  if (*counter==0)
+	    {
+	      delete pointer;
+	      delete counter;
+	    }
+
+	  pointer=NULL;
+	  counter=NULL;
+	}
+    }
+
+  private:
+    long* counter;
+    T*    pointer;
+  };
+
+
+  // -------- simple smart pointer (without reference counting) -------------
+
+
+  template <class T> class SSP
+  {
+  public:
+    SSP()
+    {
+      pointer 
