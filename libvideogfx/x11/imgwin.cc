@@ -205,4 +205,47 @@ namespace videogfx {
 
     wm_hints->initial_state = NormalState;
     wm_hints->input = True;
-    wm_hi
+    wm_hints->flags = StateHint | InputHint;
+
+    classhint->res_name  = NULL;
+    classhint->res_class = "Libvideogfx";
+
+    XSetWMProperties(d_x11data->d_display, d_x11data->d_win, &windowName, &iconName,
+		     NULL,0, sizeh, wm_hints, classhint);
+  
+    XSelectInput(d_x11data->d_display, d_x11data->d_win, ExposureMask|KeyPressMask|PointerMotionMask|
+		 ButtonPressMask|ButtonReleaseMask);
+    XMapWindow(d_x11data->d_display,d_x11data->d_win);
+    XFlush(d_x11data->d_display);
+
+    while (1)
+      {
+	XEvent xev;
+	XNextEvent(d_x11data->d_display,&xev);
+
+	if (xev.type == Expose)
+	  break;
+      }
+
+    // Set Colormap
+
+    // TODO
+
+    d_initialized = true; 
+  }
+
+
+  ImageWindow_Autorefresh_X11::ImageWindow_Autorefresh_X11(bool useXv)
+    : d_dispimg(NULL),
+      d_rgbtransform(NULL)
+  {
+    d_dispimg = new DisplayImage_X11;
+    d_dispimg->UseXv(useXv);
+
+    if (!useXv)
+      d_rgbtransform = new Image2RawRGB;
+    else
+      d_rgbtransform = NULL;
+  }
+
+  ImageWindow_Autorefresh_X11::~ImageW
