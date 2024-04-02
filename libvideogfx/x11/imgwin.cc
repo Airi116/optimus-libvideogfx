@@ -140,4 +140,41 @@ namespace videogfx {
 		  {
 		  }
 #endif
-		
+		else
+		  {
+		    // TODO
+		    cerr << "no matching visual found\n";
+		    exit(10);
+		    // throw Excpt_Base(ErrSev_Error,"I'm sorry, no matching visual info found.");
+		  }
+
+    //cout << "VISUAL-ID used for window: 0x" << hex << vinfo.visualid << dec << endl;
+
+    // Create window
+
+    Colormap theCmap = XCreateColormap(d_x11data->d_display, rootwin, vinfo.visual, AllocNone);
+
+    XSetWindowAttributes attr;
+    attr.colormap = theCmap;
+    attr.background_pixel = 0;
+    attr.border_pixel     = 1;
+
+    Window parent_window;
+
+#if 1
+    if (parent)
+      parent_window = parent;
+    else
+#endif
+      parent_window = RootWindow(d_x11data->d_display,screen);
+
+    //printf("WINID: %d %p\n",parent,parent);
+
+    d_x11data->d_win = XCreateWindow(d_x11data->d_display, parent_window,
+				     d_xpos,d_ypos,w,h, 2, vinfo.depth, InputOutput, vinfo.visual,
+				     CWBackPixel|CWBorderPixel|CWColormap,&attr);
+  
+
+    XSizeHints* sizeh;
+    if (!(sizeh = XAllocSizeHints()))
+      { fprin
