@@ -99,4 +99,45 @@ namespace videogfx {
     else
       d_server = new X11ServerConnection;
 
- 
+    d_x11data->d_display = d_server->AskDisplay();
+
+    int screen = DefaultScreen(d_x11data->d_display);
+    Window rootwin = RootWindow(d_x11data->d_display,screen);
+
+
+    // Choose VisualInfo
+
+    XVisualInfo vinfo;
+    //bool use_cmap8=false;
+
+    if (XMatchVisualInfo(d_x11data->d_display, screen, 16, TrueColor, &vinfo))
+      {
+      }
+    else
+      if (XMatchVisualInfo(d_x11data->d_display, screen, 15, TrueColor, &vinfo))
+	{
+	}
+      else
+	if (XMatchVisualInfo(d_x11data->d_display, screen, 24, TrueColor, &vinfo))
+	  {
+	  }
+	else
+	  if (XMatchVisualInfo(d_x11data->d_display, screen, 32, TrueColor, &vinfo))
+	    {
+	    }
+	  else
+	    if (XMatchVisualInfo(d_x11data->d_display, screen,  8, PseudoColor, &vinfo))
+	      {
+		// use_cmap8=true;
+	      }
+	    else
+	      if (XMatchVisualInfo(d_x11data->d_display, screen,  4, StaticGray, &vinfo))
+		{
+		}
+#if 0
+	      else
+		if (XMatchVisualInfo(d_x11data->d_display, screen,  8, GrayScale, &vinfo))
+		  {
+		  }
+#endif
+		
