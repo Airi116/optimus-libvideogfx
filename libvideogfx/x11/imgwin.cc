@@ -177,4 +177,32 @@ namespace videogfx {
 
     XSizeHints* sizeh;
     if (!(sizeh = XAllocSizeHints()))
-      { fprin
+      { fprintf(stderr,"cannot allocate XSizeHints structure\n"); exit(0); }
+
+    XWMHints* wm_hints;
+    if (!(wm_hints = XAllocWMHints()))
+      { fprintf(stderr,"cannot allocate XWMHints structure\n"); exit(0); }
+
+    XClassHint* classhint;
+    if (!(classhint = XAllocClassHint()))
+      { fprintf(stderr,"cannot allocate XClassHint structure\n"); exit(0); }
+
+    sizeh->flags |= PPosition|PSize|PMinSize|PMaxSize;
+    sizeh->width  = w;
+    sizeh->height = h;
+    sizeh->min_width  = w;
+    sizeh->min_height = h;
+    sizeh->max_width  = w;
+    sizeh->max_height = h;
+
+    XTextProperty windowName, iconName;
+
+    if (XStringListToTextProperty((char**)&title,1,&windowName)==0)
+      { fprintf(stderr,"cannot allocate structure for windowName\n"); exit(0); }
+
+    if (XStringListToTextProperty((char**)&title,1,&iconName)==0)
+      { fprintf(stderr,"cannot allocate structure for iconName\n"); exit(0); }
+
+    wm_hints->initial_state = NormalState;
+    wm_hints->input = True;
+    wm_hi
