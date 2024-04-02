@@ -139,4 +139,55 @@ namespace videogfx {
   public:
     SSP()
     {
-      pointer 
+      pointer = NULL;
+    }
+
+    SSP(T* p)
+    {
+      pointer = p;
+    }
+
+    SSP(const SSP<T>& s)
+    {
+      assert(0);
+    }
+
+    ~SSP()
+    {
+      if (pointer) delete pointer;
+    }
+
+    SSP<T>& operator=(const SSP<T>& s)
+    {
+      assert(0);
+    }
+
+    SSP<T>& operator=(T* p)
+    {
+      if (pointer) delete pointer;
+      pointer = p;
+
+      return *this;
+    }
+
+    bool IsNULL() const { return pointer==NULL; }
+    operator T*()   { assert(SSP<T>::counter); return pointer; }
+    T& operator()() { assert(SSP<T>::counter); return *pointer; }
+
+    void Decouple()
+    {
+      if (pointer)
+	{
+	  delete pointer;
+
+	  pointer=NULL;
+	}
+    }
+
+  private:
+    T*    pointer;
+  };
+
+}
+
+#endif
