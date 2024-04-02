@@ -37,4 +37,56 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- ****
+ ********************************************************************************/
+
+#ifndef LIBVIDEOGFX_UTILITY_SMARTPOINTER_HH
+#define LIBVIDEOGFX_UTILITY_SMARTPOINTER_HH
+
+#include <libvideogfx/error.hh>
+
+namespace videogfx {
+
+  template <class T> class SP
+  {
+  public:
+    SP()
+    {
+      this->counter = NULL;
+      pointer = NULL;
+    }
+
+    SP(T* p)
+    {
+      counter = new long;
+      *counter = 1;
+
+      pointer = p;
+    }
+
+    SP(const SP<T>& s)
+    {
+      if (s.counter) (*s.counter)++;
+
+      counter = s.counter;
+      pointer = s.pointer;
+    }
+
+    ~SP()
+    {
+      Decouple();
+    }
+
+    SP<T>& operator=(const SP<T>& s)
+    {
+      if (&s == this) return *this;  // without this, things go wrong because Decouple() sets 'counter' AND ALSO 's.counter' to NULL
+
+      if (s.counter) (*(s.counter))++;
+      Decouple();
+
+      counter = s.counter;
+      pointer = s.pointer;
+
+      return *this;
+    }
+
+    SP<T>&
