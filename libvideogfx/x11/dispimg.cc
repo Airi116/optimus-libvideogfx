@@ -316,3 +316,158 @@ namespace videogfx {
 	*/
 
 	d_data->d_UseShmExt=false;
+      }
+
+  tryagain:
+    if (d_data->d_UseShmExt)
+      {
+	int memory_size;
+
+	// try to use Xv-Extension
+
+#if HAVE_XV
+	if (d_data->mayUseXv && d_data->GetXvAdaptorPort(d_data->d_xvport))
+	  {
+	    d_data->d_xvimg = XvShmCreateImage(d_data->d_display, d_data->d_xvport, 0x32315659,
+					       (char*)0,roundedwidth,h,&d_data->d_ShmSegInfo);
+
+	    assert(d_data->d_xvimg);
+
+	    memory_size = d_data->d_xvimg->data_size;
+	  }
+	else
+#endif
+	  {
+	    // fall-back to standard X11
+
+	    d_data->d_ximg = XShmCreateImage(d_data->d_display,winattr.visual,vinfo->depth,ZPixmap,(char*)0,
+					     &d_data->d_ShmSegInfo,roundedwidth,h);
+	    if (!d_data->d_ximg)
+	      { 
+		//TODO
+		assert(0);
+		//throw Excpt_Base(ErrSev_Error,"XShmCreateImage failed");
+	      }
+
+	    memory_size = d_data->d_ximg->bytes_per_line*h;
+	  }
+
+	d_data->d_ShmSegInfo.shmid    = shmget(IPC_PRIVATE,memory_size, IPC_CREAT|0604);
+	if (d_data->d_ShmSegInfo.shmid==-1)
+	  {
+	    perror("shmget failed: ");
+	    d_data->d_UseShmExt = false;
+	    goto tryagain;
+	    //assert(0);
+	  } // throw Excpt_Base(ErrSev_Error,"shmget failed"); }
+
+	d_data->d_ShmSegInfo.shmaddr  = (char*)shmat(d_data->d_ShmSegInfo.shmid,0,0);
+	uint8* mem = (uint8*)d_data->d_ShmSegInfo.shmaddr;
+
+	if (d_data->d_ximg) d_data->d_ximg->data = d_data->d_ShmSegInfo.shmaddr;
+#if HAVE_XV
+	if (d_data->d_xvimg) d_data->d_xvimg->data = d_data->d_ShmSegInfo.shmaddr;
+#endif
+
+	if (d_data->d_ShmSegInfo.shmaddr==((char *)-1))
+	  { perror("shmat failed: "); assert(0); } // throw Excpt_Base(ErrSev_Error,"shmat failed"); }
+	d_data->d_ShmSegInfo.readOnly = True;
+
+	int dummy;
+	XQueryExtension(d_data->d_display,"MIT-SHM",&shmmajor,&dummy,&dummy);
+
+	shmfailed=false;
+	XSetErrorHandler(shmhandler);
+
+	Status xshma;
+	xshma=XShmAttach(d_data->d_display,&d_data->d_ShmSegInfo);
+	XSync(d_data->d_display,False);
+
+	XSetErrorHandler(NULL);
+
+	shmctl(d_data->d_ShmSegInfo.shmid, IPC_RMID, 0);
+
+	if (!xshma)
+	  { assert(0); } // throw Excpt_Base(ErrSev_Error,"XShmAttach failed");
+
+	if (shmfailed)
+	  {
+	    cerr << "MIT-SHM failed, falling back to network mode.\n";
+	    XDestroyImage(d_data->d_ximg);
+	    shmdt(d_data->d_ShmSegInfo.shmaddr);
+	    shmctl(d_data->d_ShmSegInfo.shmid,IPC_RMID,0);
+	    d_data->d_UseShmExt = false;
+	    goto tryagain;
+	  }
+      
+	d_data->d_data = mem;
+	d_data->d_CompletionType = XShmGetEventBase(d_data->d_display) + ShmCompletion;
+      }
+    else
+      {
+	d_data->d_ximg = XCreateImage(d_data->d_display,vinfo->visual,vinfo->depth,
+				      ZPixmap,0,NULL,roundedwidth,h,32,0);
+	d_data->d_data = new uint8[d_data->d_ximg->bytes_per_line*h];
+	d_data->d_ximg->data = (char*)d_data->d_data;
+      }
+
+    d_data->d_WaitForCompletion=false;
+
+    XSync(d_data->d_display,False);
+
+    XFree(vinfo);
+
+    d_data->d_initialized = true; 
+  }
+
+
+  DisplayImage_X11::~DisplayImage_X11()
+  {
+    delete d_data;
+  }
+
+
+  void DisplayImage_X11::PutImage(int srcx0,int srcy0,int w,int h, int dstx0,int dsty0)
+  {
+    if (w==0) w=d_data->d_width;
+    if (h==0) h=d_data->d_height;
+
+    if (0 && d_data->d_WaitForCompletion)
+      while (1)
+	{
+	  XEvent xev;
+        
+	  XNextEvent(d_data->d_display, &xev);
+	  if (xev.type == d_data->d_CompletionType)
+	    break;
+	}
+
+#if HAVE_XV
+    if (d_data->d_xvimg)
+      {
+	XvShmPutImage(d_data->d_display, d_data->d_xvport, d_data->d_win,
+		      d_data->d_gc, d_data->d_xvimg,
+		      srcx0, srcy0, w,h,
+		      dstx0, dsty0, w,h,
+		      True);
+
+	XFlush(d_data->d_display);
+	d_data->d_WaitForCompletion=true;
+      }
+    else
+#endif
+      if (d_data->d_UseShmExt)
+	{
+	  XShmPutImage(d_data->d_display, d_data->d_win, d_data->d_gc, d_data->d_ximg, srcx0, srcy0, dstx0, dsty0, w,h, True);
+
+	  XFlush(d_data->d_display);
+	  d_data->d_WaitForCompletion=true;
+	}
+      else
+	{
+	  XPutImage(d_data->d_display, d_data->d_win, d_data->d_gc, d_data->d_ximg, srcx0, srcy0, dstx0, dsty0, w,h);
+	  XFlush(d_data->d_display);
+	}
+  }
+
+}
