@@ -438,4 +438,35 @@ namespace videogfx {
 
     while (!refresh_occured)
       {
-	XMaskEvent(windows[0]->AskDisplay(),ExposureMask|KeyPressMask|PointerMot
+	XMaskEvent(windows[0]->AskDisplay(),ExposureMask|KeyPressMask|PointerMotionMask,&ev);
+	for (int i=0;i<nWindows;i++)
+	  {
+	    if (ev.xany.window == windows[i]->AskWindow())
+	      {
+		if (ev.type == Expose)
+		  {
+		    windows[i]->Redraw(ev.xexpose);
+		    refresh_occured=true;
+		  }
+		else
+		  {
+		    XPutBackEvent(windows[0]->AskDisplay(), &ev);
+		  }
+
+		return i;
+	      }
+	  }
+      }
+
+    return -1;
+  }
+
+  void DisplayX11(const Image<Pixel>& img, int wait_usecs)
+  {
+    int w=img.AskWidth(), h=img.AskHeight();
+    ImageWindow_Autorefresh_X11 win;
+    win.Create(w,h,"libvideogfx (c) Dirk Farin");
+    win.Display(img);
+    if (wait_usecs) usleep(wait_usecs); else while (win.WaitForKeypress() != 'q') { }
+  }
+}
