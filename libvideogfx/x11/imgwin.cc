@@ -290,4 +290,53 @@ namespace videogfx {
       {
 	assert(img.AskParam().colorspace == Colorspace_YUV);
 
-	XvImage
+	XvImage* xvimg = (XvImage*)d_dispimg->AskXvImage();
+
+	const Pixel*const* yp = img.AskFrameY();
+	const Pixel*const* up = img.AskFrameU();
+	const Pixel*const* vp = img.AskFrameV();
+
+	int w = img.AskWidth();
+	int h = img.AskHeight();
+	int rw = (w+15) & ~0xF;
+
+	ImageParam param = img.AskParam();
+
+	int cw,ch;
+	param.AskChromaSizes(cw,ch);
+	int rcw = (cw+7) & ~0x7;
+      
+	for (int y=0;y<h;y++)
+	  memcpy(&xvimg->data[rw*y],yp[y],w);
+
+	for (int y=0;y<ch;y++)
+	  memcpy(&xvimg->data[rw*h+rcw*y],vp[y],cw);
+
+	for (int y=0;y<ch;y++)
+	  memcpy(&xvimg->data[rw*h+rcw*ch+rcw*y],up[y],cw);
+
+	d_dispimg->PutImage();
+      }
+    else
+#endif
+      {
+	d_rgbtransform->Transform(img,(uint8*)(d_dispimg->AskXImage().data));
+	d_dispimg->PutImage();
+      }
+  }
+
+
+  void ImageWindow_Autorefresh_X11::CheckForRedraw()
+  {
+    XEvent event;
+    while (XCheckWindowEvent(AskDisplay(),AskWindow(),ExposureMask,&event))
+      {
+	Redraw(event.xexpose);
+      }
+  }
+
+
+  void ImageWindow_Autorefresh_X11::RedrawForever()
+  {
+    XEvent event;
+    for (;;)
