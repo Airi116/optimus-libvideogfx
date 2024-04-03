@@ -386,4 +386,56 @@ namespace videogfx {
       {
 	char buf;
 
-	if (XL
+	if (XLookupString(&event.xkey,&buf,1,NULL,NULL) > 0)
+	  return buf;
+	else
+	  return 0;
+      }
+    else
+      return 0;
+  }
+
+
+  char ImageWindow_Autorefresh_X11::WaitForKeypress()
+  {
+    XEvent event;
+
+    for (;;)
+      {
+	XWindowEvent(AskDisplay(),AskWindow(),KeyPressMask|ExposureMask,&event);
+
+	if (event.type == Expose)
+	  {
+	    Redraw(event.xexpose);
+	  }
+	else
+	  {
+	    char buf;
+
+	    if (XLookupString(&event.xkey,&buf,1,NULL,NULL) > 0)
+	      return buf;
+	    else
+	      return 0;
+	  }
+      }
+  }
+
+
+  void ImageWindow_Autorefresh_X11::Redraw(XExposeEvent& ev)
+  {
+    d_dispimg->PutImage(ev.x     , ev.y,
+			ev.width , ev.height,
+			ev.x     , ev.y);
+  }
+
+
+  /* All windows have to be on the same X-server.
+   */
+  int MultiWindowRefresh(ImageWindow_Autorefresh_X11*const* windows,int nWindows)
+  {
+    XEvent ev;
+    bool refresh_occured=false;
+
+    while (!refresh_occured)
+      {
+	XMaskEvent(windows[0]->AskDisplay(),ExposureMask|KeyPressMask|PointerMot
