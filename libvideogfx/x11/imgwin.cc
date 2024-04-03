@@ -340,3 +340,50 @@ namespace videogfx {
   {
     XEvent event;
     for (;;)
+      {
+	XWindowEvent(AskDisplay(),AskWindow(),ExposureMask,&event);
+	Redraw(event.xexpose);
+      }
+  }
+
+
+  bool ImageWindow_Autorefresh_X11::CheckForMouseMove(int& x,int& y)
+  {
+    XEvent event;
+    if (XCheckWindowEvent(AskDisplay(),AskWindow(),PointerMotionMask,&event))
+      {
+	x = event.xmotion.x;
+	y = event.xmotion.y;
+	return true;
+      }
+    else
+      return false;
+  }
+
+  int  ImageWindow_Autorefresh_X11::CheckForMouseButton(int& x,int& y)
+  {
+    XEvent event;
+    if (XCheckWindowEvent(AskDisplay(),AskWindow(),ButtonPressMask,&event))
+      {
+	x = event.xbutton.x;
+	y = event.xbutton.y;
+	return event.xbutton.button;
+      }
+    else if (XCheckWindowEvent(AskDisplay(),AskWindow(),ButtonReleaseMask,&event))
+      {
+	x = event.xbutton.x;
+	y = event.xbutton.y;
+	return -event.xbutton.button;
+      }
+    else
+      return 0;
+  }
+
+  char ImageWindow_Autorefresh_X11::CheckForKeypress()
+  {
+    XEvent event;
+    if (XCheckWindowEvent(AskDisplay(),AskWindow(),KeyPressMask,&event))
+      {
+	char buf;
+
+	if (XL
