@@ -15,4 +15,33 @@ AC_ARG_WITH(libvideogfx-exec-prefix,[  --with-libvideogfx-exec-prefix=PFX Exec p
 AC_ARG_ENABLE(libvideogfxtest, [  --disable-libvideogfxtest       Do not try to compile and run a test LibVideoGfx program],
 		    , enable_libvideogfxtest=yes)
 
-dnl  for module in .
+dnl  for module in . $4
+dnl  do
+dnl      case "$module" in
+dnl         gthread) 
+dnl             gtk_config_args="$gtk_config_args gthread"
+dnl         ;;
+dnl      esac
+dnl  done
+
+  if test x$libvideogfx_config_exec_prefix != x ; then
+     libvideogfx_config_args="$libvideogfx_config_args --exec-prefix=$libvideogfx_config_exec_prefix"
+     if test x${LIBVIDEOGFX_CONFIG+set} != xset ; then
+        LIBVIDEOGFX_CONFIG=$libvideogfx_config_exec_prefix/bin/libvideogfx-config
+     fi
+  fi
+  if test x$libvideogfx_config_prefix != x ; then
+     libvideogfx_config_args="$libvideogfx_config_args --prefix=$libvideogfx_config_prefix"
+     if test x${LIBVIDEOGFX_CONFIG+set} != xset ; then
+        LIBVIDEOGFX_CONFIG=$libvideogfx_config_prefix/bin/libvideogfx-config
+     fi
+  fi
+
+  AC_PATH_PROG(LIBVIDEOGFX_CONFIG, libvideogfx-config, no)
+  min_libvideogfx_version=ifelse([$1], ,0.0.0,$1)
+  AC_MSG_CHECKING(for LibVideoGfx - version >= $min_libvideogfx_version)
+  no_libvideogfx=""
+  if test "$LIBVIDEOGFX_CONFIG" = "no" ; then
+    no_libvideogfx=yes
+  else
+    LI
