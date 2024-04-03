@@ -248,4 +248,46 @@ namespace videogfx {
       d_rgbtransform = NULL;
   }
 
-  ImageWindow_Autorefresh_X11::~ImageW
+  ImageWindow_Autorefresh_X11::~ImageWindow_Autorefresh_X11()
+  {
+    delete d_dispimg;
+    if (d_rgbtransform) delete d_rgbtransform;
+  }
+
+  void ImageWindow_Autorefresh_X11::Create(int w,int h,const char*title,X11Server* server,Window win)
+  {
+    ImageWindow_X11::Create(w,h,title,server,win);
+
+    d_dispimg->Create(w,h,AskWindow(),server);
+
+
+    // set output specs for RGB transformation
+
+    if (d_rgbtransform)
+      {
+	XImage& ximg = d_dispimg->AskXImage();
+
+	RawRGBImageSpec spec;
+	spec.bytes_per_line = ximg.bytes_per_line;
+	spec.bits_per_pixel = ximg.bits_per_pixel;
+	spec.little_endian  = (ximg.byte_order==LSBFirst);
+	spec.SetRGBMasks(ximg.red_mask,ximg.green_mask,ximg.blue_mask);
+
+	d_rgbtransform->SetOutputSpec(spec);
+      }
+  }
+
+  void ImageWindow_Autorefresh_X11::Close()
+  {
+    ImageWindow_X11::Close();
+  }
+
+
+  void ImageWindow_Autorefresh_X11::Display(const Image<Pixel>& img)
+  {
+#if HAVE_XV
+    if (d_dispimg->UsesXv())
+      {
+	assert(img.AskParam().colorspace == Colorspace_YUV);
+
+	XvImage
