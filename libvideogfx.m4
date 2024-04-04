@@ -104,4 +104,25 @@ dnl 	   (gtk_minor_version != GTK_MINOR_VERSION) ||
 dnl            (gtk_micro_version != GTK_MICRO_VERSION))
 dnl     {
 dnl       printf("*** GTK+ header files (version %d.%d.%d) do not match\n",
-dnl 	     GTK_MAJOR_VERSION, GTK
+dnl 	     GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION);
+dnl       printf("*** library (version %d.%d.%d)\n",
+dnl 	     gtk_major_version, gtk_minor_version, gtk_micro_version);
+dnl     }
+dnl #endif /* defined (GTK_MAJOR_VERSION) ... */
+dnl   else
+dnl     {
+dnl       if ((gtk_major_version > major) ||
+dnl         ((gtk_major_version == major) && (gtk_minor_version > minor)) ||
+dnl         ((gtk_major_version == major) && (gtk_minor_version == minor) && (gtk_micro_version >= micro)))
+dnl       {
+dnl         return 0;
+dnl        }
+dnl      else
+dnl       {
+dnl         printf("\n*** An old version of GTK+ (%d.%d.%d) was found.\n",
+dnl                gtk_major_version, gtk_minor_version, gtk_micro_version);
+dnl         printf("*** You need a version of GTK+ newer than %d.%d.%d. The latest version of\n",
+dnl 	       major, minor, micro);
+dnl         printf("*** GTK+ is always available from ftp://ftp.gtk.org.\n");
+dnl         printf("***\n");
+dnl         prin
