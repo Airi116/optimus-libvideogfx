@@ -63,4 +63,31 @@ dnl checks the results of gtk-config to some extent
 dnl
 dnl      rm -f conf.libvideogfxtest
 dnl      AC_TRY_RUN([
-dnl #inclu
+dnl #include <libvideogfx/init.hh>
+dnl #include <stdio.h>
+dnl #include <stdlib.h>
+dnl
+dnl int 
+dnl main ()
+dnl {
+dnl   int major, minor, micro;
+dnl   char *tmp_version;
+dnl 
+dnl   system ("touch conf.gtktest");
+dnl 
+dnl   /* HP/UX 9 (%@#!) writes to sscanf strings */
+dnl   tmp_version = g_strdup("$min_gtk_version");
+dnl   if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
+dnl      printf("%s, bad version string\n", "$min_gtk_version");
+dnl      exit(1);
+dnl    }
+dnl 
+dnl   if ((gtk_major_version != $gtk_config_major_version) ||
+dnl       (gtk_minor_version != $gtk_config_minor_version) ||
+dnl       (gtk_micro_version != $gtk_config_micro_version))
+dnl     {
+dnl       printf("\n*** 'gtk-config --version' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n", 
+dnl              $gtk_config_major_version, $gtk_config_minor_version, $gtk_config_micro_version,
+dnl              gtk_major_version, gtk_minor_version, gtk_micro_version);
+dnl       printf ("*** was found! If gtk-config was correct, then it is best\n");
+dnl       printf ("*** to remo
