@@ -90,4 +90,18 @@ dnl       printf("\n*** 'gtk-config --version' returned %d.%d.%d, but GTK+ (%d.%
 dnl              $gtk_config_major_version, $gtk_config_minor_version, $gtk_config_micro_version,
 dnl              gtk_major_version, gtk_minor_version, gtk_micro_version);
 dnl       printf ("*** was found! If gtk-config was correct, then it is best\n");
-dnl       printf ("*** to remo
+dnl       printf ("*** to remove the old version of GTK+. You may also be able to fix the error\n");
+dnl       printf("*** by modifying your LD_LIBRARY_PATH enviroment variable, or by editing\n");
+dnl       printf("*** /etc/ld.so.conf. Make sure you have run ldconfig if that is\n");
+dnl       printf("*** required on your system.\n");
+dnl       printf("*** If gtk-config was wrong, set the environment variable GTK_CONFIG\n");
+dnl       printf("*** to point to the correct copy of gtk-config, and remove the file config.cache\n");
+dnl       printf("*** before re-running configure\n");
+dnl     } 
+dnl #if defined (GTK_MAJOR_VERSION) && defined (GTK_MINOR_VERSION) && defined (GTK_MICRO_VERSION)
+dnl   else if ((gtk_major_version != GTK_MAJOR_VERSION) ||
+dnl 	   (gtk_minor_version != GTK_MINOR_VERSION) ||
+dnl            (gtk_micro_version != GTK_MICRO_VERSION))
+dnl     {
+dnl       printf("*** GTK+ header files (version %d.%d.%d) do not match\n",
+dnl 	     GTK_MAJOR_VERSION, GTK
