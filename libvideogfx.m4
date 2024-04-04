@@ -44,4 +44,23 @@ dnl  done
   if test "$LIBVIDEOGFX_CONFIG" = "no" ; then
     no_libvideogfx=yes
   else
-    LI
+    LIBVIDEOGFX_CFLAGS=`$LIBVIDEOGFX_CONFIG $libvideogfx_config_args --cflags`
+    LIBVIDEOGFX_LIBS=`$LIBVIDEOGFX_CONFIG $libvideogfx_config_args --libs`
+    libvideogfx_config_major_version=`$LIBVIDEOGFX_CONFIG $libvideogfx_config_args --version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
+    libvideogfx_config_minor_version=`$LIBVIDEOGFX_CONFIG $libvideogfx_config_args --version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
+    libvideogfx_config_micro_version=`$LIBVIDEOGFX_CONFIG $libvideogfx_config_args --version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
+    if test "x$enable_libvideogfxtest" = "xyes" ; then
+      ac_save_CFLAGS="$CFLAGS"
+      ac_save_LIBS="$LIBS"
+      CFLAGS="$CFLAGS $LIBVIDEOGFX_CFLAGS"
+      LIBS="$LIBVIDEOGFX_LIBS $LIBS"
+dnl
+dnl Now check if the installed LibVideoGfx is sufficiently new. (Also sanity
+dnl checks the results of gtk-config to some extent
+dnl
+dnl      rm -f conf.libvideogfxtest
+dnl      AC_TRY_RUN([
+dnl #inclu
