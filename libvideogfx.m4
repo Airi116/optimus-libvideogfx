@@ -125,4 +125,25 @@ dnl         printf("*** You need a version of GTK+ newer than %d.%d.%d. The late
 dnl 	       major, minor, micro);
 dnl         printf("*** GTK+ is always available from ftp://ftp.gtk.org.\n");
 dnl         printf("***\n");
-dnl         prin
+dnl         printf("*** If you have already installed a sufficiently new version, this error\n");
+dnl         printf("*** probably means that the wrong copy of the gtk-config shell script is\n");
+dnl         printf("*** being found. The easiest way to fix this is to remove the old version\n");
+dnl         printf("*** of GTK+, but you can also set the GTK_CONFIG environment to point to the\n");
+dnl         printf("*** correct copy of gtk-config. (In this case, you will have to\n");
+dnl         printf("*** modify your LD_LIBRARY_PATH enviroment variable, or edit /etc/ld.so.conf\n");
+dnl         printf("*** so that the correct libraries are found at run-time))\n");
+dnl       }
+dnl     }
+dnl   return 1;
+dnl }
+dnl ],, no_gtk=yes,[echo $ac_n "cross compiling; assumed OK... $ac_c"])
+       CFLAGS="$ac_save_CFLAGS"
+       LIBS="$ac_save_LIBS"
+     fi
+  fi
+  if test "x$no_libvideogfx" = x ; then
+     AC_MSG_RESULT(yes)
+     ifelse([$2], , :, [$2])     
+  else
+     AC_MSG_RESULT(no)
+     if test "$LIBVIDEO
