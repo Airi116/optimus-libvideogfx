@@ -165,3 +165,20 @@ dnl ],, no_gtk=yes,[echo $ac_n "cross compiling; assumed OK... $ac_c"])
         [ echo "*** The test program compiled, but did not run. This usually means"
           echo "*** that the run-time linker is not finding LibVideoGfx or finding the wrong"
           echo "*** version of LibVideoGfx. If it is not finding LibVideoGfx, you'll need to set your"
+          echo "*** LD_LIBRARY_PATH environment variable, or edit /etc/ld.so.conf to point"
+          echo "*** to the installed location  Also, make sure you have run ldconfig if that"
+          echo "*** is required on your system"
+	  echo "***"
+          echo "*** If you have an old version installed, it is best to remove it, although"
+          echo "*** you may also be able to get things to work by modifying LD_LIBRARY_PATH" ],
+        [ echo "*** The test program failed to compile or link. See the file config.log for the"
+          echo "*** exact error that occured. This usually means LibVideoGfx was incorrectly installed"
+          echo "*** or that you have moved LibVideoGfx since it was installed. In the latter case, you"
+          echo "*** may want to edit the libvideogfx-config script: $LIBVIDEOGFX_CONFIG" ])
+          CFLAGS="$ac_save_CFLAGS"
+          LIBS="$ac_save_LIBS"
+       fi
+     fi
+     LIBVIDEOGFX_CFLAGS=""
+     LIBVIDEOGFX_LIBS=""
+     
