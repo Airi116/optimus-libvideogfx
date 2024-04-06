@@ -146,4 +146,22 @@ dnl ],, no_gtk=yes,[echo $ac_n "cross compiling; assumed OK... $ac_c"])
      ifelse([$2], , :, [$2])     
   else
      AC_MSG_RESULT(no)
-     if test "$LIBVIDEO
+     if test "$LIBVIDEOGFX_CONFIG" = "no" ; then
+       echo "*** The libvideogfx-config script installed by LibVideoGfx could not be found"
+       echo "*** If LibVideoGfx was installed in PREFIX, make sure PREFIX/bin is in"
+       echo "*** your path, or set the LIBVIDEOGFX_CONFIG environment variable to the"
+       echo "*** full path to libvideogfx-config."
+     else
+       if test -f conf.libvideogfxtest ; then
+        :
+       else
+          echo "*** Could not run LibVideoGfx test program, checking why..."
+          CFLAGS="$CFLAGS $LIBVIDEOGFX_CFLAGS"
+          LIBS="$LIBS $LIBVIDEOGFX_LIBS"
+          AC_TRY_LINK([
+#include <libvideogfx/init.hh>
+#include <stdio.h>
+],      [ return ((libvideogfx_major_version) || (libvideogfx_minor_version) || (libvideogfx_micro_version)); ],
+        [ echo "*** The test program compiled, but did not run. This usually means"
+          echo "*** that the run-time linker is not finding LibVideoGfx or finding the wrong"
+          echo "*** version of LibVideoGfx. If it is not finding LibVideoGfx, you'll need to set your"
