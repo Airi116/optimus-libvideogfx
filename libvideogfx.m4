@@ -181,4 +181,9 @@ dnl ],, no_gtk=yes,[echo $ac_n "cross compiling; assumed OK... $ac_c"])
      fi
      LIBVIDEOGFX_CFLAGS=""
      LIBVIDEOGFX_LIBS=""
-     
+     ifelse([$3], , :, [$3])
+  fi
+  AC_SUBST(LIBVIDEOGFX_CFLAGS)
+  AC_SUBST(LIBVIDEOGFX_LIBS)
+  rm -f conf.libvideogfxtest
+])
